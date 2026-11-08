@@ -1,20 +1,20 @@
 # 更新 DeepSeekBot
 
-DeepSeekBot 会在 **设置 → Bot 设置 → DeepSeekBot 版本** 里显示当前版本，并检查 npm 上有没有新版本。有新版本时，可以直接在这里安装，再一键重启 DSH，不需要打开终端。
+DeepSeekBot 会在 **设置 → 助理设置 → DeepSeekBot 版本** 里显示当前版本，并检查 npm 上有没有新版本。有新版本时，可以直接在这里安装，再一键重启 DSH，不需要打开终端。
 
 > 一键更新和一键重启从 DeepSeekBot 1.0.2 之后的版本开始提供。还在用 1.0.2 或更早版本时，先按下面的「手动更新」升级一次，以后就可以在设置里完成。
 
 ## 自动提醒兼容更新
 
-[#2173](https://github.com/BotHarness/DeepSeekBot/issues/2173) 的升级提醒改动会在进入 Bot 模式时检查兼容版本。弹窗分别显示正在运行的 DeepSeekBot 版本、DSH 版本和准确的目标版本，并等待新手引导与当前版本更新说明结束。关闭后，该本地 Profile 不再自动重复提醒同一目标；**Bot 设置 → 关于** 仍保留升级入口，更高目标版本可以再次提醒。网络失败或信息不完整不代表「已经是最新版」。
+[#2173](https://github.com/BotHarness/DeepSeekBot/issues/2173) 的升级提醒改动会在进入 Bot 模式时检查兼容版本。弹窗分别显示正在运行的 DeepSeekBot 版本、DSH 版本和准确的目标版本，并等待新手引导与当前版本更新说明结束。关闭后，该本地 Profile 不再自动重复提醒同一目标；**助理设置 → 关于** 仍保留升级入口，更高目标版本可以再次提醒。网络失败或信息不完整不代表「已经是最新版」。
 
-已发布的 1.3.1 及更早 Client 不会因为 npm 出现新版本而自动获得这段代码。第一次升级仍需使用原有的 **Bot 设置 → DeepSeekBot 版本 → 检查更新**，或下方手动命令。尚未发布的 1.4.0 测试数据不代表线上已有 1.4.0。DSH Desktop 自身的更新标记指向 DSH，不是 DeepSeekBot。
+已发布的 1.3.1 及更早 Client 不会因为 npm 出现新版本而自动获得这段代码。第一次升级仍需使用原有的 **助理设置 → DeepSeekBot 版本 → 检查更新**，或下方手动命令。尚未发布的 1.4.0 测试数据不代表线上已有 1.4.0。DSH Desktop 自身的更新标记指向 DSH，不是 DeepSeekBot。
 
 ## 查看版本
 
-打开 **设置 → Bot 设置**，滚动到 **DeepSeekBot 版本**。这里会显示正在运行的版本；点击 **检查更新** 会重新查询 npm，点击 **更新日志** 会打开官网的[更新日志](https://deepseekbot.botharness.ai/changelog/)。
+打开 **设置 → 助理设置**，滚动到 **DeepSeekBot 版本**。这里会显示正在运行的版本；点击 **检查更新** 会重新查询 npm，点击 **更新日志** 会打开官网的[更新日志](https://deepseekbot.botharness.ai/changelog/)。
 
-![Bot 设置里的 DeepSeekBot 版本](/guides/update/01-settings-zh.webp)
+![助理设置里的 DeepSeekBot 版本](/guides/update/01-settings-zh.webp)
 
 ## 一键更新
 
@@ -45,7 +45,7 @@ DeepSeekBot 会在 **设置 → Bot 设置 → DeepSeekBot 版本** 里显示当
 
 ### 确认更新成功
 
-重启后回到 **Bot 设置**，版本一行会显示 **当前版本 x.y.z，已是最新版本**。进入 Bot 模式时，还会弹出这次更新的内容。
+重启后回到 **助理设置**，版本一行会显示 **当前版本 x.y.z，已是最新版本**。进入 Bot 模式时，还会弹出这次更新的内容。
 
 ![重启后显示已是最新版本](/guides/update/05-current-zh.webp)
 
@@ -65,7 +65,7 @@ DSH 自带的插件页目前不能升级已经安装的插件。桌面版需要�
 
 ## 更新其他 BotHarness 插件
 
-VRM 伴侣等其他 BotHarness 插件会列在 **Bot 设置 → 插件** 里，显示当前安装的版本。有与当前 DSH 兼容的新版本时，这一行会出现 **立即更新**。有些更新装好后马上生效，页面会自动刷新。需要重启的更新，页面会提示重启：DSH 能自己重启时（Web 版）会出现 **立即重启** 按钮，否则按上面的方式手动重启。如果当前 DSH 不能在页面里安装，或者安装失败，这一行会改为给出手动更新的终端命令，例如 `dsh plugin --profile web add @botharness/vrm-companion@<版本号>`。
+VRM 伴侣等其他 BotHarness 插件会列在 **助理设置 → 插件** 里，显示当前安装的版本。有与当前 DSH 兼容的新版本时，这一行会出现 **立即更新**。有些更新装好后马上生效，页面会自动刷新。需要重启的更新，页面会提示重启：DSH 能自己重启时（Web 版）会出现 **立即重启** 按钮，否则按上面的方式手动重启。如果当前 DSH 不能在页面里安装，或者安装失败，这一行会改为给出手动更新的终端命令，例如 `dsh plugin --profile web add @botharness/vrm-companion@<版本号>`。
 
 ## 常见问题
 

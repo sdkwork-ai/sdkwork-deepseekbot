@@ -117,7 +117,7 @@ it('hands off to DSH settings and shows a notice when it could not be opened', a
   expect(manage).toHaveBeenCalledOnce();
 });
 
-it('closes Bot Settings for DSH settings and reopens at IM apps when it returns', () => {
+it('closes Assistant settings for DSH settings and reopens at IM apps when it returns', () => {
   const settings = new BotSettings();
   settings.open('im-apps');
   let returned: (() => void) | undefined;

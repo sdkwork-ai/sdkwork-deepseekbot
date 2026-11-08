@@ -15,9 +15,12 @@ import { ACTIVITY_CENTER_PANEL } from './dock-panels.js';
 import type { DockPanelPosition, DockPanelInstance } from './dock-panels.js';
 
 export const CHANNEL_DOCK_STORAGE_KEY = 'botharness.bot-mode-layout';
-export const CHANNEL_DOCK_LAYOUT_VERSION = 9;
-const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, CHANNEL_DOCK_LAYOUT_VERSION];
+export const CHANNEL_DOCK_LAYOUT_VERSION = 10;
+const READABLE_VERSIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, CHANNEL_DOCK_LAYOUT_VERSION];
 export const DEFAULT_WORKSPACE_GAP = 4;
+
+export const RIGHT_COLUMN_WIDTH = 420;
+export const RIGHT_COLUMN_MIN_WIDTH = 320;
 export const CHANNEL_BODY_PANEL = 'bh:channel-body';
 export const CHANNEL_BODY_COMPONENT = 'channel-body';
 export const CHANNEL_ENTRY_COMPONENT = 'channel-entry';
@@ -236,6 +239,7 @@ export function readChannelDock(
         ordered.hiddenControls,
       ]).includes(JSON.stringify(HOME_SLOT));
     const migrated = home ? removeHomePanel(ordered) : ordered;
+    const merged = Number(value['version']) < 10 ? mergeRightColumn(migrated) : migrated;
     if (
       (value['version'] !== CHANNEL_DOCK_LAYOUT_VERSION && (value['version'] !== 8 || home)) ||
       fallback
@@ -246,6 +250,7 @@ export function readChannelDock(
           : Number(value['version']) < 8
             ? ['before-home-v8']
             : [];
+        if (Number(value['version']) < 10) backups.push('before-right-tabs-v10');
         if (Number(value['version']) < 9) backups.push('before-tob-mode-v9');
         if (Number(value['version']) < 7) backups.push('before-channel-splits-v7');
         if (Number(value['version']) < 6) backups.push('before-bot-workspace-v6');
@@ -256,10 +261,10 @@ export function readChannelDock(
           const key = `${CHANNEL_DOCK_STORAGE_KEY}.${suffix}`;
           if (storage?.getItem(key) == null) storage?.setItem(key, raw);
         }
-        storage?.setItem(CHANNEL_DOCK_STORAGE_KEY, JSON.stringify(migrated));
+        storage?.setItem(CHANNEL_DOCK_STORAGE_KEY, JSON.stringify(merged));
       } catch {}
     }
-    return migrated;
+    return merged;
   } catch {
     return undefined;
   }
@@ -529,12 +534,39 @@ function workspaceColumn(
     : { direction: 'right' };
 }
 
+export function rightColumnAnchor(api: {
+  toJSON?: (() => SerializedDockview) | undefined;
+}): string | undefined {
+  if (api.toJSON === undefined) return undefined;
+  const layout = api.toJSON();
+  const root = layout.grid.root as GridNode;
+  if (layout.grid.orientation !== 'HORIZONTAL' || root.type !== 'branch') return undefined;
+  const children = root.data as GridNode[];
+  const bodyIndex = children.findIndex((child) =>
+    collectPanels(child).includes(CHANNEL_BODY_PANEL),
+  );
+  if (bodyIndex < 0) return undefined;
+  for (const child of children.slice(bodyIndex + 1)) {
+    const views = collectPanels(child).filter(
+      (id) => id !== WORKSPACE_RAIL && id !== WORKSPACE_CHANNELS,
+    );
+    if (views.length > 0) return activeViewOf(child) ?? views.at(-1);
+  }
+  return undefined;
+}
+
 export function resolveDefaultPosition(
-  api: Pick<DockviewApi, 'getPanel' | 'panels'>,
+  api: Pick<DockviewApi, 'getPanel' | 'panels'> & {
+    toJSON?: (() => SerializedDockview) | undefined;
+  },
   position: DockPanelPosition | undefined,
   panelId?: string,
 ): AddPanelPositionOptions {
   const zone = position?.zone ?? 'right';
+  if (zone === 'right' && panelId !== CHANNEL_BODY_PANEL) {
+    const column = rightColumnAnchor(api);
+    if (column !== undefined) return { referencePanel: column, direction: 'within' };
+  }
   const anchor = position?.relativeTo;
   if (anchor !== undefined && api.getPanel(anchor) !== undefined)
     return { referencePanel: anchor, direction: zone === 'bottom' ? 'right' : 'below' };
@@ -548,6 +580,19 @@ export function resolveDefaultPosition(
     return target ? { referencePanel: target.id, direction: 'below' } : { direction: 'right' };
   }
   return resolveDockPosition(api, undefined);
+}
+
+export function resolveRestorePosition(
+  api: Pick<DockviewApi, 'getPanel' | 'panels'> & {
+    toJSON?: (() => SerializedDockview) | undefined;
+  },
+  remembered: DockPosition,
+): AddPanelPositionOptions {
+  if (remembered.direction !== 'left') {
+    const column = rightColumnAnchor(api);
+    if (column !== undefined) return { referencePanel: column, direction: 'within' };
+  }
+  return resolveDockPosition(api, remembered);
 }
 
 export function allowsDockDrop(kind: string, position: string): boolean {
@@ -628,6 +673,66 @@ function removeHomePanel(stored: StoredChannelDock): StoredChannelDock {
       : {}),
     parked,
     hiddenControls: (stored.hiddenControls ?? []).filter((id) => id !== HOME_SLOT),
+  };
+}
+
+function activeViewOf(node: GridNode, group?: string): string | undefined {
+  if (node.type === 'leaf') {
+    const data = node.data as { activeView?: string; id?: string };
+    return group === undefined || data.id === group ? data.activeView : undefined;
+  }
+  for (const child of node.data as GridNode[]) {
+    const view = activeViewOf(child, group);
+    if (view !== undefined) return view;
+  }
+  return undefined;
+}
+
+function mergeLayout(layout: SerializedDockview): SerializedDockview | undefined {
+  const root = layout.grid.root as GridNode;
+  if (layout.grid.orientation !== 'HORIZONTAL' || root.type !== 'branch') return undefined;
+  const children = root.data as GridNode[];
+  const bodyIndex = children.findIndex((child) =>
+    collectPanels(child).includes(CHANNEL_BODY_PANEL),
+  );
+  if (bodyIndex < 0 || bodyIndex >= children.length - 1) return undefined;
+  const column = children[bodyIndex + 1]!;
+  const views = collectPanels(column);
+  if (views.length < 2 || views.includes(WORKSPACE_RAIL) || views.includes(WORKSPACE_CHANNELS))
+    return undefined;
+  const size =
+    typeof column.size === 'number' ? Math.max(column.size, RIGHT_COLUMN_WIDTH) : undefined;
+  const groups = collectGroups(column);
+  const activeView = activeViewOf(column, layout.activeGroup) ?? activeViewOf(column) ?? views[0]!;
+  const merged: GridNode = {
+    ...column,
+    type: 'leaf',
+    data: { views, activeView, id: groups[0]! },
+    ...(size === undefined ? {} : { size }),
+  };
+  const data = children.map((child, index) => (index === bodyIndex + 1 ? merged : child));
+  const live = new Set(collectGroups({ ...root, data } as GridNode));
+  const { activeGroup, ...rest } = layout;
+  const activeInColumn = activeGroup !== undefined && groups.includes(activeGroup);
+  return {
+    ...rest,
+    grid: { ...layout.grid, root: { ...root, data } },
+    ...(activeGroup !== undefined && live.has(activeGroup)
+      ? { activeGroup }
+      : activeInColumn
+        ? { activeGroup: groups[0]! }
+        : {}),
+  };
+}
+
+export function mergeRightColumn(stored: StoredChannelDock): StoredChannelDock {
+  const layout = mergeLayout(stored.layout);
+  const visibility = stored.visibilityLayout ? mergeLayout(stored.visibilityLayout) : undefined;
+  if (layout === undefined && visibility === undefined) return stored;
+  return {
+    ...stored,
+    ...(layout === undefined ? {} : { layout }),
+    ...(visibility === undefined ? {} : { visibilityLayout: visibility }),
   };
 }
 

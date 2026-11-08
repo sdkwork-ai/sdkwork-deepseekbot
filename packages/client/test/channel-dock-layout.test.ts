@@ -11,6 +11,9 @@ import {
   dockPanelGap,
   readChannelDock,
   resolveDefaultPosition,
+  resolveRestorePosition,
+  rightColumnAnchor,
+  RIGHT_COLUMN_WIDTH,
   writeChannelDock,
 } from '../src/client/channel-dock-layout.js';
 import { ACTIVITY_CENTER_PANEL } from '../src/client/dock-panels.js';
@@ -59,9 +62,9 @@ describe('Bot mode layout persistence', () => {
   it('round-trips a versioned dockview serialization', () => {
     const storage = memoryStorage();
     writeChannelDock({ layout, parked: { schedules: { direction: 'below' } } }, storage);
-    expect(JSON.parse(storage.values.get(CHANNEL_DOCK_STORAGE_KEY)!).version).toBe(9);
+    expect(JSON.parse(storage.values.get(CHANNEL_DOCK_STORAGE_KEY)!).version).toBe(10);
     expect(readChannelDock(storage)).toEqual({
-      version: 9,
+      version: 10,
       instances: [],
       channelSplits: {},
       gap: 4,
@@ -177,7 +180,7 @@ describe('drops never tab two panels together', () => {
 
 describe('Work → Sessions upgrade', () => {
   const stored = (views: string[]) => ({
-    version: 9 as const,
+    version: 10 as const,
     layout: {
       ...layout,
       grid: {
@@ -486,7 +489,7 @@ describe('Bot subpanel migration', () => {
       const raw = JSON.stringify(previous);
       storage.setItem(CHANNEL_DOCK_STORAGE_KEY, raw);
       const migrated = readChannelDock(storage)!;
-      expect(migrated.version).toBe(9);
+      expect(migrated.version).toBe(10);
       expect(migrated.layout.panels['memory-files']).toBeUndefined();
       expect(migrated.layout.panels['plugin-x']).toEqual({ id: 'plugin-x' });
       expect(migrated.layout.grid.root.data).toEqual([
@@ -579,7 +582,7 @@ it('upgrades v5 Browser/Computer without rewriting existing Channel workspaces o
   storage.setItem(CHANNEL_DOCK_STORAGE_KEY, raw);
   storage.setItem(`${CHANNEL_DOCK_STORAGE_KEY}.before-bot-workspace-v5`, 'original-v4');
   const next = readChannelDock(storage)!;
-  expect(next.version).toBe(9);
+  expect(next.version).toBe(10);
   expect(next.layout.panels['botharness-browser']).toBeUndefined();
   expect(next.layout.grid.root.data).toEqual([
     { ...leaf('message', CHANNEL_BODY_PANEL), size: 800 },
@@ -672,7 +675,28 @@ describe('Home v8 upgrade', () => {
     const raw = JSON.stringify(old);
     storage.setItem(CHANNEL_DOCK_STORAGE_KEY, raw);
     const next = readChannelDock(storage)!;
-    expect(next.layout).toEqual(old.layout);
+    expect(next.layout).toEqual({
+      ...layout,
+      activeGroup: '2',
+      grid: {
+        ...layout.grid,
+        root: {
+          type: 'branch',
+          data: [
+            leaf('1', CHANNEL_BODY_PANEL),
+            {
+              type: 'leaf',
+              data: {
+                views: ['sessions', 'bot-inbox', 'computer'],
+                activeView: 'computer',
+                id: '2',
+              },
+              size: 420,
+            },
+          ],
+        },
+      },
+    });
     expect(next.parked).toEqual(old.parked);
     expect(next.hiddenControls).toEqual(old.hiddenControls);
     expect(next.channelWorkspaces).toEqual(old.channelWorkspaces);
@@ -758,7 +782,7 @@ describe('Home v8 upgrade', () => {
     expect(next.gap).toBe(6);
     expect(storage.getItem(CHANNEL_DOCK_STORAGE_KEY + '.before-tob-mode-v9')).toBe(raw);
     expect(storage.getItem(CHANNEL_DOCK_STORAGE_KEY + '.before-home-v8')).toBeNull();
-    expect(JSON.parse(storage.getItem(CHANNEL_DOCK_STORAGE_KEY)!).version).toBe(9);
+    expect(JSON.parse(storage.getItem(CHANNEL_DOCK_STORAGE_KEY)!).version).toBe(10);
     writeChannelDock(next, storage);
     expect(readChannelDock(storage)).toEqual(next);
     expect(storage.getItem(CHANNEL_DOCK_STORAGE_KEY + '.before-tob-mode-v9')).toBe(raw);
@@ -855,5 +879,137 @@ describe('workspace default placement', () => {
         'vendor:panel',
       ),
     ).toEqual({ referencePanel: 'sessions', direction: 'below' });
+  });
+});
+
+describe('right side panel tab column', () => {
+  const columnLayout = (views: string[], activeView = views[0]!): SerializedDockview => ({
+    grid: {
+      root: {
+        type: 'branch',
+        data: [
+          leaf('1', CHANNEL_BODY_PANEL),
+          { ...leaf('2', ...views), data: { views, activeView, id: '2' } },
+        ],
+      },
+      width: 1200,
+      height: 800,
+      orientation: 'HORIZONTAL' as SerializedDockview['grid']['orientation'],
+    },
+    panels: Object.fromEntries([CHANNEL_BODY_PANEL, ...views].map((id) => [id, { id }])),
+    activeGroup: '2',
+  });
+  const api = (layout: SerializedDockview) => ({
+    toJSON: () => layout,
+    getPanel: (id: string) => (layout.panels[id] === undefined ? undefined : ({ id } as never)),
+    panels: Object.keys(layout.panels).map((id) => ({
+      id,
+      api: { location: { type: 'grid' } },
+    })) as never,
+  });
+
+  it('folds a stored v9 stack into one tab column and keeps the active panel', () => {
+    const storage = memoryStorage();
+    const layout: SerializedDockview = {
+      grid: {
+        root: {
+          type: 'branch',
+          data: [
+            leaf('1', CHANNEL_BODY_PANEL),
+            {
+              type: 'branch',
+              data: [
+                leaf('2', 'sessions'),
+                leaf('3', ACTIVITY_CENTER_PANEL),
+                leaf('4', 'schedules'),
+              ],
+              size: 256,
+            },
+          ],
+        },
+        width: 1200,
+        height: 800,
+        orientation: 'HORIZONTAL' as SerializedDockview['grid']['orientation'],
+      },
+      panels: Object.fromEntries(
+        [CHANNEL_BODY_PANEL, 'sessions', ACTIVITY_CENTER_PANEL, 'schedules'].map((id) => [
+          id,
+          { id },
+        ]),
+      ),
+      activeGroup: '4',
+    };
+    const raw = JSON.stringify({ version: 9, layout, parked: {} });
+    storage.setItem(CHANNEL_DOCK_STORAGE_KEY, raw);
+    const migrated = readChannelDock(storage)!;
+    expect(storage.getItem(`${CHANNEL_DOCK_STORAGE_KEY}.before-right-tabs-v10`)).toBe(raw);
+    expect((migrated.layout.grid.root as { data: unknown[] }).data).toEqual([
+      { ...leaf('1', CHANNEL_BODY_PANEL), size: 100 },
+      {
+        type: 'leaf',
+        data: {
+          views: ['sessions', ACTIVITY_CENTER_PANEL, 'schedules'],
+          activeView: 'schedules',
+          id: '2',
+        },
+        size: RIGHT_COLUMN_WIDTH,
+      },
+    ]);
+    expect(migrated.layout.activeGroup).toBe('2');
+  });
+
+  it('leaves a single side panel as its own group', () => {
+    const storage = memoryStorage();
+    storage.setItem(
+      CHANNEL_DOCK_STORAGE_KEY,
+      JSON.stringify({ version: 9, layout: columnLayout(['sessions']), parked: {} }),
+    );
+    const migrated = readChannelDock(storage)!;
+    expect((migrated.layout.grid.root as { data: unknown[] }).data).toEqual([
+      leaf('1', CHANNEL_BODY_PANEL),
+      leaf('2', 'sessions'),
+    ]);
+  });
+
+  it('joins a sibling-hinted panel to the existing tab column instead of stacking below it', () => {
+    const layout = columnLayout(['sessions', ACTIVITY_CENTER_PANEL], ACTIVITY_CENTER_PANEL);
+    expect(
+      resolveDefaultPosition(
+        api(layout),
+        { zone: 'right', relativeTo: 'sessions' },
+        'memory-files',
+      ),
+    ).toEqual({ referencePanel: ACTIVITY_CENTER_PANEL, direction: 'within' });
+  });
+
+  it('restores a closed panel into the tab column unless it was docked left', () => {
+    const layout = columnLayout(['sessions', ACTIVITY_CENTER_PANEL]);
+    expect(resolveRestorePosition(api(layout), { direction: 'below' })).toEqual({
+      referencePanel: 'sessions',
+      direction: 'within',
+    });
+    expect(
+      resolveRestorePosition(api(layout), { neighbor: 'sessions', direction: 'left' }),
+    ).toEqual({ referencePanel: 'sessions', direction: 'left' });
+  });
+
+  it('anchors the column to the first side group right of Messages, skipping the rail', () => {
+    const layout = columnLayout(['sessions', ACTIVITY_CENTER_PANEL]);
+    expect(rightColumnAnchor(api(layout))).toBe('sessions');
+    const withRail: SerializedDockview = {
+      ...layout,
+      grid: {
+        ...layout.grid,
+        root: {
+          type: 'branch',
+          data: [
+            leaf('rail', WORKSPACE_RAIL),
+            leaf('1', CHANNEL_BODY_PANEL),
+            leaf('2', 'sessions'),
+          ],
+        },
+      },
+    };
+    expect(rightColumnAnchor(api(withRail))).toBe('sessions');
   });
 });

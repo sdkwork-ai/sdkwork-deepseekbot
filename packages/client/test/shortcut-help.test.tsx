@@ -47,7 +47,7 @@ describe('shortcut list', () => {
       'Search conversations, messages and settingsAltK',
     );
     expect(row('search')?.textContent).toBe('Search this conversationCtrlF');
-    expect(row('settings')?.textContent).toBe('Open Bot settingsCtrl,');
+    expect(row('settings')?.textContent).toBe('Open Assistant settingsCtrl,');
     expect(row('unread-next')?.textContent).toBe(
       'Next unread conversationSkips muted conversationsAlt⇧↓',
     );
@@ -113,7 +113,7 @@ describe('shortcut list', () => {
     expect(
       host.querySelector<HTMLElement>('[data-shortcut="send"] [data-shortcut-locked]')?.dataset
         .tooltip,
-    ).toBe("Can't be changed here; switch it in Bot settings › Messaging › Send messages");
+    ).toBe("Can't be changed here; switch it in Assistant settings › Messaging › Send messages");
     expect(change().dataset.tooltip).toBe('Change');
     expect(change().textContent).toBe('');
 

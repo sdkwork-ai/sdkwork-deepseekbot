@@ -1,4 +1,4 @@
-import { useState, type ReactElement, type ReactNode } from 'react';
+import { useState, useSyncExternalStore, type ReactElement, type ReactNode } from 'react';
 import * as stylex from '@stylexjs/stylex';
 import type { SnapshotSelectorHook } from '@deepseek-ai/dsh-client-store';
 import {
@@ -18,7 +18,7 @@ import { useClientStore } from './use-client-store.js';
 import { shallowEqual } from '@deepseek-ai/dsh-client-store';
 import type { ClientState } from './store.js';
 import type { ChannelSidebarRegistry } from './channel-sidebar.js';
-import { ACTIVITY_CENTER_PANEL, type DockPanelRegistry } from './dock-panels.js';
+import type { DockPanelRegistry } from './dock-panels.js';
 import { hooked } from './ds/hooked.js';
 import { border, color, radius, space, text } from './ds/tokens.stylex.js';
 import { ExitIcon } from './exit-icon.js';
@@ -27,7 +27,6 @@ import type { BotHarnessTranslate } from './locale.js';
 import { observeHumanAttention } from './messaging-defaults-live.js';
 import { useMountedResource } from './mounted-resource.js';
 import { OnboardingLauncher } from './onboarding-checklist-view.js';
-import { PinnedPanelCards } from './pinned-panel-cards.js';
 import type { QuickSwitcherSettings } from './quick-switcher.js';
 import type { ShortcutBindings } from './shortcut-bindings.js';
 import { unreadCountLabel } from './unread-count.js';
@@ -57,6 +56,9 @@ const selectSidebarNavigation = (state: ClientState) => ({
   inboxCurrent: state.selection?.kind === 'inbox',
 });
 
+const NO_SUBSCRIBE = () => () => {};
+const NO_DOCK = () => false;
+
 export function BotModeSidebar(props: BotModeSidebarProps): ReactElement {
   const { collapsed, actions, useBotModePrefs, t } = props;
   const wide = !collapsed;
@@ -69,6 +71,10 @@ export function BotModeSidebar(props: BotModeSidebarProps): ReactElement {
   ];
   const inboxLabel = [t('activityCenter.title'), ...inboxNotes].join(' · ');
   const inboxCurrent = navigation.inboxCurrent;
+  const dockAvailable = useSyncExternalStore(
+    props.dockPanels?.subscribe ?? NO_SUBSCRIBE,
+    props.dockPanels?.available ?? NO_DOCK,
+  );
   const toggleLabel = t(collapsed ? 'panel.sidebar.open' : 'panel.sidebar.collapse');
   const darwin = isDarwinDesktop();
   const exitLabel = t('panel.exit');
@@ -165,7 +171,7 @@ export function BotModeSidebar(props: BotModeSidebarProps): ReactElement {
           </button>
         </Tooltip>
       </div>
-      {props.dockPanels === undefined ? (
+      {dockAvailable ? null : (
         <div {...stylex.props(styles.list, collapsed && styles.listCollapsed)}>
           {row(
             inboxLabel,
@@ -184,26 +190,6 @@ export function BotModeSidebar(props: BotModeSidebarProps): ReactElement {
             },
           )}
         </div>
-      ) : (
-        <PinnedPanelCards
-          registry={props.dockPanels}
-          collapsed={collapsed}
-          current={inboxCurrent ? ACTIVITY_CENTER_PANEL : undefined}
-          badge={(id) =>
-            id === ACTIVITY_CENTER_PANEL
-              ? {
-                  count: unread,
-                  dot: navigation.hasAction,
-                  label: inboxNotes.length === 0 ? undefined : inboxNotes.join(' · '),
-                }
-              : undefined
-          }
-          fallback={(id) =>
-            id === ACTIVITY_CENTER_PANEL ? () => void actions.openActivityCenter() : undefined
-          }
-          tourOf={(id) => (id === ACTIVITY_CENTER_PANEL ? 'inbox' : undefined)}
-          t={t}
-        />
       )}
       <div {...stylex.props(styles.region, collapsed && styles.regionCollapsed)}>
         <BotSidebar

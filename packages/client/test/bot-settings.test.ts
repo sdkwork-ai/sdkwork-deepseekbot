@@ -143,7 +143,7 @@ it('stays closed until opened and lists sections in order', () => {
     settings.open();
   });
   const dialog = document.querySelector('[role="dialog"]');
-  expect(dialog?.getAttribute('aria-label')).toBe('Bot 设置');
+  expect(dialog?.getAttribute('aria-label')).toBe('助理设置');
   expect(dialog?.getAttribute('data-headless')).toBe('true');
   expect(navLabels()).toEqual(['通用', '模型与运行', '数据与隐私', '关于']);
   expect(current()).toBe('通用');
@@ -322,7 +322,7 @@ it('renders only a section dropdown in narrow frames and switches sections from 
   expect(picker?.textContent).toBe('模型与运行');
   expect(picker?.hasAttribute('data-modal-autofocus')).toBe(true);
   expect(picker?.getAttribute('aria-haspopup')).toBe('menu');
-  expect(picker?.getAttribute('aria-label')).toBe('Bot 设置分区：模型与运行');
+  expect(picker?.getAttribute('aria-label')).toBe('助理设置分区：模型与运行');
 
   act(() => {
     picker?.click();

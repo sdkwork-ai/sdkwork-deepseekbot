@@ -128,7 +128,7 @@ On a candidate Host advertising `continuousScroll:true`, use iOS to hold the whe
 
 ## macOS setup and permission recovery (#2761)
 
-Entry points: Bot Computer pane → Check permissions, or Bot Settings → Computer control → Check permissions. Use an isolated Host or an explicitly authorized desktop restart; preserve the user's existing cache and other QA devices. An Electron desktop carrier must be verified separately from a Node CLI Host because its filesystem virtualizes ASAR files.
+Entry points: Bot Computer pane → Check permissions, or Assistant settings → Computer control → Check permissions. Use an isolated Host or an explicitly authorized desktop restart; preserve the user's existing cache and other QA devices. An Electron desktop carrier must be verified separately from a Node CLI Host because its filesystem virtualizes ASAR files.
 
 - With a verified installed capture runtime, check twice: no new download and no new staging directory. A disposable fresh runtime directory must complete pinned archive download, extraction, verification and cleanup; download 100% must not remain as the later-stage status.
 - Missing macOS permissions show localized copy and only the missing Accessibility / Screen Recording buttons. Each button opens that specific privacy pane on the Host, without granting access. Closing System Settings preserves the refusal until a fresh permission check succeeds. Failed opens retain a localized manual-navigation fallback.

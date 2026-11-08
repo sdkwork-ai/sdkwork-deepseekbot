@@ -36,7 +36,7 @@
 
 ![Bot 私聊右侧 Channel sidebar 中的模型分区](/guides/channel-sidebar/14-model-zh.webp)
 
-这里配置的是这个 Bot。左侧 **Bot 设置** 中的图标、排序和并发上限是全局选项；DSH 的 **Agent 预设** 选择工具和工作方式，也不是 Bot 的模型预设。
+这里配置的是这个 Bot。左侧 **助理设置** 中的图标、排序和并发上限是全局选项；DSH 的 **Agent 预设** 选择工具和工作方式，也不是 Bot 的模型预设。
 
 ## 3. 选择模型并保存
 

@@ -138,7 +138,7 @@ describe('default shortcut bindings', () => {
     expect(defaults.text('unread-prev')).toBe('Alt+Shift+↑');
   });
 
-  it('opens Bot settings with Ctrl+, or ⌘+,', () => {
+  it('opens Assistant settings with Ctrl+, or ⌘+,', () => {
     expect(defaults.matches('settings', key(',', 'Comma', { ctrlKey: true }))).toBe(true);
     expect(mac.matches('settings', key(',', 'Comma', { metaKey: true }))).toBe(true);
     expect(mac.matches('settings', key(',', 'Comma', { ctrlKey: true }))).toBe(false);

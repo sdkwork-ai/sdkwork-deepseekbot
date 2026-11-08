@@ -605,7 +605,7 @@ A Channel-owned, one-way connection that places every message of one external co
 _Avoid_: sync, mirror, Bridge (for this record)
 
 **App**:
-The UI name (应用) for one authenticated Provider account, such as a Lark app, a Slack app, a Discord bot or a paired WeChat Bot. An App is bound to at most one PersonaBot; a PersonaBot may bind several Apps, including several of one platform. Bot Settings → IM apps lists every App and the PersonaBot that uses it.
+The UI name (应用) for one authenticated Provider account, such as a Lark app, a Slack app, a Discord bot or a paired WeChat Bot. An App is bound to at most one PersonaBot; a PersonaBot may bind several Apps, including several of one platform. Assistant settings → IM apps lists every App and the PersonaBot that uses it.
 _Avoid_: IM account (in UI copy), connector, integration
 
 **Default traffic**:
@@ -931,7 +931,7 @@ The outer presentation space of Bot mode, containing the Workspace Control Rail,
 _Avoid_: App Sidebar, global Channel, root Channel
 
 **Workspace Control Rail**:
-The unique, nonclosable, full-height control Panel of the Global workspace. Its top control exits DSB mode, its reorderable switches control global panels and Messages, and Bot Settings sits at the bottom. The grip above Settings appears on hover or keyboard focus and moves the entire rail among outer columns. The rail uses the same rounded surface as other panels. Channel subpanel switches belong in the Messages header; layout preferences belong in Bot Settings.
+The unique, nonclosable, full-height control Panel of the Global workspace. Its top control exits DSB mode, its reorderable switches control global panels and Messages, and Assistant settings sits at the bottom. The grip above Settings appears on hover or keyboard focus and moves the entire rail among outer columns. The rail uses the same rounded surface as other panels. Channel subpanel switches belong in the Messages header; layout preferences belong in Assistant settings.
 _Avoid_: panel control, panel control sidebar, App Sidebar, Channel list
 
 **Panel**:
@@ -994,7 +994,7 @@ _Avoid_: treating historical sidebar names as current Panel categories
 
 **Channel settings**:
 The per-Channel modal for operational configuration such as Wake Policy, external identities, External connectors and Group management, organised into Channel settings sections. It is available through the Channel menu in the Messages panel on desktop; narrow layouts use the Channel list menu.
-_Avoid_: Bot Settings, Profile settings, sidebar settings
+_Avoid_: Assistant settings, Profile settings, sidebar settings
 
 **Channel settings section**:
 One coherent group of per-Channel configuration inside Channel settings; it is part of that modal, not a workspace Panel.
@@ -1052,12 +1052,12 @@ _Avoid_: sync, mirror, replica, bridge state
 Which kinds of Activity item one Paired Device wants to be alerted about from one Host. The device owns and stores it; the Host keeps a copy only to decide what to send that device.
 _Avoid_: Host notification setting, push settings, mute (for a Channel)
 
-**Bot Settings**:
-The BotHarness-owned modal (Bot 设置) for profile-wide BotHarness configuration, organised into Bot Settings sections in its own sidebar. Configuration of one PersonaBot or one Channel never lives here; that belongs in Channel settings or the relevant operational Panel. DSH's own settings modal is called DSH settings; its Bot 设置 item only points into Bot Settings, while App credentials remain in DSH settings.
+**Assistant settings**:
+The BotHarness-owned modal (助理设置) for profile-wide BotHarness configuration, organised into Assistant settings sections in its own sidebar. Configuration of one PersonaBot or one Channel never lives here; that belongs in Channel settings or the relevant operational Panel. DSH's own settings modal is called DSH settings; its 助理设置 item only points into Assistant settings, while App credentials remain in DSH settings.
 _Avoid_: Settings UI, settings page, preferences, admin panel, dashboard, web console
 
-**Bot Settings section**:
-One sidebar destination of Bot Settings: a stable id, label, order, and a renderer for one coherent group of profile-wide settings.
+**Assistant settings section**:
+One sidebar destination of Assistant settings: a stable id, label, order, and a renderer for one coherent group of profile-wide settings.
 _Avoid_: tab, page, settings item, Panel
 
 **Prompt Part**:

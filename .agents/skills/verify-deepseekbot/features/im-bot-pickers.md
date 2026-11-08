@@ -8,7 +8,7 @@
 
 ## How to get to it (user POV)
 
-Bot settings → IM apps → Create app, or Bind on an unbound connected app → Bot.
+Assistant settings → IM apps → Create app, or Bind on an unbound connected app → Bot.
 
 ## Driving it with verify-app
 

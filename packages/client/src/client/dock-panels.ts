@@ -32,6 +32,7 @@ export type DockPanel = PublicDockPanel;
 
 export interface DockPanelRegistration extends DockPanel {
   readonly entry?: ChannelSidebarEntry | undefined;
+  readonly tabBadge?: ComponentType<DockPanelProps> | undefined;
 }
 
 export interface DockPanelLayout {
@@ -41,7 +42,9 @@ export interface DockPanelLayout {
 }
 
 export interface DockPanelRegistry extends PublicDockPanelRegistry {
-  register(panel: DockPanel): () => void;
+  register(
+    panel: DockPanel & { readonly tabBadge?: ComponentType<DockPanelProps> | undefined },
+  ): () => void;
   panels(): readonly DockPanelRegistration[];
 }
 

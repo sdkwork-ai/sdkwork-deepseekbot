@@ -9,7 +9,7 @@ This guide covers non-IM settings in the public **deepseekbot** package on DSH *
 | DSH appearance, language, default permissions, input behavior | Bottom-left Settings → General settings.                                    |
 | API providers and model catalogs                              | Settings → Models; see [Model setup](/docs/model-setup).                    |
 | Native Agent tools and working style                          | Settings → Agent presets.                                                   |
-| Bot icon, motion, sorting, concurrency, your name             | Bot settings beside Bot mode, or Settings → Bot settings.                   |
+| Bot icon, motion, sorting, concurrency, your name             | Assistant settings beside Bot mode, or Settings → Assistant settings.       |
 | One Bot's name and avatar                                     | Its DM header name/avatar → View details.                                   |
 | One Bot's models and wake policy                              | Model and Wake policy in its DM's Channel settings (header ··· menu).       |
 | Right sidebar layout and session views                        | Gear at the top of Channel sidebar.                                         |
@@ -18,7 +18,7 @@ This guide covers non-IM settings in the public **deepseekbot** package on DSH *
 
 ## Complete environment backup and restore
 
-Open **Bot settings → Complete environment backup and restore → Manage backups**.
+Open **Assistant settings → Complete environment backup and restore → Manage backups**.
 **Preview export** lists all historical Bot identities, managed-file count, estimated bytes and
 omitted native Sessions. **Download verified backup** captures the full BotHarness database,
 retained Memory repositories (including custom paths and deleted identities), current referenced
@@ -109,7 +109,7 @@ These are native DSH settings. Initial values below were observed in a clean RC1
 
 **Built-in plugins** supports search, Session/Global plugin groups, selection of the Agent preset to inspect, and plugin status/details. Third-party fields depend on each installed plugin and are not all required DeepSeekBot settings. Install/enable packages using [Installation](/docs/installation). Advanced deployment layers and BotHarness configuration keys are linked at the end of this page.
 
-## Global Bot settings
+## Global Assistant settings
 
 ![Bot appearance, sorting, developer mode, and task concurrency](/guides/settings/settings-bot-global-zh.webp)
 
@@ -129,7 +129,7 @@ The lower “External platform defaults” area belongs to IM intake/identity se
 
 ## Appearance and wallpaper
 
-Open **Bot settings → Appearance** (⌘, on macOS or Ctrl+, elsewhere opens Bot settings in Bot mode). Everything on this page is saved on this device only; the Web client and the Desktop app keep separate copies, and the DSH theme is not changed.
+Open **Assistant settings → Appearance** (⌘, on macOS or Ctrl+, elsewhere opens Assistant settings in Bot mode). Everything on this page is saved on this device only; the Web client and the Desktop app keep separate copies, and the DSH theme is not changed.
 
 | Field                | Options                                                          | Effect                                                                                                                                                                               |
 | -------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -147,13 +147,13 @@ To style one panel, open its header menu → **Appearance settings**. Each field
 A Bot's main session (its Orchestrator Session) grows with every turn. Compaction replaces the long history with a summary so the next message re-reads less.
 
 - **Compact now:** type `/compact` in the Bot's DM composer, send `/compact` (or `/压缩`) in an IM DM, or run `deepseekbot bot-compact <bot-id>`. The result shows tokens before and after. It is refused while the Bot is working; stop the turn or wait.
-- **Compact idle conversations early:** **Bot settings → Models & execution**, on by default. When a Bot has been quiet for half of its model's prompt-cache lifetime (never before 15 minutes; DeepSeek models assume 2 hours until observed), the Host compacts the session while the cache is still warm, which costs less than compacting a cold session later. Nothing shows in the chat; each run appears in the Bot's activity. Details and per-model overrides are in the [CLI guide](bot-cli.md#idle-compaction).
+- **Compact idle conversations early:** **Assistant settings → Models & execution**, on by default. When a Bot has been quiet for half of its model's prompt-cache lifetime (never before 15 minutes; DeepSeek models assume 2 hours until observed), the Host compacts the session while the cache is still warm, which costs less than compacting a cold session later. Nothing shows in the chat; each run appears in the Bot's activity. Details and per-model overrides are in the [CLI guide](bot-cli.md#idle-compaction).
 
 If a turn still fails because the context is full, the failed-turn notice says so; retry with a smaller request.
 
 ## Quick search and shortcuts
 
-Press **Alt+K** (Option+K on macOS) in Bot mode to search Bots, groups, Channels and individual Bot settings rows; Ctrl+K or ⌘K also works where the browser passes it through. Chinese names match by full pinyin or initials. Choosing a settings result opens its page with the row highlighted. Press `?` or Ctrl/⌘+/ for the full shortcut list, and change shortcuts in **Bot settings → Keyboard shortcuts**.
+Press **Alt+K** (Option+K on macOS) in Bot mode to search Bots, groups, Channels and individual Assistant settings rows; Ctrl+K or ⌘K also works where the browser passes it through. Chinese names match by full pinyin or initials. Choosing a settings result opens its page with the row highlighted. Press `?` or Ctrl/⌘+/ for the full shortcut list, and change shortcuts in **Assistant settings → Keyboard shortcuts**.
 
 ## Create a Bot and edit its Profile
 
@@ -236,7 +236,7 @@ Event names follow the [tracking plan](telemetry-events.md), which lists every e
 - `$exception`: when the Host hits an unhandled error in BotHarness code, the error type and its stack's functions and line numbers, with each file reduced to its package-relative name (such as `@botharness/core/dist/index.mjs`) or just its file name. Errors without a BotHarness frame are dropped. The report is saved on the device and sent on the next start; the error message is never included.
 - `app:client_issue_report`: when the Web Client hits an uncaught error, a failed or slow Host request, a frame or task longer than one second, or a broken UI invariant, only which of these it was and, for slow ones, a duration band (`under_1s`, `1s_3s`, `3s_10s` or `over_10s`). Each kind is sent at most once per Client session and at most 60 times an hour. An uncaught Web Client error with a stack is also sent as `$exception` with the error type, function names, line numbers and file names only (at most 20 an hour). Error messages, request names and page content are never included.
 
-Names, Persona or Memory content, conversations, prompts, tool arguments, repository URLs, connector accounts or workspaces, your file paths, credentials and IP addresses are never sent. To turn it off, open **Bot settings** and switch off **Anonymous usage statistics**; it takes effect at once without a restart, queued events are dropped, and the choice is saved in the same `telemetry.json` so it survives restarts. Switching it back on resumes without a restart. Deployments can force it off with `telemetry: false` on the BotHarness core plugin (see Advanced parameters below) or by starting DSH with `DO_NOT_TRACK=1` or `BOTHARNESS_TELEMETRY=0`; the switch is then shown off and disabled with a note naming the setting. Details: [privacy](https://deepseekbot.botharness.ai/en/privacy) and [source](https://github.com/BotHarness/BotHarness/tree/main/packages/core/src/telemetry).
+Names, Persona or Memory content, conversations, prompts, tool arguments, repository URLs, connector accounts or workspaces, your file paths, credentials and IP addresses are never sent. To turn it off, open **Assistant settings** and switch off **Anonymous usage statistics**; it takes effect at once without a restart, queued events are dropped, and the choice is saved in the same `telemetry.json` so it survives restarts. Switching it back on resumes without a restart. Deployments can force it off with `telemetry: false` on the BotHarness core plugin (see Advanced parameters below) or by starting DSH with `DO_NOT_TRACK=1` or `BOTHARNESS_TELEMETRY=0`; the switch is then shown off and disabled with a note naming the setting. Details: [privacy](https://deepseekbot.botharness.ai/en/privacy) and [source](https://github.com/BotHarness/BotHarness/tree/main/packages/core/src/telemetry).
 
 ## Advanced parameters and optional capabilities
 

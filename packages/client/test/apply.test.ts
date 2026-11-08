@@ -314,7 +314,7 @@ describe('client apply', () => {
     }
   });
 
-  it('registers Bot Settings on the overlay and its sections only while configForms is served', () => {
+  it('registers Assistant settings on the overlay and its sections only while configForms is served', () => {
     store.setMode('dsh');
     const specs: Spec[] = [];
     const disposed: Spec[] = [];
@@ -363,7 +363,7 @@ describe('client apply', () => {
     expect(withoutSettings.some((spec) => spec.id === 'botharness-bot-settings')).toBe(true);
   });
 
-  it('opens Bot Settings from each entry point at its section', () => {
+  it('opens Assistant settings from each entry point at its section', () => {
     store.setMode('dsh');
     const specs: Spec[] = [];
     apply(createScoped(specs, [], true) as never);

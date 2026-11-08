@@ -250,7 +250,7 @@ For real verification, send a unique controlled request in the paired WeChat DM,
 
 ## 14. Inherit defaults or keep a Bot-specific choice
 
-In **Bot settings → External platform defaults → WeChat / 微信**, save the default
+In **Assistant settings → External platform defaults → WeChat / 微信**, save the default
 identity enablement and native typing preference. Current WeChat intake is the QR-paired
 owner DM and wakes the Bot directly. There are no group @, Thread or new-contact
 controls. Channel connectors keep their existing destination, switch and member policies.

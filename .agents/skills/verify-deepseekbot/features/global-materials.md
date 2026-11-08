@@ -8,7 +8,7 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode → Bot settings → Appearance. Pick the mode and palette. Below the per-mode Primary controls, the current mode is named and two groups expose Header/Body color, opacity and background blur. Each control saves immediately. Reapply a preset to restore its known global defaults; the other mode remains unchanged.
+Enter Bot mode → Assistant settings → Appearance. Pick the mode and palette. Below the per-mode Primary controls, the current mode is named and two groups expose Header/Body color, opacity and background blur. Each control saves immediately. Reapply a preset to restore its known global defaults; the other mode remains unchanged.
 
 ## Driving it with verify-app
 

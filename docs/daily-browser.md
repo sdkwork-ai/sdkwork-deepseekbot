@@ -15,7 +15,7 @@ This version is distributed as unpacked source. Chrome/Edge store distribution i
 
 ## Share and observe
 
-1. In Bot settings, choose **Browser Target → Daily Browser**. This is shared by all Bots in this DSH Profile; switching requires new action approval.
+1. In Assistant settings, choose **Browser Target → Daily Browser**. This is shared by all Bots in this DSH Profile; switching requires new action approval.
 2. Enable Browser Access for the intended Bot and open its Channel sidebar's Browser entry. Computer Access is not required.
 3. Choose **Connect browser extension**. The pairing code expires after five minutes and can be used once.
 4. Open the page you want to share in your daily browser. Click the extension icon, enter the local BotHarness address and pairing code, and choose **Connect**.
@@ -32,7 +32,7 @@ Internal browser pages, extension pages and browser-owned viewers cannot be shar
 
 ## Control one existing Chrome document
 
-Choose **Daily Chrome · Control** in Bot settings → Browser Target. This is separate from the read-only extension above.
+Choose **Daily Chrome · Control** in Assistant settings → Browser Target. This is separate from the read-only extension above.
 
 1. Install Microsoft's [Playwright extension 0.4.0](https://chromewebstore.google.com/detail/playwright-extension/mmlmfjhmonkocbjadbfplnigmagldckm) in the Chrome profile you already use. It requests debugger, tabs, tabGroups and all-sites permissions.
 2. Enable Browser Access for the selected PersonaBot. Computer Access can remain off.

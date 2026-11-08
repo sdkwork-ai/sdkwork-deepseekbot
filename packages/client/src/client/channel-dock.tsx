@@ -25,6 +25,7 @@ import { workspaceColumns, moveWorkspaceRail, isFullHeightRail } from './workspa
 import { WorkspaceContext, WORKSPACE_RAIL, WORKSPACE_CHANNELS } from './workspace-context.js';
 import {
   createContext,
+  useCallback,
   useContext,
   useMemo,
   useRef,
@@ -42,6 +43,7 @@ import {
   type DockviewApi,
   type DockviewReadyEvent,
   type DockviewTheme,
+  type IDockviewHeaderActionsProps,
   type IDockviewPanelHeaderProps,
   type IDockviewPanelProps,
 } from 'dockview-react';
@@ -62,6 +64,10 @@ import {
   restoreDockVisibility,
   resolveDefaultPosition,
   resolveDockPosition,
+  resolveRestorePosition,
+  rightColumnAnchor,
+  RIGHT_COLUMN_MIN_WIDTH,
+  RIGHT_COLUMN_WIDTH,
   writeChannelDock,
   DEFAULT_CHANNEL_WORKSPACE,
   BOT_WORKSPACE_PANELS,
@@ -87,11 +93,7 @@ import {
   subscribeBotModeSidebarViewport,
 } from './bot-mode-sidebar-viewport.js';
 import { ChannelSidebarIcon } from './channel-sidebar-icon.js';
-import {
-  clampChannelSidebarWidth,
-  channelSidebarPrefs,
-  channelSidebarScopeKey,
-} from './channel-sidebar-prefs.js';
+import { channelSidebarScopeKey } from './channel-sidebar-prefs.js';
 import type { BotHarnessTranslate } from './locale.js';
 import { useMountedResource } from './mounted-resource.js';
 import { IconButton } from './ds/icon-button.js';
@@ -808,10 +810,70 @@ function ChannelEntryContent({ entryId }: { entryId: string }): ReactElement {
 }
 
 function ChannelDockTab({ api, params }: IDockviewPanelHeaderProps<{ entryId?: string }>) {
-  return <DockPanelHeader entryId={params.entryId} panelId={api.id} />;
+  const subscribeGroup = useCallback(
+    (notify: () => void) => {
+      let added = api.group.model.onDidAddPanel(notify);
+      let removed = api.group.model.onDidRemovePanel(notify);
+      const changed = api.onDidGroupChange(() => {
+        added.dispose();
+        removed.dispose();
+        added = api.group.model.onDidAddPanel(notify);
+        removed = api.group.model.onDidRemovePanel(notify);
+        notify();
+      });
+      return () => {
+        changed.dispose();
+        added.dispose();
+        removed.dispose();
+      };
+    },
+    [api],
+  );
+  const count = useSyncExternalStore(subscribeGroup, () => api.group.panels.length);
+  return <DockPanelHeader entryId={params.entryId} panelId={api.id} tab={count > 1} />;
 }
 
-function DockPanelHeader({ entryId, panelId }: { entryId: string | undefined; panelId: string }) {
+function DockTabActions({ panels, activePanel }: IDockviewHeaderActionsProps): ReactElement | null {
+  const dock = useDock();
+  const entryId =
+    (activePanel?.params as { entryId?: string } | undefined)?.entryId ?? activePanel?.id;
+  const props = useEntryProps(entryId ?? '');
+  const panel = entryId === undefined ? undefined : dock.panels.get(entryId);
+  if (panels.length < 2 || panel === undefined || entryId === undefined) return null;
+  const shown = props !== undefined && dock.visible.has(entryId);
+  const HeaderAction = shown ? panel.entry?.headerAction : undefined;
+  const PanelAction =
+    panel.scope === 'global' || dock.channel !== undefined ? panel.headerAction : undefined;
+  if (HeaderAction === undefined && PanelAction === undefined) return null;
+  return (
+    <span
+      className="bh-dock-tabbar-actions"
+      data-dock-tabbar-actions=""
+      onPointerDown={(event) => event.stopPropagation()}
+      onMouseDown={(event) => event.stopPropagation()}
+    >
+      {HeaderAction === undefined || props === undefined ? null : (
+        <EntryPart key={entryScopeKey(props)} part={HeaderAction} props={props} />
+      )}
+      {PanelAction && (
+        <PanelAction
+          key={panel.scope === 'channel' ? dock.channel?.id : undefined}
+          channel={panel.scope === 'channel' ? dock.channel : undefined}
+        />
+      )}
+    </span>
+  );
+}
+
+function DockPanelHeader({
+  entryId,
+  panelId,
+  tab = false,
+}: {
+  entryId: string | undefined;
+  panelId: string;
+  tab?: boolean;
+}) {
   const appearance = useContext(AppearanceContext);
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const dock = useDock();
@@ -937,6 +999,31 @@ function DockPanelHeader({ entryId, panelId }: { entryId: string | undefined; pa
   const PanelAction =
     panel.scope === 'global' || dock.channel !== undefined ? panel.headerAction : undefined;
   const closeLabel = dock.t('dock.close', { label: panel.title });
+  if (tab)
+    return (
+      <div
+        className="bh-dock-tab"
+        data-dock-tab={entryId}
+        data-window-drag
+        title={panel.title}
+        {...contextMenu.triggerProps}
+      >
+        {contextMenu.menu}
+        <span className="bh-dock-tab-icon" aria-hidden="true">
+          <ChannelSidebarIcon name={panel.icon} />
+        </span>
+        {panel.tabBadge === undefined ? null : (
+          <span className="bh-dock-tab-badge">
+            <panel.tabBadge channel={panel.scope === 'channel' ? dock.channel : undefined} />
+          </span>
+        )}
+        {Badge === undefined || props === undefined ? null : (
+          <span className="bh-dock-tab-badge">
+            <EntryPart key={entryScopeKey(props)} part={Badge} props={props} />
+          </span>
+        )}
+      </div>
+    );
   return (
     <>
       {appearanceOpen && appearance && (
@@ -1158,26 +1245,33 @@ function restoreEntryPanel(
   panel: DockPanelRegistration,
   remembered: DockPosition | undefined,
   gap: number,
+  rightColumn = false,
 ): void {
   if (api.getPanel(panel.id) !== undefined) return;
+  const position =
+    remembered !== undefined && rightColumn && panel.id !== CHANNEL_BODY_PANEL
+      ? resolveRestorePosition(api, remembered)
+      : remembered === undefined
+        ? resolveDefaultPosition(api, panel.defaultPosition, panel.id)
+        : resolveDockPosition(api, remembered);
+  const sharedColumn = rightColumn && position.direction === 'within';
   const added = api.addPanel({
     id: panel.id,
     component: panel.id === CHANNEL_BODY_PANEL ? CHANNEL_BODY_COMPONENT : CHANNEL_ENTRY_COMPONENT,
     title: panel.title,
-    ...(remembered?.size
+    ...(!sharedColumn && remembered?.size
       ? {
           ...(remembered.direction === 'left' || remembered.direction === 'right'
             ? { initialWidth: Math.round(remembered.size.width * api.width) }
             : { initialHeight: Math.round(remembered.size.height * api.height) }),
         }
-      : {}),
+      : !sharedColumn && rightColumn && position.direction === 'right'
+        ? { initialWidth: rightColumnWidth(api) }
+        : {}),
     params: { entryId: panel.id },
-    position:
-      remembered === undefined
-        ? resolveDefaultPosition(api, panel.defaultPosition, panel.id)
-        : resolveDockPosition(api, remembered),
+    position,
   });
-  if (remembered?.size) {
+  if (!sharedColumn && remembered?.size) {
     const offset = dockPanelGap(api.toJSON(), panel.id, gap);
     added.group.api.setSize({
       ...(remembered.direction === 'left' || remembered.direction === 'right'
@@ -1185,6 +1279,21 @@ function restoreEntryPanel(
         : { height: remembered.size.height * api.height + offset.height }),
     });
   }
+  if (rightColumn) fitRightColumn(api, added.group);
+}
+
+function rightColumnWidth(api: DockviewApi): number {
+  if (api.width <= 0) return RIGHT_COLUMN_WIDTH;
+  return Math.min(
+    RIGHT_COLUMN_WIDTH,
+    Math.max(RIGHT_COLUMN_MIN_WIDTH, Math.round(api.width * 0.4)),
+  );
+}
+
+function fitRightColumn(api: DockviewApi, group: DockviewApi['panels'][number]['group']): void {
+  group.api.setConstraints({ minimumWidth: RIGHT_COLUMN_MIN_WIDTH });
+  if (api.width <= 0 || (group.api.width > 0 && group.api.width >= RIGHT_COLUMN_MIN_WIDTH)) return;
+  group.api.setSize({ width: rightColumnWidth(api) });
 }
 
 function buildDefaultLayout(api: DockviewApi, entries: ReadonlyMap<string, DockPanelRegistration>) {
@@ -1207,14 +1316,12 @@ function buildDefaultLayout(api: DockviewApi, entries: ReadonlyMap<string, DockP
       position:
         previous === undefined
           ? { referencePanel: CHANNEL_BODY_PANEL, direction: 'right' }
-          : { referencePanel: previous, direction: 'below' },
+          : { referencePanel: previous, direction: 'within' },
     });
     previous ??= id;
   }
   const column = previous === undefined ? undefined : api.getPanel(previous)?.group;
-  column?.api.setSize({
-    width: clampChannelSidebarWidth(channelSidebarPrefs.getSnapshot().width),
-  });
+  column?.api.setSize({ width: rightColumnWidth(api) });
   hideBodyHeader(api);
 }
 
@@ -1507,7 +1614,7 @@ export function ChannelDock({
     }
     visibilityLayout.current = undefined;
     for (const visible of target.panels) delete parked.current[visible.id];
-    restoreEntryPanel(target, panel, remembered, workspace ? gapRef.current : 0);
+    restoreEntryPanel(target, panel, remembered, workspace ? gapRef.current : 0, !isSimple());
   };
 
   const sideColumnItem = (panelId: string): boolean =>
@@ -1671,9 +1778,14 @@ export function ChannelDock({
         ready.getPanel(CHANNEL_BODY_PANEL)?.api.setActive();
       }
       if (newWorkspace && fresh) {
-        ready.getPanel('sessions')?.api.setSize({ width: 320 });
+        ready.getPanel('sessions')?.api.setSize({ width: rightColumnWidth(ready) });
         ready.getPanel(WORKSPACE_CHANNELS)?.api.setSize({ width: 260 });
       }
+    }
+    if (!isSimple()) {
+      const anchor = rightColumnAnchor(ready);
+      const group = anchor === undefined ? undefined : ready.getPanel(anchor)?.group;
+      if (group !== undefined) fitRightColumn(ready, group);
     }
     hideBodyHeader(ready);
     ready.onWillShowOverlay((event) => {
@@ -2328,8 +2440,8 @@ export function ChannelDock({
             key={workspace ? `workspace-${layoutMode.mode}` : 'legacy'}
             components={COMPONENTS}
             defaultTabComponent={ChannelDockTab}
+            rightHeaderActionsComponent={DockTabActions}
             singleTabMode="fullwidth"
-            disableTabsOverflowList
             disableFloatingGroups
             defaultRenderer="always"
             proportionalLayout

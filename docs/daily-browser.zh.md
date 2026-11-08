@@ -15,7 +15,7 @@ Daily Browser 让一个 PersonaBot 读取你在 Chrome 或 Edge 中明确分享�
 
 ## 分享并观察
 
-1. 在 Bot settings 中选择 **Browser Target → 日常浏览器**。同一 DSH Profile 的 Bot 共用此设置；切换后需要重新批准动作。
+1. 在助理设置中选择 **Browser Target → 日常浏览器**。同一 DSH Profile 的 Bot 共用此设置；切换后需要重新批准动作。
 2. 为目标 Bot 开启 Browser Access，并展开 Channel 侧栏的 Browser。无需 Computer Access。
 3. 选择“连接浏览器扩展”。配对码五分钟后过期，且只能使用一次。
 4. 在日常浏览器打开要分享的页面，点击扩展图标，填写本地 BotHarness 地址和配对码，选择 **Connect**。
@@ -32,7 +32,7 @@ Daily Browser 让一个 PersonaBot 读取你在 Chrome 或 Edge 中明确分享�
 
 ## 控制一个已有的日常 Chrome 文档
 
-在 Bot 设置 → Browser 操作目标中选择 **日常 Chrome · 控制**。此选项与上面的只读扩展独立。
+在助理设置 → Browser 操作目标中选择 **日常 Chrome · 控制**。此选项与上面的只读扩展独立。
 
 1. 在日常使用的 Chrome Profile 安装微软官方 [Playwright 扩展 0.4.0](https://chromewebstore.google.com/detail/playwright-extension/mmlmfjhmonkocbjadbfplnigmagldckm)。它申请 debugger、tabs、tabGroups 和所有站点权限。
 2. 为目标 PersonaBot 开启 Browser Access；Computer Access 可以保持关闭。

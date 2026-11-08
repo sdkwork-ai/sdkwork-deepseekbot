@@ -904,7 +904,7 @@ Use `device-offer --out <new-private-file>` and `device-approve-key <receipt> <p
 
 ### Phone route (Tailscale)
 
-Bot settings → Devices → Pair a phone shows a three-step guide while a phone cannot reach this Host: install Tailscale, start and sign in, then publish the Host on the tailnet. The last step can run `tailscale serve --bg <port>` for you after a confirmation, or you copy the command and run it yourself. The same two operations from the CLI:
+Assistant settings → Devices → Pair a phone shows a three-step guide while a phone cannot reach this Host: install Tailscale, start and sign in, then publish the Host on the tailnet. The last step can run `tailscale serve --bg <port>` for you after a confirmation, or you copy the command and run it yourself. The same two operations from the CLI:
 
 ```bash
 deepseekbot phone-route
@@ -916,7 +916,7 @@ deepseekbot phone-route-disable --confirm
 
 ### Paired devices
 
-Bot settings → Connections lists paired devices, guides new invitations and revokes a device. `device-requests` reads pending receipts, public keys and full fingerprints without running route checks. The same Devices owner from the CLI:
+Assistant settings → Connections lists paired devices, guides new invitations and revokes a device. `device-requests` reads pending receipts, public keys and full fingerprints without running route checks. The same Devices owner from the CLI:
 
 ```bash
 deepseekbot devices
@@ -1032,7 +1032,7 @@ deepseekbot pairing-review <bot-id> <pairing-id> --decision revoke --confirm
 
 `release-info` includes an optional Host-owned `identity`: `development` with source revision/dirty state, `release` with version, or `unknown` with a metadata/composition reason. Old Hosts omit this field; absence is not verified release identity. The internal source version placeholder remains `0.0.0`; About displays source identity instead. `release-check` can return `unknown`; install/restart then refuse with `release-identity-invalid`. Installed/staged and running versions remain separate until the new Host answers with the exact target version.
 
-`plugin-check`, `plugin-install` and `plugin-restart` are the **Bot settings → Plugins** page. They cover installed `@botharness/*` plugin Bundles other than `deepseekbot`, such as `@botharness/vrm-companion`. `plugin-check` returns `installable`, `restartable` and one entry per plugin with `status` `current`, `available`, `blocked`, `restart-required`, `development` or `unavailable`; `--force` bypasses the six-hour check cache. Compatibility uses the running DSH evaluator on that plugin's registry manifest. `plugin-install <package> <version> --confirm` rechecks compatibility, installs through the native Plugin Manager and falls back to the registry tarball when the Manager refuses an installed name; `applied: true` means the Host loaded it already and only the page needs a reload. Otherwise `plugin-restart --confirm` restarts the Host to finish every staged plugin update. Failures exit non-zero with `plugin-<reason>`, such as `plugin-incompatible`, `plugin-unknown-plugin` or `plugin-not-pending`.
+`plugin-check`, `plugin-install` and `plugin-restart` are the **Assistant settings → Plugins** page. They cover installed `@botharness/*` plugin Bundles other than `deepseekbot`, such as `@botharness/vrm-companion`. `plugin-check` returns `installable`, `restartable` and one entry per plugin with `status` `current`, `available`, `blocked`, `restart-required`, `development` or `unavailable`; `--force` bypasses the six-hour check cache. Compatibility uses the running DSH evaluator on that plugin's registry manifest. `plugin-install <package> <version> --confirm` rechecks compatibility, installs through the native Plugin Manager and falls back to the registry tarball when the Manager refuses an installed name; `applied: true` means the Host loaded it already and only the page needs a reload. Otherwise `plugin-restart --confirm` restarts the Host to finish every staged plugin update. Failures exit non-zero with `plugin-<reason>`, such as `plugin-incompatible`, `plugin-unknown-plugin` or `plugin-not-pending`.
 
 `--lang zh|en` asks for listings in that language, as the Marketplace page does in the interface language: the name and bio come from the author's `bot.json` `i18n` translation, then a bio already in that language, then the Marketplace's generated summary (`descriptionGenerated: true`); `marketplace-detail` returns the repository's README in that language and names it in `readmeLanguage`, else `README.md`: for `zh` it takes `README.zh-CN.md`, then `README.zh.md`, then another spelling such as `README_CN.md` or `README-zh.md`; for `en` it takes `README.en.md`. `marketplace-submit` and `marketplace-report` first solve the Host's proof-of-work challenge, as the Web page does, so they can take a few seconds; the Marketplace's own refusals (`repository-missing-topic`, `rate-limited`, …) come back as the error code. A report reason is at most 500 characters. `release-check` returns the update status (`current`, `available`, `restart-required`, `blocked`, `development`, `unknown` or `unavailable`). `release-install` and `release-restart` need `--confirm`; a failed install or restart exits non-zero with `release-<reason>`, such as `release-network` or `release-not-pending`. Restarting stops every running Bot turn, so do it only on a Host you own. `pairing-list` shows a Bot's pairing requests and its roles; `pairing-review` reads the current revisions itself, so a request that changed in between is refused instead of overwritten. Approve with one `--role` for a conversation request or with `--capability` for a management request.
 
@@ -1452,9 +1452,9 @@ Manual font preferences remain in the same native `ui-theme` Patch. JSON stdout 
 `restartRequired:true` and `runtimeVerified:false`; a successful package change does not prove
 the native window has loaded it. An uncertain package operation is not retried automatically.
 
-### Enable from Bot Settings
+### Enable from Assistant settings
 
-On the macOS or Windows Desktop, Bot Settings → General shows **Enable window zoom** (or **Turn off window zoom** once installed). The button asks the Host to start the same `deepseekbot-zoom-setup enable|disable --after-quit <state-file> --request <id>` transaction as a detached helper. The helper waits until the Desktop is fully quit, runs the unchanged checks and Profile change, records the outcome, then reopens the app. Cancel before quitting withdraws it; a newer request supersedes an older one. If the app is not quit within 30 minutes, the helper stops without changes and without reopening. The next Settings visit shows a failed outcome code. The Host reads the target app from its own runtime path and only offers this in the native `desktop` Profile.
+On the macOS or Windows Desktop, Assistant settings → General shows **Enable window zoom** (or **Turn off window zoom** once installed). The button asks the Host to start the same `deepseekbot-zoom-setup enable|disable --after-quit <state-file> --request <id>` transaction as a detached helper. The helper waits until the Desktop is fully quit, runs the unchanged checks and Profile change, records the outcome, then reopens the app. Cancel before quitting withdraws it; a newer request supersedes an older one. If the app is not quit within 30 minutes, the helper stops without changes and without reopening. The next Settings visit shows a failed outcome code. The Host reads the target app from its own runtime path and only offers this in the native `desktop` Profile.
 
 ```sh
 deepseekbot window-zoom-setup-status --host <host> --token-file <private-file>

@@ -6,7 +6,7 @@ Explicit cloud credential import, existing Bot binding, typed source delivery, r
 
 ## How to get to it (user POV)
 
-Import a trusted private Agent credential with `deepseekbot cloud import --input-stdin`, then open Bot settings → Apps and bind the returned account to one local Bot. CLI parity: `cloud list`, `cloud policy --input-stdin`, `cloud remove --input-stdin --confirm`, `im-bind <bot> --app <cloud-id>` and `im-status <bot>`.
+Import a trusted private Agent credential with `deepseekbot cloud import --input-stdin`, then open Assistant settings → Apps and bind the returned account to one local Bot. CLI parity: `cloud list`, `cloud policy --input-stdin`, `cloud remove --input-stdin --confirm`, `im-bind <bot> --app <cloud-id>` and `im-status <bot>`.
 
 ## Driving it with verify-app
 

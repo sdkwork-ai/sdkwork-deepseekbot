@@ -99,35 +99,43 @@ try {
   );
   await page.waitForSelector('[data-bh-tour="composer"]', { timeout: 20_000 });
 
-  const card = '.bh-mode-sidebar [data-pinned-panel="activity-center"]';
-  await page.waitForSelector(`${card}:not([aria-disabled])`, { timeout: 20_000 });
-  if ((await page.$(`${card}[aria-pressed="true"]`)) !== null) {
-    await page.click(card);
-    await page.waitForSelector(`${card}[aria-pressed="false"]`, { timeout: 10_000 });
+  const panelsMenu = '[data-dock-menu] button';
+  const activity = '.bh-dock [data-dock-panel="activity-center"]';
+  const toggleActivity = async () => {
+    await page.waitForSelector(panelsMenu, { timeout: 20_000 });
+    await page.click(panelsMenu);
+    await page.waitForSelector('[data-menu-item="activity-center"]', { timeout: 10_000 });
+    await page.click('[data-menu-item="activity-center"]');
+  };
+  if ((await page.$(activity)) !== null) {
+    await toggleActivity();
+    await page.waitForFunction(
+      (selector) => document.querySelector(selector) === null,
+      { timeout: 10_000 },
+      activity,
+    );
   }
-  await page.click(card);
+  await toggleActivity();
   await page.waitForFunction(
     (selector) =>
-      document.querySelector(`${selector}[aria-pressed="true"]`) !== null &&
-      document.querySelector(
-        '.bh-dock [data-dock-panel="activity-center"] .bh-activity-center-panel',
-      ) !== null &&
+      document.querySelector(`${selector} .bh-activity-center-panel`) !== null &&
+      document
+        .querySelector('.bh-dock .dv-tab[data-tab-panel-id="activity-center"]')
+        ?.getAttribute('aria-selected') === 'true' &&
       document.querySelector('.bh-dock [data-bh-tour="composer"]') !== null,
     { timeout: 20_000 },
-    card,
+    activity,
   );
   await observeShell('activity-center');
   await page.screenshot({
     waitForFonts: false,
     path: resolve(shots, '02-activity-center-panel.png'),
   });
-  await page.click(card);
+  await toggleActivity();
   await page.waitForFunction(
-    (selector) =>
-      document.querySelector(`${selector}[aria-pressed="false"]`) !== null &&
-      document.querySelector('.bh-dock [data-dock-panel="activity-center"]') === null,
+    (selector) => document.querySelector(selector) === null,
     { timeout: 10_000 },
-    card,
+    activity,
   );
 
   await page.click('button[aria-label="Collapse sidebar"]');

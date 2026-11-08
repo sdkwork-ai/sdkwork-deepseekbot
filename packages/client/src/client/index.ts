@@ -60,9 +60,6 @@ import {
   mountBotSessionVisibility,
   type WorkspaceListSnapshot,
 } from './bot-session-visibility.js';
-import { subscribeBotColorScheme, readBotColorScheme } from './bot-color-scheme.js';
-import { botIconMarkup } from './bot-icon.js';
-import { installBotNavIcon } from './bot-icon-nav.js';
 import { nativeSettingsNavigation } from './bot-settings-open.js';
 import {
   BOT_SETTINGS_SECTIONS,
@@ -656,7 +653,7 @@ export function apply(ctx: ClientContext): void {
       botSettings,
       active: () => store.getSnapshot().mode === 'bot',
     });
-  }, 'botharness: Bot settings keyboard shortcut');
+  }, 'botharness: assistant settings keyboard shortcut');
   ctx.effect(() => {
     if (typeof document === 'undefined') return () => {};
     return mountTabTitle(store, document);
@@ -834,18 +831,6 @@ export function apply(ctx: ClientContext): void {
       subscribe: (listener) => scope.subscribe(listener),
       set: (field, value) => scope.set(field, value),
       mutate: (ops, expectedRevision) => scope.mutate(ops, expectedRevision),
-    });
-    const releaseNavIcon = installBotNavIcon({
-      labels: () => [t('settings.nav')],
-      markup: () => botIconMarkup(prefs.source.getSnapshot().botIcon, readBotColorScheme()),
-      subscribe: (listener) => {
-        const offPrefs = prefs.source.subscribe(listener);
-        const offScheme = subscribeBotColorScheme(listener);
-        return () => {
-          offPrefs();
-          offScheme();
-        };
-      },
     });
     settingsCtx.slots.inject('botharness.settings.section', () =>
       settingsCtx.slots.register(
@@ -1109,7 +1094,6 @@ export function apply(ctx: ClientContext): void {
       ),
     );
     return () => {
-      releaseNavIcon();
       prefs.detach();
     };
   });

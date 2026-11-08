@@ -20,7 +20,7 @@ const press = (target: EventTarget, init: KeyboardEventInit = {}): KeyboardEvent
   return event;
 };
 
-describe('Bot settings shortcut', () => {
+describe('Assistant settings shortcut', () => {
   let dispose = () => {};
   afterEach(() => {
     dispose();
@@ -44,7 +44,7 @@ describe('Bot settings shortcut', () => {
     };
   };
 
-  it('opens Bot settings with Ctrl+, in Bot mode, also from the composer', () => {
+  it('opens Assistant settings with Ctrl+, in Bot mode, also from the composer', () => {
     const { botSettings } = mount();
     const composer = document.body.appendChild(document.createElement('textarea'));
     expect(press(composer).defaultPrevented).toBe(true);

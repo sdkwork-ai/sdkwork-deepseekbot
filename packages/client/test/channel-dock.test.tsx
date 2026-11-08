@@ -1,5 +1,12 @@
 // @vitest-environment jsdom
-import { act, createElement, useState, type ContextType, type ReactNode } from 'react';
+import {
+  act,
+  createElement,
+  useState,
+  type ContextType,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LAYOUT_MODE_STORAGE_KEY } from '../src/client/layout-mode.js';
@@ -42,6 +49,7 @@ import {
   CHANNEL_BODY_PANEL,
   CHANNEL_DOCK_STORAGE_KEY,
   readChannelDock,
+  RIGHT_COLUMN_MIN_WIDTH,
 } from '../src/client/channel-dock-layout.js';
 import type {
   ChannelSidebarEntry,
@@ -54,6 +62,7 @@ import {
   type DockPanel,
   type DockPanelChannel,
   type DockPanelHost,
+  type DockPanelProps,
   type DockPanelRegistration,
 } from '../src/client/dock-panels.js';
 
@@ -113,6 +122,15 @@ const panels = () => readChannelDock(storage)!.layout.panels;
 async function settle(): Promise<void> {
   await act(async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
+
+async function until(check: () => boolean, timeoutMs = 1_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  await act(async () => {
+    while (!check() && Date.now() < deadline) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
   });
 }
 
@@ -202,6 +220,65 @@ describe('desktop Bot mode dock', () => {
     ).not.toContain('bot-inbox');
   });
 
+  it('switches every right-side panel as a tab in one widened column', async () => {
+    await render(builtins);
+    await click('[data-dock-menu] button');
+    await click('[data-menu-item="schedules"]');
+    expect(Object.keys(panels())).toEqual([CHANNEL_BODY_PANEL, 'sessions', 'schedules']);
+    const root = readChannelDock(storage)!.layout.grid.root as {
+      data: { type: string; data?: unknown; size?: number }[];
+    };
+    expect(
+      root.data.map((node) =>
+        node.type === 'leaf' ? (node.data as { views: string[] }).views : 'branch',
+      ),
+    ).toEqual([[CHANNEL_BODY_PANEL], ['sessions', 'schedules']]);
+    expect(root.data[1]!.size).toBeGreaterThanOrEqual(RIGHT_COLUMN_MIN_WIDTH);
+  });
+
+  it('shows side panels as icon tabs and switches them without stacking', async () => {
+    await render(builtins);
+    await click('[data-dock-menu] button');
+    await click('[data-menu-item="schedules"]');
+    const tabLists = [...host.querySelectorAll('.dv-tabs-container')].map(
+      (list) => list.querySelectorAll('.dv-tab').length,
+    );
+    expect(tabLists).toEqual([1, 2]);
+    const tabs = [...host.querySelectorAll<HTMLElement>('.bh-dock .dv-tab:has(.bh-dock-tab)')];
+    expect(tabs.map((tab) => tab.getAttribute('aria-label'))).toEqual(['sessions', 'schedules']);
+    const sessionsTab = host.querySelector<HTMLElement>('[data-dock-tab="sessions"]')!;
+    expect(sessionsTab.querySelector('.bh-dock-tab-icon')).not.toBeNull();
+    expect(sessionsTab.querySelector('.bh-dock-tab-label')).toBeNull();
+    expect(sessionsTab.getAttribute('title')).toBe('sessions');
+    expect(
+      host.querySelector('.dv-tab[data-tab-panel-id="schedules"]')?.getAttribute('aria-selected'),
+    ).toBe('true');
+    await until(
+      () =>
+        host
+          .querySelector('.dv-tab[data-tab-panel-id="schedules"]')
+          ?.getAttribute('aria-selected') === 'true',
+    );
+    act(() => {
+      const tab = host.querySelector<HTMLElement>('.dv-tab[data-tab-panel-id="sessions"]')!;
+      for (const type of ['pointerdown', 'pointerup', 'click']) {
+        tab.dispatchEvent(new MouseEvent(type, { bubbles: true }));
+      }
+    });
+    await until(
+      () =>
+        host
+          .querySelector('.dv-tab[data-tab-panel-id="sessions"]')
+          ?.getAttribute('aria-selected') === 'true',
+    );
+    expect(
+      host.querySelector('.dv-tab[data-tab-panel-id="sessions"]')?.getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(
+      host.querySelector('.dv-tab[data-tab-panel-id="schedules"]')?.getAttribute('aria-selected'),
+    ).toBe('false');
+  });
+
   it('parks a panel whose plugin is gone and brings it back when it registers again', async () => {
     const computer = entry('computer');
     await render(builtins);
@@ -212,8 +289,7 @@ describe('desktop Bot mode dock', () => {
     await render(builtins);
     expect(Object.keys(panels())).not.toContain('computer');
     expect(readChannelDock(storage)!.parked['computer']).toMatchObject({
-      neighbor: 'sessions',
-      direction: 'below',
+      direction: 'right',
       missing: true,
     });
     await render([...builtins, computer]);
@@ -302,16 +378,18 @@ describe('dock entry state per Bot or Channel', () => {
 describe('dockPanels Service in the dock', () => {
   const dm: DockPanelChannel = { id: 'dm-ada', type: 'dm', botSlug: 'ada' };
   const group: DockPanelChannel = { id: 'group-1', type: 'group', botSlug: undefined };
-  const todo: DockPanel = {
+  const todo = {
     id: 'example:todo',
     title: 'To-do',
     icon: 'list-todo',
     scope: 'global',
+    tabBadge: ({ channel }: { channel: DockPanelChannel | undefined }) =>
+      createElement('span', { 'data-todo-badge': channel?.id ?? 'global' }),
     headerAction: ({ channel }) =>
       createElement('button', { 'data-todo-action': channel?.id ?? 'global' }, 'Filter todo'),
     component: ({ channel }) =>
       createElement('div', { 'data-todo': channel?.id ?? 'global' }, 'todo body'),
-  };
+  } satisfies DockPanel & { tabBadge: (props: DockPanelProps) => ReactElement };
   const notes: DockPanel = {
     id: 'example:notes',
     title: 'Notes',
@@ -337,7 +415,12 @@ describe('dockPanels Service in the dock', () => {
     expect(host.querySelector('[data-todo]')?.getAttribute('data-todo')).toBe('global');
     expect(
       host
-        .querySelector('[data-dock-header="example:todo"] [data-todo-action]')
+        .querySelector('[data-dock-tab="example:todo"] [data-todo-badge]')
+        ?.getAttribute('data-todo-badge'),
+    ).toBe('global');
+    expect(
+      host
+        .querySelector('[data-dock-tabbar-actions] [data-todo-action]')
         ?.getAttribute('data-todo-action'),
     ).toBe('global');
     expect(host.querySelector('[data-dock-panel="example:todo"] [data-todo-action]')).toBeNull();
@@ -350,11 +433,7 @@ describe('dockPanels Service in the dock', () => {
     root = createRoot(host);
     await render(registry.panels(), 'channel', { channel: group, registry });
     expect(host.querySelector('[data-todo]')?.getAttribute('data-todo')).toBe('global');
-    expect(
-      host
-        .querySelector('[data-dock-header="example:todo"] [data-todo-action]')
-        ?.getAttribute('data-todo-action'),
-    ).toBe('global');
+    expect(host.querySelector('[data-dock-tab="example:todo"]')).not.toBeNull();
     expect(host.querySelector('[data-dock-panel="example:todo"] [data-todo-action]')).toBeNull();
     expect(
       JSON.stringify(readChannelDock(storage)!.layout.grid, (key, value) =>

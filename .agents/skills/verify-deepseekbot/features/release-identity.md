@@ -9,12 +9,12 @@ Candidate journey for #1980; packaged/restart qualification is still pending.
 
 ## How to get to it (user POV)
 
-Enter Bot mode, choose Bot settings, then About.
+Enter Bot mode, choose Assistant settings, then About.
 
 ## Driving it with verify-app
 
 1. Launch an isolated Host with `verify-app launch --name <name>` and run `doctor`.
-2. Enter Bot mode, dismiss the tutorial, choose Bot settings, then About.
+2. Enter Bot mode, dismiss the tutorial, choose Assistant settings, then About.
 3. On a source checkout, verify that DeepSeekBot version says development source build with the built Git revision and dirty state, not a `0.0.0` release. The update check is disabled.
 4. Read `botharness/releaseInfo` through `verify-app rpc` and `deepseekbot release-info` through the authenticated CLI. Their identity must agree with About. Keep the token in an environment variable or private file, never in output.
 5. On an independently installed exact product artifact set, repeat the path and record artifact checksums and actual loaded component paths. A matching directory of package manifests is not proof of the loaded process.

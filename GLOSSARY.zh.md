@@ -928,7 +928,7 @@ _避免使用_：Channel sidebar、右侧栏、inspector
 _避免使用_：App Sidebar、全局频道、根频道
 
 **Workspace Control Rail**：
-工作区控制列。Global workspace 中唯一、不可关闭、占据整列高度的控制面板。顶部为 DSB 模式退出入口，可排序的开关控制全局面板和消息面板，底部是 Bot Settings。设置上方的拖拽把手在悬停或键盘聚焦时显示，用于把整列移动到各外层列之间。控制列与其他面板使用一致的小圆角。频道子面板开关属于消息 header；布局偏好属于 Bot Settings。
+工作区控制列。Global workspace 中唯一、不可关闭、占据整列高度的控制面板。顶部为 DSB 模式退出入口，可排序的开关控制全局面板和消息面板，底部是 Assistant settings。设置上方的拖拽把手在悬停或键盘聚焦时显示，用于把整列移动到各外层列之间。控制列与其他面板使用一致的小圆角。频道子面板开关属于消息 header；布局偏好属于 Assistant settings。
 _避免使用_：panel control、panel control sidebar、App Sidebar、频道列表
 
 **Panel**：
@@ -991,7 +991,7 @@ _避免使用_：把历史侧栏名称当作现行面板分类
 
 **Channel settings**：
 频道设置。承载当前频道的 Wake Policy、外部身份、外部连接器和群管理等运行配置的弹窗，按频道设置分区组织；桌面端可从消息面板的频道菜单进入；窄屏使用频道列表中的频道菜单。
-_避免使用_：Bot Settings、Profile settings、sidebar settings
+_避免使用_：Assistant settings、Profile settings、sidebar settings
 
 **Channel settings section**：
 频道设置分区。频道设置中一组内聚的频道配置，属于该弹窗，而不是工作区面板。
@@ -1049,12 +1049,12 @@ _避免使用_：sync、mirror、replica、bridge state
 某个 Paired Device 希望某台 Host 就哪些 Activity 项提醒它。偏好由设备拥有并保存；Host 只保留一份副本，用来决定给这台设备发什么。
 _避免使用_：Host 通知设置、push settings、mute（指 Channel 时）
 
-**Bot Settings**：
-BotHarness 自有的 modal（Bot 设置），承载 profile 级的 BotHarness 配置，按自己 sidebar 中的 Bot Settings section 组织。单个 PersonaBot 或单个 Channel 的配置不在这里，而属于频道设置或对应的运行操作面板。DSH 自带的设置 modal 称为 DSH settings；其中的 Bot 设置 项只负责指向 Bot Settings，App 凭据仍留在 DSH settings。
+**Assistant settings**：
+BotHarness 自有的 modal（助理设置），承载 profile 级的 BotHarness 配置，按自己 sidebar 中的 Assistant settings section 组织。单个 PersonaBot 或单个 Channel 的配置不在这里，而属于频道设置或对应的运行操作面板。DSH 自带的设置 modal 称为 DSH settings；其中的助理设置项只负责指向 Assistant settings，App 凭据仍留在 DSH settings。
 _避免使用_：Settings UI、settings page、preferences、admin panel、dashboard、web console
 
-**Bot Settings section**：
-Bot Settings 的一个 sidebar 目的地：稳定的 id、label、order，以及渲染一组内聚的 profile 级设置的 renderer。
+**Assistant settings section**：
+Assistant settings 的一个 sidebar 目的地：稳定的 id、label、order，以及渲染一组内聚的 profile 级设置的 renderer。
 _避免使用_：tab、page、settings item、Panel
 
 **Prompt Part**：

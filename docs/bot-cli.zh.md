@@ -875,7 +875,7 @@ DSH 在 Session 上下文达到“上下文窗口 × `ratio`”与“窗口 − 
 
 ### 手机连接（Tailscale）
 
-手机连不上这台 Host 时，Bot 设置 → 设备 → 配对手机会显示三步指引：安装 Tailscale、启动并登录、把 Host 发布到 tailnet。最后一步可以确认后由 DeepSeekBot 代为运行 `tailscale serve --bg <port>`，也可以复制命令自己运行。CLI 中的对应操作：
+手机连不上这台 Host 时，助理设置 → 设备 → 配对手机会显示三步指引：安装 Tailscale、启动并登录、把 Host 发布到 tailnet。最后一步可以确认后由 DeepSeekBot 代为运行 `tailscale serve --bg <port>`，也可以复制命令自己运行。CLI 中的对应操作：
 
 ```bash
 deepseekbot phone-route
@@ -887,7 +887,7 @@ deepseekbot phone-route-disable --confirm
 
 ### 已配对设备
 
-Bot 设置 → 设备 会列出已配对的手机、显示配对二维码并撤销设备。CLI 使用同一个设备所有者：
+助理设置 → 设备 会列出已配对的手机、显示配对二维码并撤销设备。CLI 使用同一个设备所有者：
 
 ```bash
 deepseekbot devices
@@ -1005,7 +1005,7 @@ deepseekbot pairing-review <bot-id> <pairing-id> --decision revoke --confirm
 
 `release-info` 包含可选的 Host 所有 `identity`：带源码 revision／dirty 的 `development`、带版本的 `release`，或带元数据／组合原因的 `unknown`。旧 Host 缺少该字段，不代表发布身份已经核实。源码内部版本占位仍为 `0.0.0`，关于页面显示源码身份。`release-check` 可返回 `unknown`，此时安装／重启以 `release-identity-invalid` 拒绝。已安装／待生效版本与运行版本分开，直到新 Host 返回精确目标版本。
 
-`plugin-check`、`plugin-install` 和 `plugin-restart` 对应 **Bot 设置 → 插件** 页面，覆盖除 `deepseekbot` 以外已安装的 `@botharness/*` 插件 Bundle，例如 `@botharness/vrm-companion`。`plugin-check` 返回 `installable`、`restartable`，以及每个插件一条记录，`status` 为 `current`、`available`、`blocked`、`restart-required`、`development` 或 `unavailable`；`--force` 绕过六小时的检查缓存。兼容判断复用运行中 DSH 的评估器，读取该插件在 registry 上的清单。`plugin-install <package> <version> --confirm` 会再次检查兼容性，通过原生 Plugin Manager 安装；Manager 拒绝覆盖已安装的包名时，改用 registry 的安装包地址。返回 `applied: true` 表示 Host 已经加载新版本，只需刷新页面；否则用 `plugin-restart --confirm` 重启 Host，让所有待生效的插件更新生效。失败时以非零退出，错误码为 `plugin-<原因>`，例如 `plugin-incompatible`、`plugin-unknown-plugin` 或 `plugin-not-pending`。
+`plugin-check`、`plugin-install` 和 `plugin-restart` 对应 **助理设置 → 插件** 页面，覆盖除 `deepseekbot` 以外已安装的 `@botharness/*` 插件 Bundle，例如 `@botharness/vrm-companion`。`plugin-check` 返回 `installable`、`restartable`，以及每个插件一条记录，`status` 为 `current`、`available`、`blocked`、`restart-required`、`development` 或 `unavailable`；`--force` 绕过六小时的检查缓存。兼容判断复用运行中 DSH 的评估器，读取该插件在 registry 上的清单。`plugin-install <package> <version> --confirm` 会再次检查兼容性，通过原生 Plugin Manager 安装；Manager 拒绝覆盖已安装的包名时，改用 registry 的安装包地址。返回 `applied: true` 表示 Host 已经加载新版本，只需刷新页面；否则用 `plugin-restart --confirm` 重启 Host，让所有待生效的插件更新生效。失败时以非零退出，错误码为 `plugin-<原因>`，例如 `plugin-incompatible`、`plugin-unknown-plugin` 或 `plugin-not-pending`。
 
 `--lang zh|en` 按该语言读取列表，与市场页面按界面语言读取一致：名称和简介依次取作者 `bot.json` 里 `i18n` 的翻译、本来就是该语言的简介、市场生成的摘要（`descriptionGenerated: true`）；`marketplace-detail` 返回仓库里该语言的 README，并在 `readmeLanguage` 里注明，没有就返回 `README.md`：`zh` 依次取 `README.zh-CN.md`、`README.zh.md`，再取 `README_CN.md`、`README-zh.md` 等其他写法；`en` 取 `README.en.md`。`marketplace-submit` 和 `marketplace-report` 会像网页一样先完成 Host 下发的工作量证明，因此可能需要几秒；市场本身的拒绝（`repository-missing-topic`、`rate-limited` 等）作为错误码返回。举报说明最多 500 个字符。`release-check` 返回更新状态（`current`、`available`、`restart-required`、`development`、`unknown` 或 `unavailable`）。`release-install` 和 `release-restart` 必须带 `--confirm`；安装或重启失败时以非零退出，错误码为 `release-<原因>`，例如 `release-network` 或 `release-not-pending`。重启会中断所有正在运行的 Bot 回合，只在自己负责的 Host 上执行。`pairing-list` 列出 Bot 的配对请求和角色；`pairing-review` 自行读取当前版本号，期间被改动过的请求会被拒绝而不是被覆盖。对话类请求用一个 `--role` 批准，管理类请求用 `--capability` 批准。
 
@@ -1418,9 +1418,9 @@ DSH CLI 明确拒绝管理 `desktop` Profile；原生插件管理器会优先解
 JSON 标准输出包含 `restartRequired:true`、`runtimeVerified:false`；包配置成功不表示原生窗口已加载。
 包操作结果不确定时不会自动重试。
 
-### 在 Bot 设置中启用
+### 在助理设置中启用
 
-在 macOS 或 Windows 桌面端，Bot 设置 → 通用会显示「启用窗口缩放」（已安装时显示「关闭窗口缩放」）。按钮让 Host 以独立后台进程运行同一个 `deepseekbot-zoom-setup enable|disable --after-quit <状态文件> --request <id>` 事务。后台进程等到桌面端完全退出后，执行原有检查与 Profile 修改，记录结果并重新打开应用。退出前可点「取消」撤回；新的请求会取代旧的。30 分钟内未退出应用时，后台进程不做任何修改、也不重新打开应用便结束。下次打开设置会显示失败代码。Host 根据自身运行路径确定目标应用，只在原生 `desktop` Profile 中提供此入口。
+在 macOS 或 Windows 桌面端，助理设置 → 通用会显示「启用窗口缩放」（已安装时显示「关闭窗口缩放」）。按钮让 Host 以独立后台进程运行同一个 `deepseekbot-zoom-setup enable|disable --after-quit <状态文件> --request <id>` 事务。后台进程等到桌面端完全退出后，执行原有检查与 Profile 修改，记录结果并重新打开应用。退出前可点「取消」撤回；新的请求会取代旧的。30 分钟内未退出应用时，后台进程不做任何修改、也不重新打开应用便结束。下次打开设置会显示失败代码。Host 根据自身运行路径确定目标应用，只在原生 `desktop` Profile 中提供此入口。
 
 ```sh
 deepseekbot window-zoom-setup-status --host <host> --token-file <私有文件>

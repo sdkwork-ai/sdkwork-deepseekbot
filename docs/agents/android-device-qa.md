@@ -129,7 +129,7 @@ the dedicated Host's port with the **configured SDK's** ADB:
 & $adb -s $serial reverse --remove "tcp:$metroPort"
 ```
 
-Pair through a fresh one-time offer made by `scripts/e2e-device-pairing.mjs` or Bot settings →
+Pair through a fresh one-time offer made by `scripts/e2e-device-pairing.mjs` or Assistant settings →
 Devices. Deep-link injection is a debug path; it does not verify camera QR scanning. Treat the
 offer link as a credential: no command history, screenshots, video, chat or published logs.
 ADB reverse disappears on disconnect and proves no external connectivity. Phone tests without

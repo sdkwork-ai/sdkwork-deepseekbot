@@ -29,9 +29,9 @@ Then open the [DNS page of the Tailscale admin console](https://login.tailscale.
 
 Start the DeepSeek Harness desktop app (or `dsh web`) and check that the DeepSeekBot plugin is installed and enabled: **Bot mode** shows in the left bar. If it is not installed yet, follow [Install DeepSeekBot](/docs/installation) first.
 
-Open **Bot mode**, click the gear at the bottom left to open **Bot settings**, and choose **Devices**.
+Open **Bot mode**, click the gear at the bottom left to open **Assistant settings**, and choose **Devices**.
 
-![The Devices page in Bot settings with Tailscale ready](/guides/mobile-pairing/01-devices-en.webp)
+![The Devices page in Assistant settings with Tailscale ready](/guides/mobile-pairing/01-devices-en.webp)
 
 If the page only shows the **Pair a phone** button, as above, Tailscale is ready: skip to step 4.
 

@@ -1251,7 +1251,7 @@
       "behaviors": ["desktop.bot-mode.entry"],
       "reason": "Private launcher JSON; real browser enters/exits Bot mode and checks sidebar ownership and page errors.",
       "task": 1967,
-      "sha256": "9c506b8a3c4d497b0759cb2ef59d760199a58634465f97c54eb1a64e1ea25398"
+      "sha256": "3a852c4cb926194b72ccc616fb4ab9aca914053182df6fcde44037e52ebb65fd"
     },
     {
       "path": "scripts/e2e-browser-access.mjs",

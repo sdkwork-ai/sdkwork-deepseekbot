@@ -1,20 +1,20 @@
 # Update DeepSeekBot
 
-**Settings → Bot settings → DeepSeekBot version** shows the version you are running and checks npm for a newer one. When an update is out, you can install it there and restart DSH with one click, without opening a terminal.
+**Settings → Assistant settings → DeepSeekBot version** shows the version you are running and checks npm for a newer one. When an update is out, you can install it there and restart DSH with one click, without opening a terminal.
 
 > One-click update and restart ship in the releases after DeepSeekBot 1.0.2. If you are on 1.0.2 or earlier, update once by hand as described under "Update by hand" below; after that, Settings does it for you.
 
 ## Automatic compatible-update notices
 
-The update-notice change in [#2173](https://github.com/BotHarness/DeepSeekBot/issues/2173) checks for compatible releases when you enter Bot mode. The modal distinguishes your running DeepSeekBot version, your DSH version and the exact offered version. It waits for onboarding and installed-version release notes. Dismissing a target suppresses its automatic notice in that local Profile; **Bot settings → About** still offers it, and a newer target can notify again. Offline or incomplete checks never mean “up to date”.
+The update-notice change in [#2173](https://github.com/BotHarness/DeepSeekBot/issues/2173) checks for compatible releases when you enter Bot mode. The modal distinguishes your running DeepSeekBot version, your DSH version and the exact offered version. It waits for onboarding and installed-version release notes. Dismissing a target suppresses its automatic notice in that local Profile; **Assistant settings → About** still offers it, and a newer target can notify again. Offline or incomplete checks never mean “up to date”.
 
-Published 1.3.1 and older Clients do not gain this code when a new npm version appears. Use their existing **Bot settings → DeepSeekBot version → Check for updates**, or the manual command below, for the first transition. Unpublished 1.4.0 test metadata is not evidence that 1.4.0 is available. DSH Desktop's own update badge refers to DSH, not DeepSeekBot.
+Published 1.3.1 and older Clients do not gain this code when a new npm version appears. Use their existing **Assistant settings → DeepSeekBot version → Check for updates**, or the manual command below, for the first transition. Unpublished 1.4.0 test metadata is not evidence that 1.4.0 is available. DSH Desktop's own update badge refers to DSH, not DeepSeekBot.
 
 ## Check your version
 
-Open **Settings → Bot settings** and scroll to **DeepSeekBot version**. It shows the running version. **Check for updates** queries npm again, and **Changelog** opens the [changelog](https://deepseekbot.botharness.ai/en/changelog/) on the website.
+Open **Settings → Assistant settings** and scroll to **DeepSeekBot version**. It shows the running version. **Check for updates** queries npm again, and **Changelog** opens the [changelog](https://deepseekbot.botharness.ai/en/changelog/) on the website.
 
-![DeepSeekBot version in Bot settings](/guides/update/01-settings-zh.webp)
+![DeepSeekBot version in Assistant settings](/guides/update/01-settings-zh.webp)
 
 ## Update in one click
 
@@ -45,7 +45,7 @@ The desktop app has no **Restart now** button. Quit DSH Desktop completely (⌘Q
 
 ### Confirm the update
 
-After the restart, go back to **Bot settings**. The version row reads **Version x.y.z, up to date**, and Bot mode shows what is new in this release.
+After the restart, go back to **Assistant settings**. The version row reads **Version x.y.z, up to date**, and Bot mode shows what is new in this release.
 
 ![Up to date after the restart](/guides/update/05-current-zh.webp)
 
@@ -65,7 +65,7 @@ On DSH 0.2.1, **Update now** in DeepSeekBot 1.4.1 and earlier reports that the u
 
 ## Update other BotHarness plugins
 
-Other BotHarness plugins, such as VRM Companion, are listed under **Bot settings → Plugins** with their installed version. When a newer version works with your DSH, the row shows **Update now**. Some updates load right away and the page reloads by itself. Others need a restart: the page says so, with a **Restart now** button when DSH can restart itself (the web app); otherwise restart it as described above. If this DSH cannot install the update from the page, or the install fails, the row shows the terminal command for updating by hand instead, for example `dsh plugin --profile web add @botharness/vrm-companion@<version>`.
+Other BotHarness plugins, such as VRM Companion, are listed under **Assistant settings → Plugins** with their installed version. When a newer version works with your DSH, the row shows **Update now**. Some updates load right away and the page reloads by itself. Others need a restart: the page says so, with a **Restart now** button when DSH can restart itself (the web app); otherwise restart it as described above. If this DSH cannot install the update from the page, or the install fails, the row shows the terminal command for updating by hand instead, for example `dsh plugin --profile web add @botharness/vrm-companion@<version>`.
 
 ## Troubleshooting
 

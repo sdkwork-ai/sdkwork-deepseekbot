@@ -5506,28 +5506,6 @@ html[data-botharness-motion='reduce'] .bh-release-note-head::before {
   object-fit: contain;
 }
 
-/* Settings nav cell tagged by bot-icon-nav: hide the shell glyph, show ours. */
-button.bh-bot-nav > svg {
-  display: none;
-}
-
-.bh-bot-nav-icon {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-}
-
-.bh-bot-nav-icon > svg,
-.bh-bot-nav-icon > img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
 /* Bot icon chooser: what you see is what you pick — one card per mark. */
 
 

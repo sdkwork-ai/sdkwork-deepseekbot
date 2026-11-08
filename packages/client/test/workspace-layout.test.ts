@@ -103,7 +103,7 @@ describe('workspace layout', () => {
     };
     const migrated = readChannelDock(storage)!;
     expect(migrated).toMatchObject({
-      version: 9,
+      version: 10,
       gap: 4,
       order: ['bh:channels', CHANNEL_BODY_PANEL, 'activity-center', 'generated-files'],
       hiddenControls: [],

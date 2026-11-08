@@ -36,7 +36,7 @@ Close Settings, enter **Bot mode**, and open the Bot's DM. In the Channel sideba
 
 ![The Model entry in the Bot DM's Channel sidebar](/guides/channel-sidebar/14-model-zh.webp)
 
-This page configures one Bot. Global **Bot settings** contain appearance, sorting, and concurrency options. DSH **Agent presets** choose tools and working style; they are separate from Bot model presets.
+This page configures one Bot. Global **Assistant settings** contain appearance, sorting, and concurrency options. DSH **Agent presets** choose tools and working style; they are separate from Bot model presets.
 
 ## 3. Choose the models and save
 

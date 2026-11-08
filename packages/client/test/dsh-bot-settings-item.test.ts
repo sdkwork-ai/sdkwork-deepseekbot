@@ -41,7 +41,7 @@ function render(close: () => void, openBotSettings: () => void): void {
   });
 }
 
-it('closes DSH settings and opens Bot Settings as soon as it mounts, showing nothing', () => {
+it('closes DSH settings and opens Assistant settings as soon as it mounts, showing nothing', () => {
   const calls: string[] = [];
   render(
     () => calls.push('close'),
@@ -59,8 +59,8 @@ it('offers a button when DSH settings is still showing the item after the redire
     vi.advanceTimersByTime(DSH_BOT_SETTINGS_FALLBACK_MS);
   });
   const button = host.querySelector('button');
-  expect(button?.textContent).toBe('打开 Bot 设置');
-  expect(host.textContent).toContain('Bot 设置已移到独立窗口');
+  expect(button?.textContent).toBe('打开助理设置');
+  expect(host.textContent).toContain('助理设置已移到独立窗口');
 
   act(() => {
     button?.click();

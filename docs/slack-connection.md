@@ -185,7 +185,7 @@ Open **Rules** on the channel's row and choose custom **all messages** intake on
 
 A Bot may explicitly follow or leave one native Slack topic. Human can inspect or override this in **Topic following**. Unmentioned replies in a followed topic can enter; unrelated topics keep their own rules. A Bot can also request bounded channel, nearby or thread context with continuation, without importing the history as new Inbox messages.
 
-**Bot settings → Slack defaults** controls the default intake, harvest and identity-enabled behavior. A channel's **Rules** can inherit these values or explicitly override them. Global changes apply to subsequent events for inheriting configurations; they do not create accounts, admit channels or replay old history.
+**Assistant settings → Slack defaults** controls the default intake, harvest and identity-enabled behavior. A channel's **Rules** can inherit these values or explicitly override them. Global changes apply to subsequent events for inheriting configurations; they do not create accounts, admit channels or replay old history.
 
 Slack can address channels directly, so a saved send target is never required. The **External connectors → Save a send target (advanced)** fallback stays for apps that can't.
 

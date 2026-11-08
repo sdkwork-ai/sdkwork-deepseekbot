@@ -106,7 +106,7 @@ _Open Credentials & Basic Info. Copy the secret privately into local settings; k
 
 ![Application with the Bot capability added](/guides/lark/10-bot-capability.webp)
 
-_Add Bot under Add Features; the Bot settings entry appears in the sidebar afterwards._
+_Add Bot under Add Features; the Assistant settings entry appears in the sidebar afterwards._
 
 ![Application-identity message scopes filtered by Tenant token](/guides/lark/11-message-permissions.webp)
 
@@ -135,7 +135,7 @@ _Create and release a version under Version Management & Release, completing org
 3. Enter the App ID and App Secret privately, then click **Bind and connect** (绑定并连接 in Chinese).
 4. Confirm the account is connected. If you just changed subscriptions or permissions, publish them in the console before checking again.
 
-![Lark manual connection form in IM Bot settings, with empty credentials](/guides/lark/01-provider.webp)
+![Lark manual connection form in IM Assistant settings, with empty credentials](/guides/lark/01-provider.webp)
 
 _Figure 1: Select international Lark for a Lark application. Enter secrets only in local settings, never in chat, Git or public screenshots. Feishu QR onboarding and Lark CLI Human login are separate flows; this guide uses application credentials._
 
@@ -167,7 +167,7 @@ Existing syncs keep working: edit, pause or remove them under **External connect
 
 Adjust behaviour after the first successful test:
 
-- Manage global defaults in **Settings → Bot settings**. A group’s **Rules** can inherit or override them; changes affect future messages and do not import past history.
+- Manage global defaults in **Settings → Assistant settings**. A group’s **Rules** can inherit or override them; changes affect future messages and do not import past history.
 - For ordinary messages without mentions, publish `im:message.group_msg` and the subscription, send an unmentioned message in the group and refresh. Ordinary intake stays unavailable until genuine delivery is verified.
 - Receiving unmentioned replies in a topic requires explicitly following that topic.
 

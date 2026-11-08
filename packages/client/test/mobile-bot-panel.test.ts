@@ -173,7 +173,7 @@ describe('Mobile Bot navigation', () => {
     expect(container.querySelector<HTMLElement>('.bh-mobile-content')?.hidden).toBe(false);
     click('Conversations');
     expect(container.querySelector('.bh-mobile-shell')?.getAttribute('data-page')).toBe('list');
-    click('Bot settings');
+    click('Assistant settings');
     expect(openBotSettings).toHaveBeenCalledOnce();
     click('Exit Bot mode');
     expect(exitBotMode).toHaveBeenCalledOnce();
@@ -221,7 +221,7 @@ describe('Mobile Bot navigation', () => {
     expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
       'Conversations',
       'Activity',
-      'Bot settings',
+      'Assistant settings',
     ]);
     for (const button of buttons) {
       expect(button.textContent).toBe('');
@@ -242,13 +242,13 @@ describe('Mobile Bot navigation', () => {
       );
     const navigation = byRole('nav', 'Bot mode navigation')!;
     expect(navigation.className).toMatch(/^bh-mobile-nav bhx/);
-    for (const name of ['Conversations', 'Activity', 'Bot settings'])
+    for (const name of ['Conversations', 'Activity', 'Assistant settings'])
       expect(byRole('button', name)?.className, name).toMatch(/^bhx/);
     const exit = byRole('button', 'Exit Bot mode')!;
     expect(exit.className).toMatch(/^bh-mobile-exit bhx/);
     const current = byRole('button', 'Conversations')!;
     expect(current.getAttribute('aria-current')).toBe('page');
-    expect(current.className).not.toBe(byRole('button', 'Bot settings')!.className);
+    expect(current.className).not.toBe(byRole('button', 'Assistant settings')!.className);
     click('Activity');
     expect(byRole('button', 'Back to conversations')?.className).toMatch(/^bhx/);
     expect(byRole('button', 'Exit Bot mode')?.className).not.toBe(exit.className);

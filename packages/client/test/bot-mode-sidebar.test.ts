@@ -157,7 +157,7 @@ describe('Bot mode sidebar', () => {
 
     act(() => button('Exit Bot mode').click());
     act(() => button('Collapse sidebar').click());
-    act(() => button('Bot settings').click());
+    act(() => button('Assistant settings').click());
     act(() => button('Activity').click());
 
     expect(calls.exitBotMode).toHaveBeenCalledTimes(1);
@@ -176,7 +176,25 @@ describe('Bot mode sidebar', () => {
     expect(node.textContent).not.toContain('Tobs');
   });
 
-  it('shows one pinned card per Dock panel and toggles it in the mounted dock', () => {
+  it('keeps the Activity entry until the Dock owns its panel', () => {
+    const dockPanels = createDockPanelRegistry();
+    const { container: node, calls } = render({ dockPanels });
+    const entry = () => node.querySelector('[data-bh-tour="inbox"]');
+    expect(entry()).not.toBeNull();
+    act(() => {
+      entry()?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    });
+    expect(calls.openActivityCenter).toHaveBeenCalledTimes(1);
+    act(() => {
+      dockPanels.attach({
+        open: () => {},
+        close: () => {},
+      });
+    });
+    expect(entry()).toBeNull();
+  });
+
+  it('leaves the Dock panel switches to the right tab column', () => {
     const dockPanels = createDockPanelRegistry();
     dockPanels.register({
       id: 'activity-center',
@@ -188,70 +206,11 @@ describe('Bot mode sidebar', () => {
     });
     dockPanels.register({ id: 'todo', title: 'To-do', scope: 'global', component: () => null });
     act(() => store.setActivityList({ unreadCount: 3, hasAction: true }));
-    const { calls, container: node } = render({ dockPanels });
-    const card = (id: string): HTMLButtonElement =>
-      node.querySelector<HTMLButtonElement>(`[data-pinned-panel="${id}"]`)!;
+    const { container: node } = render({ dockPanels });
 
-    expect(node.querySelector('[role="group"][aria-label="Panels"]')).not.toBeNull();
-    expect(
-      [...node.querySelectorAll('[data-pinned-panel]')].map((el) =>
-        el.getAttribute('data-pinned-panel'),
-      ),
-    ).toEqual(['activity-center', 'todo']);
-    expect(card('activity-center').getAttribute('data-bh-tour')).toBe('inbox');
-    expect(card('activity-center').getAttribute('aria-label')).toBe(
-      'Activity · 3 unread · Needs my action',
-    );
-    expect(card('activity-center').querySelector('[data-pinned-panel-count]')?.textContent).toBe(
-      '3',
-    );
-
-    expect(card('todo').getAttribute('aria-disabled')).toBe('true');
-    act(() => card('todo').click());
-    act(() => card('activity-center').click());
-    expect(calls.openActivityCenter).toHaveBeenCalledTimes(1);
-
-    const opened: string[] = [];
-    let detach = () => {};
-    act(() => {
-      detach = dockPanels.attach({
-        open: (id) => {
-          opened.push(`open:${id}`);
-          dockPanels.reportOpen([...dockPanels.openPanels(), id]);
-        },
-        close: (id) => {
-          opened.push(`close:${id}`);
-          dockPanels.reportOpen(dockPanels.openPanels().filter((open) => open !== id));
-        },
-      });
-    });
-    expect(card('todo').hasAttribute('aria-disabled')).toBe(false);
-    act(() => card('activity-center').click());
-    expect(card('activity-center').getAttribute('aria-pressed')).toBe('true');
-    act(() => card('activity-center').click());
-    act(() => card('todo').click());
-    expect(opened).toEqual(['open:activity-center', 'close:activity-center', 'open:todo']);
-    expect(card('activity-center').getAttribute('aria-pressed')).toBe('false');
-    expect(card('todo').getAttribute('data-open')).toBe('true');
-    expect(calls.openActivityCenter).toHaveBeenCalledTimes(1);
-    act(() => detach());
-    act(() => store.setActivityList({ unreadCount: 0, hasAction: false }));
-  });
-
-  it('stacks the pinned cards as icons on the collapsed rail', () => {
-    const dockPanels = createDockPanelRegistry();
-    dockPanels.register({
-      id: 'activity-center',
-      title: 'Activity',
-      icon: 'bell',
-      scope: 'global',
-      component: () => null,
-    });
-    act(() => store.setActivityList({ unreadCount: 2, hasAction: false }));
-    const { container: node } = render({ dockPanels, collapsed: true, width: 56 });
-    const card = node.querySelector('[data-pinned-panel="activity-center"]')!;
-    expect(card.querySelector('[data-pinned-panel-count]')).toBeNull();
-    expect(card.querySelector('[data-pinned-panel-dot]')).not.toBeNull();
+    expect(node.querySelector('[data-pinned-panel]')).toBeNull();
+    expect(node.querySelector('[data-pinned-panels]')).toBeNull();
+    expect(node.querySelector('.bh-mode-sidebar')).not.toBeNull();
     act(() => store.setActivityList({ unreadCount: 0, hasAction: false }));
   });
 });

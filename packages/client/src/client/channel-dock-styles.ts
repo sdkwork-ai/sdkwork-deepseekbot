@@ -67,6 +67,61 @@ export const CHANNEL_DOCK_CSS =
 }
 .bh-dock .dv-full-width-single-tab .dv-tab { flex: 1 1 0; min-width: 0; }
 .bh-dock .dv-tab:has([data-dock-header="bh:channel-body"]) { flex: 1 1 0; min-width: 0; max-width: 100%; }
+.bh-dock .dv-tab .bh-dock-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+}
+.bh-dock .dv-tab:has(.bh-dock-tab) {
+  flex: 0 0 40px;
+  min-width: 40px;
+  max-width: 40px;
+}
+.bh-dock .dv-tab:has(.bh-dock-tab) .bh-dock-tab-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: ${color.muted};
+}
+.bh-dock .dv-tab:has(.bh-dock-tab):hover .bh-dock-tab-icon {
+  color: ${color.fg};
+}
+/* Dockview paints the active tab background from its own selector chain
+   (.dv-groupview.dv-active-group > ... > .dv-tab.dv-active-tab), so these
+   rules repeat enough of that chain to win without !important. */
+.bh-dock .dv-groupview > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab:has(.bh-dock-tab):hover {
+  background-color: ${color.hover};
+}
+.bh-dock .dv-groupview > .dv-tabs-and-actions-container .dv-tabs-container > .dv-tab.dv-active-tab:has(.bh-dock-tab) {
+  background-color: ${color.accentTint};
+}
+.bh-dock .dv-tab.dv-active-tab:has(.bh-dock-tab) .bh-dock-tab-icon {
+  color: ${color.accentText};
+}
+.bh-dock .dv-tab .bh-dock-tab-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+}
+.bh-dock .dv-tab .bh-dock-tab-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: ${radius.round};
+  background-color: ${color.danger};
+  box-shadow: 0 0 0 1px ${color.base};
+}
+.bh-dock .bh-dock-tabbar-actions {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  padding-inline: ${space.x2};
+}
 .bh-dock [data-panel-hide]:active { cursor: grabbing; }
 html[data-platform="darwin"] .bh-dock .dv-tabs-and-actions-container,
 html[data-platform="darwin"] .bh-dock .dv-tabs-and-actions-container .dv-tab,
@@ -104,13 +159,12 @@ html[data-platform="darwin"] .bh-dock .bh-dock-header :is(button, a, input, sele
   min-height: 0;
 }
 .bh-dock-menu {
-  display: none;
+  display: block;
   position: absolute;
   top: calc((var(--bh-channel-header-height) - ${size.icon}) / 2);
   right: ${space.x3};
   z-index: 7;
 }
-/* The expanded App Sidebar already exposes the panel toggles. Use the native
-   frame's resolved state, including responsive collapse and hidden sidebars. */
-[data-sidebar-collapsed] .bh-dock-menu { display: block; }
+/* The panel toggles live in the right tab column; this menu is the launcher
+   for panels that are not open yet, so it stays available at every width. */
 `;

@@ -29,9 +29,9 @@ Tailscale 个人版免费。在**手机和电脑**上都安装：
 
 启动 DeepSeek Harness 桌面端（或 `dsh web`），确认已经安装并启用 DeepSeekBot 插件，左侧能看到 **Bot 模式**。还没安装的话，先按 [安装 DeepSeekBot](/zh/docs/installation) 操作。
 
-进入 **Bot 模式**，点击左下角的齿轮打开 **Bot 设置**，选择 **设备**。
+进入 **Bot 模式**，点击左下角的齿轮打开 **助理设置**，选择 **设备**。
 
-![Bot 设置中的设备页，Tailscale 已就绪](/guides/mobile-pairing/01-devices-zh.webp)
+![助理设置中的设备页，Tailscale 已就绪](/guides/mobile-pairing/01-devices-zh.webp)
 
 如果像上图一样只显示 **配对手机** 按钮，说明 Tailscale 已经就绪，直接跳到第 4 步。
 

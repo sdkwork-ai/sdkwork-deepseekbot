@@ -9,7 +9,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → Bot settings → Data and privacy → Environment backup → Manage backups.
+Bot mode → Assistant settings → Data and privacy → Environment backup → Manage backups.
 Choose Preview export, review the counts and old-backup warning, then Download backup. Choose backup file in the Import area to inspect it. Export errors belong to the Export area and inspection errors to the Import area.
 
 Export and Import each group their action with a heading. Contents and limits and Recovery details are collapsed initially and keyboard-operable. Sensitive-data handling stays visible; the old-backup purge warning appears before download. Restored Bots show their state beside their name. External-authority limits and the duplicate-running acknowledgement stay visible before activation.

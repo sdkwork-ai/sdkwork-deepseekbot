@@ -1524,7 +1524,7 @@ describe('DM usage refresh', () => {
 });
 
 describe('Bot main question developer details', () => {
-  it('reacts to the shared Bot settings preference without remounting the question', async () => {
+  it('reacts to the shared Assistant settings preference without remounting the question', async () => {
     const previous = store.getSnapshot();
     const channel = {
       id: 'dm-ada',

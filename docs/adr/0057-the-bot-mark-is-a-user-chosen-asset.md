@@ -1,9 +1,11 @@
 ---
-Status: Accepted
+Status: Superseded in part by ADR-0304
 Date: 2026-09-22
 ---
 
 # The Bot mark is a user-chosen asset; the shell-owned Settings nav wears it by DOM tagging
+
+> Superseded in part by [ADR-0304](0304-assistant-settings-keep-the-shell-icon.md): the DSH Settings navigation keeps the shell's own settings glyph and the surface is called Assistant settings. The mark pipeline, the `botIcon` preference and the application-owned surfaces below still stand; the nav-tagging decision and its consequences are historical.
 
 A product needs a face. BotHarness shipped without one — the app sidebar's BOT-mode entry borrowed DSH's `IconAgentPresetOutline16`, and the Settings navigation showed the shell's settings gear for the Bot section. The Human supplied DeepSeekBot mascot artwork in light and dark variants and asked for a choice of marks, so the product needs one owned asset pipeline and one preference, not two unrelated icons.
 

@@ -152,7 +152,7 @@ agent's Host.
   group Channel with two of them, a short DM. Ask the Human before you create data that has side
   effects, such as routines. Delete test data you created when the check is done.
 - **Pairing:** a pairing offer is one-time and lasts 5 minutes. Make it the way
-  `scripts/e2e-device-pairing.mjs` does, or in the Web Client under Bot settings → Devices →
+  `scripts/e2e-device-pairing.mjs` does, or in the Web Client under Assistant settings → Devices →
   Pair a phone. A Simulator pairs over the loopback route: open the link with
   `xcrun simctl openurl <udid> '<deepseekbot-dev://pair?p=…>'`. A physical phone needs a Tailscale
   HTTPS route (see below). Never redeem an offer meant for the Human.

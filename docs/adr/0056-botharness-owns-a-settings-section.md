@@ -5,6 +5,8 @@ Date: 2026-09-22
 
 # BotHarness owns a settings section instead of adding rows to the native General page
 
+> Amended in part by [ADR-0304](0304-assistant-settings-keep-the-shell-icon.md): the shell keeps its own settings glyph and the section is named Assistant settings. The nav-glyph consequence below records the superseded runtime patch.
+
 BotHarness keeps accumulating preferences that belong to the product, not to DSH: interface motion, BOT list sorting, and — next — the Computer's settings, export/import, and resource bounds. The first two shipped as rows inside DSH's native 通用设置 page (`settings.general.item`). That seat is the shell's page for cross-feature preferences, and filling it makes product settings read as native DSH settings while coupling our ordering and copy to a page we do not own.
 
 ## Decision

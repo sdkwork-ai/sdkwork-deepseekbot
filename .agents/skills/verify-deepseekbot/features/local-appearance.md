@@ -9,7 +9,7 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode, choose the visible control rail's **Bot settings**, then **Appearance**. Pick a **Theme** card, a **Colors** card, and each **Primary color** swatch. Exit Bot mode and compare native DSH. Return and reopen the settings.
+Enter Bot mode, choose the visible control rail's **Assistant settings**, then **Appearance**. Pick a **Theme** card, a **Colors** card, and each **Primary color** swatch. Exit Bot mode and compare native DSH. Return and reopen the settings.
 
 ## Driving it with verify-app
 
@@ -21,13 +21,13 @@ BH_E2E_INSTANCE=.humanlayer/verify/<name>/instance.json node scripts/e2e-local-a
 
 The journey uses a private browser profile, handles English/Chinese startup prompts, changes the visible theme and palette controls, checks computed modal/menu scheme, reloads, uses the actual CLI executable to read/write the selected Client, checks another isolated browser context remains unchanged, verifies revision/stale-target refusals, then exits/re-enters and changes the system preference. It saves screenshots, ARIA, local canonical configuration, native style/mode and page errors in a unique attempt directory. It does not call a model.
 
-For native macOS, use a task-owned official Desktop process with separate `DSH_HOME`, `--user-data-dir`, renderer debug port and main inspector. Confirm these paths through the main process before input. Open the visible control rail's Bot settings; record `dsh-app://app/`, the independent key and computed modal/menu scheme. Use the native Host's login token only through local environment/file input for the same CLI operations. Flush task-owned storage, restart the same app user directory and reread. Restart into a second isolated linked Host Profile using that same app user directory and reread again; record this as a different-Host restart, not an interactive connection-switch UI test. Keep original and replacement Profile data task-local. Never operate another task's Desktop window.
+For native macOS, use a task-owned official Desktop process with separate `DSH_HOME`, `--user-data-dir`, renderer debug port and main inspector. Confirm these paths through the main process before input. Open the visible control rail's Assistant settings; record `dsh-app://app/`, the independent key and computed modal/menu scheme. Use the native Host's login token only through local environment/file input for the same CLI operations. Flush task-owned storage, restart the same app user directory and reread. Restart into a second isolated linked Host Profile using that same app user directory and reread again; record this as a different-Host restart, not an interactive connection-switch UI test. Keep original and replacement Profile data task-local. Never operate another task's Desktop window.
 
 Canonical storage is `botharness:appearance:v1`; CLI success is an accepted local snapshot, not Host persistence. Check native DSH theme before and after, and inspect console/errors. On storage failure the UI must report failure and retain the accepted configuration. Source tests cover unavailable/malformed storage, unknown future fields, Client leases and disposal; report runtime branches separately.
 
 ## Gotchas
 
-- A native hidden sidebar retains another **Bot settings** button. Scope it to `.bh-workspace-rail` or use visible-role locators.
+- A native hidden sidebar retains another **Assistant settings** button. Scope it to `.bh-workspace-rail` or use visible-role locators.
 - Native menus expose `menuitem`, not `menuitemradio`. Theme text and button share a name; target the button role.
 - Reload assigns a new Client id. Old delivery leases may remain briefly in discovery, but writes never fall back or broadcast. Re-read discovery and select the correct target explicitly.
 - A delivered CLI timeout can have an unknown outcome. Read the target before retrying; do not automatically replay a write.

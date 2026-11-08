@@ -13,7 +13,7 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode, open Bot settings, choose **Data & privacy**, then **Manage…** on the **Storage** row.
+Enter Bot mode, open Assistant settings, choose **Data & privacy**, then **Manage…** on the **Storage** row.
 
 ## Driving it with verify-app
 

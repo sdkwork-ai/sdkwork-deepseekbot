@@ -12,7 +12,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → Bot settings → Appearance → Wallpaper. Click or drop images up to 20 MB on **Add**; each appears as a tile and the newest is shown behind the workspace. Hover a tile for **Adjust crop** (drag, Zoom, Save) and **Delete this wallpaper**; **None** keeps the library but shows no wallpaper.
+Bot mode → Assistant settings → Appearance → Wallpaper. Click or drop images up to 20 MB on **Add**; each appears as a tile and the newest is shown behind the workspace. Hover a tile for **Adjust crop** (drag, Zoom, Save) and **Delete this wallpaper**; **None** keeps the library but shows no wallpaper.
 
 ## Driving it with verify-app
 
