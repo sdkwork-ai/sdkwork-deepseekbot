@@ -4,7 +4,7 @@ The Expo app exposes existing Host Bot deletion, Group Disband and Channel-secti
 
 ## Sub-features
 
-- `bot-menu`: ordinary Bot DMs expose Delete Bot; Tob does not. iOS retains Link.Preview. Existing pin, mute/read and section-placement actions remain available.
+- `bot-menu`: ordinary Bot DMs expose Delete Bot; Assistant does not. iOS retains Link.Preview. Existing pin, mute/read and section-placement actions remain available.
 - `bot-review`: review the Host dependencies and Memory folder. Memory erasure starts unchecked and remains unavailable when the Host cannot prove ownership. Cancel has no mutation.
 - `bot-recovery`: block duplicate submission; after a refusal, reset the Memory choice and obtain a fresh preview. Retry an incomplete deletion with its accepted scope. Retry only refresh after known completion.
 - `group`: Disband group deletes the group's messages and files after one confirmation. The Group profile Settings tab exposes the same action. The group leaves Chats and its phone cache.

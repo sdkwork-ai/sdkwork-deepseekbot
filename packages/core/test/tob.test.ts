@@ -113,7 +113,7 @@ describe('Tob canonical identity and settings', () => {
         ok: true,
         value: {
           bot: {
-            displayName: 'Tob',
+            displayName: 'Assistant',
             tob: { defaultName: true, defaultAvatar: true },
           },
         },
@@ -186,6 +186,36 @@ describe('Tob canonical identity and settings', () => {
       });
       expect((await f.core.tob.ensure()).botSlug).toBe(home.botSlug);
       expect(f.core.registry.get(home.botSlug)?.displayName).toBe('My steward');
+    } finally {
+      await f.close();
+    }
+  });
+  it('treats the pre-rename stored name as an uncustomized default so the localized name still applies', async () => {
+    const f = fixture();
+    try {
+      const home = await f.core.tob.ensure();
+      const owner = attachOperationalModule(f.core.operationalDatabase, 'bot-registry');
+      owner.transaction(
+        (db) => {
+          const row = db.prepare('SELECT body FROM persona_bots WHERE slug = ?').get(home.botSlug)!;
+          const record = JSON.parse(String(row['body']));
+          record.displayName = 'Tob';
+          delete record.displayNameCustomized;
+          db.prepare('UPDATE persona_bots SET body = ? WHERE slug = ?').run(
+            JSON.stringify(record),
+            home.botSlug,
+          );
+        },
+        ['bot-registry'],
+      );
+      const bridge = createBridgeMethods({ ...f.core });
+      expect(bridge.get({ slug: home.botSlug })).toMatchObject({
+        ok: true,
+        value: {
+          bot: { displayName: 'Tob', tob: { defaultName: true, defaultAvatar: true } },
+        },
+      });
+      expect(f.core.registry.get(home.botSlug)?.displayNameCustomized).toBeUndefined();
     } finally {
       await f.close();
     }

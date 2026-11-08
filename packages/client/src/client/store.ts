@@ -795,7 +795,7 @@ export function createStore({
     git: undefined,
   };
   const listeners = new Set<() => void>();
-  let defaultTobName = 'Tob';
+  let defaultTobName = 'Assistant';
   const presentBot = (bot: BotSummary): BotSummary =>
     bot.tob?.defaultName ? { ...bot, displayName: defaultTobName } : bot;
   let activity: PersonaBotActivitySnapshot | undefined;

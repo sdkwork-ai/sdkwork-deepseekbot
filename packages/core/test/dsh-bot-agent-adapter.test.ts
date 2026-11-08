@@ -677,7 +677,7 @@ describe('DSH Bot Agent adapter', () => {
         expect(scope.tools.map((tool) => tool.name)).not.toContain('channel_send');
         expect(scope.tools.map((tool) => tool.name)).toContain('channel_read');
         expect(
-          rolePrompt?.includes("Tob is the Human's private steward, never a Group participant"),
+          rolePrompt?.includes("You are the Human's private steward, never a Group participant"),
         ).toBe(tobCli);
         expect(rolePrompt?.includes('You may create a Group with group_create')).toBe(!tobCli);
         expect(rolePrompt?.includes('Tob Delegation:')).toBe(tobCli);
@@ -712,7 +712,7 @@ describe('DSH Bot Agent adapter', () => {
             await invokeLegacy();
           } else {
             await expect(invokeLegacy!()).rejects.toThrow(
-              'Tob must use the scoped deepseekbot CLI',
+              'Assistant must use the scoped deepseekbot CLI',
             );
           }
         },
@@ -752,7 +752,7 @@ describe('DSH Bot Agent adapter', () => {
               await expect(invokeLegacy()).rejects.toThrow('ordinary Group method reached');
             } else
               await expect(invokeLegacy()).rejects.toThrow(
-                'Tob must use the scoped deepseekbot CLI',
+                'Assistant must use the scoped deepseekbot CLI',
               );
           },
         },

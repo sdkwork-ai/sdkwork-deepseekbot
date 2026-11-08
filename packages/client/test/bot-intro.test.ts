@@ -189,7 +189,7 @@ describe('intro modal', () => {
       await act(async () => button.click());
     };
     expect(step()).toBe('welcome');
-    expect(dialog().textContent).toContain('你好，我是托布');
+    expect(dialog().textContent).toContain('你好，我是你的助理');
     expect(dialog().querySelector('[data-founder-note]')).toBeNull();
     await click('下一步');
     expect(step()).toBe('theme');
@@ -417,7 +417,7 @@ describe('intro modal', () => {
         .querySelector<HTMLElement>(`[data-picker="${zhTranslate('modelPreset.assignment')}"]`)!
         .click(),
     );
-    expect(advanced.textContent).toContain('托布的执行模型单独设置');
+    expect(advanced.textContent).toContain('助理的执行模型单独设置');
     await next();
     expect(actions.onboardingModel).not.toHaveBeenCalled();
     expect(actions.setModelPlan).toHaveBeenCalledWith(

@@ -20,6 +20,7 @@ import { useDesignTheme } from '../design/theme';
 import { edge, memoryGrid, profileShell, radius, rowGlyph, space } from '../design/tokens';
 import { profileTabPaths, profileTabSymbols } from '../design/profile-tab-icons';
 import { useProfileFocusEffect } from './profile-visibility';
+import { botName } from './bot-name';
 import { SettingsHeading, SettingsRow, SettingsSection } from '../primitives/settings-row';
 import { Text } from '../primitives/text';
 import { useMounted } from '../mounted';
@@ -160,7 +161,7 @@ export function workingRows(bots: readonly RosterBot[], grouped: boolean): Row[]
   for (const [index, { bot, sessions }] of running.entries()) {
     bodies.push({
       kind: 'working-head',
-      label: grouped ? bot.displayName : t.workingNow,
+      label: grouped ? botName(bot) : t.workingNow,
       botSlug: bot.slug,
       sessionIds: sessions.map((session) => session.id),
       lead: index === 0,
@@ -403,7 +404,7 @@ function BotIdentity({
   return (
     <ProfileHero
       banner={{ source: botBanner(bot), headers: bot.bannerHeaders }}
-      name={bot.displayName}
+      name={botName(bot)}
       avatar={
         <EditableAvatar editor={avatar} corner={radius.round} testID="bot-avatar-change">
           <BotAvatar bot={bot} size={profileShell.avatar} />

@@ -105,6 +105,7 @@ export function activityListPushSource(
   attention: Pick<HumanAttentionQuery, 'list' | 'actionCount' | 'dmReplies'>,
   botName: (slug: string) => string | undefined,
   approval?: PushApprovalLookup,
+  isDefaultSteward?: (slug: string) => boolean,
 ): PushSource {
   return {
     pending() {
@@ -119,5 +120,6 @@ export function activityListPushSource(
       };
     },
     botName,
+    ...(isDefaultSteward === undefined ? {} : { isDefaultSteward }),
   };
 }

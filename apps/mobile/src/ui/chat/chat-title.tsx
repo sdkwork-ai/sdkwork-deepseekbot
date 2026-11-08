@@ -10,6 +10,7 @@ import { radius, space } from '../design/tokens';
 import { Text } from '../primitives/text';
 import { useStrings } from '../strings';
 import { titleChipFill } from './header-chrome';
+import { botName } from './bot-name';
 import {
   barLabelStyle,
   barLabelProps,
@@ -36,7 +37,7 @@ export function ChatTitle({
   const contentScale = glassHeader ? headerContentScale(theme) : 1;
   const avatarSize = AVATAR * contentScale;
   const headerStatus = useHeaderStatus(bot, undefined);
-  const name = bot?.displayName ?? fallback;
+  const name = bot === undefined ? fallback : botName(bot);
   const chip = (press: () => void) => (
     <HeaderTitleButton
       testID="bot-details-chip"

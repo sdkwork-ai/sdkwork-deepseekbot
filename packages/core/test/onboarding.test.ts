@@ -48,7 +48,7 @@ describe('Bot onboarding through the public Host bridge', () => {
       if (!first.ok) throw new Error(first.error.message);
       const bot = core.registry.list()[0]!;
       expect(core.registry.list()).toHaveLength(1);
-      expect(bot.displayName).toBe('Tob');
+      expect(bot.displayName).toBe('Assistant');
       expect(bot.appearance?.recipe).toEqual(DEEPSEEKBOT_RECIPE);
       expect(core.registry.memoryDirFor(bot.slug)).toBeTruthy();
       expect(core.channels.readMessages(first.value.channelId!)).toEqual([]);

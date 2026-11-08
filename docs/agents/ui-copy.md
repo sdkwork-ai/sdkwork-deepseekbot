@@ -9,6 +9,7 @@ Apply the shared [UI design standard](ui-design.md) ([中文](ui-design.zh.md)) 
 ## Names
 
 - Call a PersonaBot **Bot** in the UI: "New Bot", "Search Bots and Channels", "搜索 Bot 和频道". `PersonaBot` stays the domain term in [GLOSSARY.md](../../GLOSSARY.md), code, ADRs and developer docs; only the visible text says Bot.
+- Call the protected steward **助理** in Chinese and **Assistant** in English, with "your assistant" inside an English sentence. Tob stays its domain term (see [GLOSSARY.md](../../GLOSSARY.md)); UI copy never names it Tob.
 - Use the other product nouns from GLOSSARY.md as they are (Channel, Memory, Orchestrator, Assignment), with the casing the surrounding screen already uses.
 - Keep internal ids, protocol names, config keys and error codes out of the UI. Show them only where the reader needs them to act, such as a copyable diagnostic.
 

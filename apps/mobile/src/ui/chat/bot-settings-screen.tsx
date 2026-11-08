@@ -8,6 +8,7 @@ import { SheetPage } from '../primitives/sheet-page';
 import { useStrings } from '../strings';
 import { useComposerContext } from './composer-context';
 import { ModelSheet } from './model-sheet';
+import { botName } from './bot-name';
 import { WorkspaceSheet } from './workspace-sheet';
 import { SheetNote } from './sheet';
 
@@ -34,7 +35,7 @@ export function BotSettingsScreen({ kind }: { kind: 'model' | 'workspace' }) {
         <ModelSheet
           page={SheetPage}
           visible
-          botName={bot.displayName}
+          botName={botName(bot)}
           model={context.model}
           onRetry={context.reloadModel}
           onChoose={async (choice, entry) => {
@@ -49,7 +50,7 @@ export function BotSettingsScreen({ kind }: { kind: 'model' | 'workspace' }) {
         <WorkspaceSheet
           page={SheetPage}
           visible
-          botName={bot.displayName}
+          botName={botName(bot)}
           settings={settings}
           grants={context.grants}
           access={context.access}

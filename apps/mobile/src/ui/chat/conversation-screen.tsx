@@ -97,6 +97,7 @@ import { ChannelTitle } from './channel-title';
 import { ChatHeaderRow } from './chat-header-row';
 import { WorkingStatus } from './working-status';
 import { ChatTitle } from './chat-title';
+import { botName as rosterBotLabel } from './bot-name';
 import { runningSessionCount } from '../../host/session-stop';
 import { ConversationTopBar } from './conversation-top-bar';
 import { ChatBackdrop } from './chat-backdrop';
@@ -747,7 +748,7 @@ function ChatConversation({
       : bot !== undefined
         ? {
             id: `dm:${saved?.hostId ?? ''}:${bot.slug}`,
-            title: bot.displayName,
+            title: rosterBotLabel(bot),
             href: chatHref(`/dm/${encodeURIComponent(bot.slug)}`, saved?.hostId),
           }
         : channel !== undefined
@@ -1271,11 +1272,10 @@ function ChatConversation({
   const canGoBack = !stackRoot && router.canGoBack();
   const botDmName =
     channelDetails?.members
-      .map(
-        (member) =>
-          roster?.bots.find((entry) => entry.slug === member)?.displayName ??
-          t.activityRow.unavailableBot,
-      )
+      .map((member) => {
+        const found = roster?.bots.find((entry) => entry.slug === member);
+        return found === undefined ? t.activityRow.unavailableBot : rosterBotLabel(found);
+      })
       .join('、') ?? '';
   const profileHref = {
     pathname: '/bot/[slug]' as const,
@@ -2028,7 +2028,9 @@ function ChatConversation({
             blurTarget={blurTarget}
             title={
               dm
-                ? (bot?.displayName ?? slug ?? '')
+                ? bot === undefined
+                  ? (slug ?? '')
+                  : rosterBotLabel(bot)
                 : botDm
                   ? botDmName
                   : (channel?.name ?? channelName ?? t.groupInfo)
@@ -2048,7 +2050,15 @@ function ChatConversation({
       {!android && paging === undefined ? (
         <ProfileSwipePreview
           travel={profileTravel}
-          name={dm ? (bot?.displayName ?? slug ?? '') : botDm ? botDmName : (channel?.name ?? '')}
+          name={
+            dm
+              ? bot === undefined
+                ? (slug ?? '')
+                : rosterBotLabel(bot)
+              : botDm
+                ? botDmName
+                : (channel?.name ?? '')
+          }
           bot={dm ? bot : undefined}
           groupAvatar={channel?.avatar}
         />

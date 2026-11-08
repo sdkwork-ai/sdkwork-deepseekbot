@@ -17,7 +17,7 @@
 
 导入响应丢失后，运行 `bot-zip-import-status --archive-sha256 <摘要> --operation-key <键> --name <名称>`，并原样携带可选描述和标签。`zipImportLookup` 不需要文件或上传会话。已完成回执在 Host 重启和上传过期后仍保留；重复 `bot-zip-import` 返回同一个 Bot 和私聊。相同操作键换摘要或元数据会被拒绝。未完成的上传过期后可明确重新传输，继续使用原导入操作键。
 
-暂存区独立于 Bot 的权威存储。沿用桌面端的压缩包限制：压缩及解压大小均最多 100 MiB、20,000 个文件项。Host 最多保留八个并行上传、共预留 400 MiB，以支持多个大文件并限制磁盘占用；会话 24 小时过期，在开始上传时回收。在暂存期间，上传键绑定摘要和大小。相同分块可重试，内容改变、偏移错误和最终摘要不匹配均拒绝。不保证后台传输。认证凭据沿用私有 token 文件或环境输入，不出现在输出中，也不扩大 Tob 的 CLI 权限。
+暂存区独立于 Bot 的权威存储。沿用桌面端的压缩包限制：压缩及解压大小均最多 100 MiB、20,000 个文件项。Host 最多保留八个并行上传、共预留 400 MiB，以支持多个大文件并限制磁盘占用；会话 24 小时过期，在开始上传时回收。在暂存期间，上传键绑定摘要和大小。相同分块可重试，内容改变、偏移错误和最终摘要不匹配均拒绝。不保证后台传输。认证凭据沿用私有 token 文件或环境输入，不出现在输出中，也不扩大 助理 的 CLI 权限。
 
 `deepseekbot browser-notification-clients` 列出在线 Client。`deepseekbot browser-notifications --client-id <id> --remote-host-id <id>` 读取该浏览器的本地选择和 revision。写入时加 `--expected-revision <revision> --patch-stdin`，从标准输入传入 `{"enabled":true,"preferences":{"approval":true,"question":true,"private-input":true,"reply":false}}`。命令使用提供页面的 Host 的现有认证及 Client 定向控制通道；Host 不保存浏览器选择或远程凭据。版本过期或远程不存在时明确拒绝。开启前须已在浏览器授予通知权限，否则返回 `notification-permission-required`；CLI 不弹出系统授权。页面关闭后，控制目标和提醒都会结束。 开启原先未启用的类型时，先通过共享 Inbox 读完全部通知分页，完整基线就绪前保持旧选择；写入成功才是启用边界，此前条目静默，此后的群回复和 DM 可提醒。部分页失败返回 `notification-baseline-unavailable`，UI 基线的十秒期限返回 `notification-baseline-timeout`。CLI 写入还将既有 appearance relay 的请求期限（当前八秒）和取消信号传到同一 owner，并在落盘前再次检查；relay 超时或卸载后，迟到分页不能写入，已过期的通知命令不发送迟到回执。切换 Host、关闭设置、移除配对、权限丢失或释放页面会取消待完成的启用（`notification-activation-cancelled`），迟到结果不能落盘。拒绝后显式重试；页面仍订阅时，正常共享 Host Feed 观察继续。
 
@@ -191,7 +191,7 @@ deepseekbot workspace-create /srv/bots/workspace
 deepseekbot group-create "Skill Lab" --member <bot-id> --member <bot-id>
 ```
 
-`access-set` 设置 `danger-full-access` 时必须带 `--acknowledge-risk`：完全访问下普通工具请求不再逐次弹卡；识别出的权限／策略变更仍需 Human 本次决定，浏览器和 Computer 保留各自能力检查。`--scope chat` 同时作用于 Bot 自己的对话；`assignments` 只作用于新的 Assignment。`settings` 返回一个命名空间的 `{ns, revision, value}`；`settings-set` 从标准输入读取一个字段 JSON 对象，并基于该版本号应用，所以并发修改会失败而不是被覆盖。只有 Host 标记为可在线修改的字段才能这样改。 `botHopLimit`（1–1000 的整数，默认 128，「设置 → 消息」）是由一条 Human 消息开始的 Bot 接力链的最大层数。会唤醒其他 Bot 的发送（@ 提及或 Bot 私信）超限时以 `collaboration-hop-limit` 被拒，且不会写入任何消息；不 @ 任何 Bot 的群消息仍会发出，只是不唤醒任何 Bot。Tob 的受限 CLI 不能修改它。`workspace-create` 接受绝对路径并返回 Host 工作区，其 id 供 `grant-create` 使用。
+`access-set` 设置 `danger-full-access` 时必须带 `--acknowledge-risk`：完全访问下普通工具请求不再逐次弹卡；识别出的权限／策略变更仍需 Human 本次决定，浏览器和 Computer 保留各自能力检查。`--scope chat` 同时作用于 Bot 自己的对话；`assignments` 只作用于新的 Assignment。`settings` 返回一个命名空间的 `{ns, revision, value}`；`settings-set` 从标准输入读取一个字段 JSON 对象，并基于该版本号应用，所以并发修改会失败而不是被覆盖。只有 Host 标记为可在线修改的字段才能这样改。 `botHopLimit`（1–1000 的整数，默认 128，「设置 → 消息」）是由一条 Human 消息开始的 Bot 接力链的最大层数。会唤醒其他 Bot 的发送（@ 提及或 Bot 私信）超限时以 `collaboration-hop-limit` 被拒，且不会写入任何消息；不 @ 任何 Bot 的群消息仍会发出，只是不唤醒任何 Bot。助理 的受限 CLI 不能修改它。`workspace-create` 接受绝对路径并返回 Host 工作区，其 id 供 `grant-create` 使用。
 
 ### Bot 私聊中的 GenUI 文档
 
@@ -295,7 +295,7 @@ Host 重启后，先读取当前群聊，再用 `recover:true`、`draft_id`、�
 `held.review.content` 包含有限新增正文；`review.complete` 为 true 时，可直接把
 `review.observationId` 作为 `observation_id` 复核，无需额外 `channel_read`。内容未完整返回时仍须读取缺失部分；省略的内容不会计作已观察。
 
-`channel <group-channel>` 返回 `{channel, channelFingerprint, invitationPolicy:{autoAccept}, wakePolicies}`，拒绝非群频道。稳定创建／邀请参数及重试语义见 [Tob 建群与邀请](#tob-建群与邀请)，Human 在线命令也可使用。
+`channel <group-channel>` 返回 `{channel, channelFingerprint, invitationPolicy:{autoAccept}, wakePolicies}`，拒绝非群频道。稳定创建／邀请参数及重试语义见 [助理 建群与邀请](#tob-建群与邀请)，Human 在线命令也可使用。
 
 与 Web 界面一样，重命名 Bot 私聊会同时重命名该 Bot。`group-avatar-set` 读取不超过 96 KiB 的 PNG、JPEG 或 WebP 文件。邀请 ID 和入群申请 ID 位于群组的 `invitations` 和 `joinRequests` 中，`channels` 和每个群组命令都会返回。`group-wake-set` 设置成员 Bot 对普通群消息何时唤醒：`all`、`mentions`、`digest`（累计 `--count` 条消息或经过 `--interval` 秒后唤醒，默认 5 和 30）或 `silent`；`--inherit` 让该成员恢复其 Bot 的默认设置。`channel-timeline` 和 `channel-journal` 按聊天视图的方式分页读取消息；`channel-journal` 的 `--through` 取 `channel-timeline` 返回的 `revision`。`channel-retry` 在 Bot 回复失败后让它重新回答一条 Human 私聊消息。加上 `--recovery continue` 和失败卡片的 id 则改为在同一个 Session 里继续中断的回合：Bot 保留已经完成的工具调用，看到中断原因，并被要求先检查结果未知的调用再决定是否重做。即使这一回合已经发过消息或建过 Assignment（普通重试此时会被拒绝）也可以继续；Bot 的 Session 已被替换时以 `session-changed` 拒绝，Bot 正在工作时以 `bot-busy` 拒绝。因 `TRANSPORT`、`TIMEOUT`、`SERVER`、`RATE_LIMIT` 或 `EMPTY_RESPONSE` 失败的回合会在 60 秒后、再失败则 180 秒后自动继续；卡片上的 `autoContinue` 给出第几次和时间。`channel-bot-stop` 取消等待中的自动继续；加上 `--auto-continue-for` 和卡片的请求消息 id 时只取消这一次自动继续，不会停止正在运行的回合，该自动继续已不在等待时以 `not-working` 拒绝。私聊里的新 Human 消息也会取代它。Host 重启打断的回合在启动时以同样方式继续。卡片的 `progress` 给出已完成的工具调用数、最后一个工具和结果未知的工具。`channel-unread` 列出每个有未读的频道的 Bot 未读消息数，即侧边栏每行显示的数字。`channel-mute` 与侧边栏菜单一样把频道设为免打扰：该行变灰，普通消息、提及和回复在搜索与分页之前退出 Activity 消息列表，也不计入全局未读；`--off` 依原有已读、隐藏和稍后提醒规则恢复资格。真实 Channel 已读位置与待审批、问答等明确 Human 请求保持不变。`channel-bot-stop` 是 `bot-stop <bot> --channel <channel>` 的已弃用别名，会在 stderr 打印一行弃用提示；Bot 没有任何运行中的工作时它仍以 `not-working` 拒绝，而 `bot-stop` 视为成功。Bot 的自动运行连续三次因非临时性错误（例如 `INVALID_REQUEST`）失败时，Host 不再重试，而是让它保持停止：在有 Human 消息到达之前不接受自动唤醒，Channel 记录为 `turnStop.cause: "failures"`。`channel-react` 给一条消息加上你的表情回应，带 `--remove` 则撤回，并返回该消息的 `reactions`；每条消息最多保留你的 20 个回应，表情必须是单个 emoji。Bot 通过 `channel_action` 的 `action: "react"`、`channel_id`、`react_to` 和 `reaction` 回应；`bot-tool <bot> channel_action --args-stdin` 可直接执行。表情工具不发送正文。`channel-search` 在你可见的消息中不区分大小写地匹配 `--query`，按时间从新到旧返回，并用返回的 `nextCursor` 翻页。 `message-search` 是 Alt+K 和移动端 Chats 搜索背后的全局搜索：在你可见的所有 Bot 私聊和已加入的群里搜索，不含已隐藏的频道，按时间从新到旧返回 `hits`，每项含 `channelId`、`message` 和单行 `snippet`。三个字及以上走全文索引，也会匹配附件文件名；一到两个字逐条扫描，最多返回 200 条。
 
@@ -785,7 +785,7 @@ deepseekbot voice-asr-set <bot-id> <asr-provider-id>
 
 `voice-local-kit` 写出 `botharness_voice.py`，输出 `{dir, script, baseUrl, models, steps: {macos, windows}}`。Windows 上用 `py -3 -m venv .venv` 和 `.venv\Scripts\python`。脚本每个命令输出一行 JSON（`ok: false` 带 `code` 和 `message`）；`selftest` 先合成一句话再识别回来。`local` TTS 预设不需要密钥，使用 Kokoro 音色，例如 `zf_001`、`zm_009`、`af_maple`、`af_sol` 和 `bf_vale`（完整列表见 `GET /v1/models`）。`local` ASR 预设（`--kind asr`）使用 SenseVoice（模型 `sensevoice`，支持 `zh`、`en`、`ja`、`ko`、`yue`），供 Bot 通话使用。服务没启动时，`voice-provider-test`、语音消息和语音识别会报 `provider-unavailable`，并说明“The local speech service at … is not running”。
 
-Tob 的受限 CLI 支持 `voice-providers`、`voice-provider-test`、`voice-provider-add`（只限无密钥的 `local` 和 `custom` 预设，TTS 或 `--kind asr`，没有密钥参数）、`voice-provider-remove`、`voice-set` 和 `voice-asr-set`；写操作会弹出审批卡片。需要密钥的 Provider 由用户在设置 › 语音中添加。
+助理 的受限 CLI 支持 `voice-providers`、`voice-provider-test`、`voice-provider-add`（只限无密钥的 `local` 和 `custom` 预设，TTS 或 `--kind asr`，没有密钥参数）、`voice-provider-remove`、`voice-set` 和 `voice-asr-set`；写操作会弹出审批卡片。需要密钥的 Provider 由用户在设置 › 语音中添加。
 
 ### Bot 通话与语音识别（ASR Provider）
 
@@ -915,7 +915,7 @@ deepseekbot connection cancel --client-id <id> --connection-id <attempt>
 
 `--link-file -` 从 stdin 读取。确认前独立核对完整 Host 指纹。状态到达 `approve-device` 后，在远端核对设备指纹，并用 `device-approve-key` 批准对应的准确 receipt/public key。继续查询直到 `connected`：只有 `saved: true` 不代表完成，目标 Client 必须实际读到 Host Feed；频道列表为空可以成功。凭据只保存在目标浏览器的 origin-local 存储，不会接入其他 Client。
 
-状态包括 `connecting`、`verify-host`、`approve-device`、`connected`、`failed` 和 `cancelled`，失败带有 `code`。同一操作 ID 和链接返回原操作状态，换链接则拒绝；每个挂载的 Client 控制会话最多保留 16 次操作。已接受操作最长等待五分钟；关闭或刷新页面、控制登记丢失都会取消未完成接入。过期命令不能启动操作。`saved: true` 后取消会保留已经保存的 Remote Host，需要时应明确移除。离线或失效目标直接拒绝，不回退到 CLI 或 Host 保存。该命令不授予 Tob 判断身份或批准设备的权限。
+状态包括 `connecting`、`verify-host`、`approve-device`、`connected`、`failed` 和 `cancelled`，失败带有 `code`。同一操作 ID 和链接返回原操作状态，换链接则拒绝；每个挂载的 Client 控制会话最多保留 16 次操作。已接受操作最长等待五分钟；关闭或刷新页面、控制登记丢失都会取消未完成接入。过期命令不能启动操作。`saved: true` 后取消会保留已经保存的 Remote Host，需要时应明确移除。离线或失效目标直接拒绝，不回退到 CLI 或 Host 保存。该命令不授予 助理 判断身份或批准设备的权限。
 
 ### 模型、用量与活动
 
@@ -942,7 +942,7 @@ deepseekbot group-activity <group-channel>
 
 `model-catalog` 列出 Host 能运行的模型和 Profile 默认模型，与模型选择器看到的一致。`model-plan-set` 用 stdin 中的 `{"orchestrator":{...},"assignmentDefault":{...},"assignmentModels":[...]}` 替换 Bot 的整个模型方案；`model-plan-assignments-set` 接受去掉 `orchestrator` 的同一对象。路由写作 `{"provider","model","reasoningEffort"?}`，Assignment 模型写作 `{"provider","model","allowedEfforts":[...],"defaultEffort","note"?}`。`model-plan-customize` 只修改 Bot 的 Orchestrator；原本继承全局时建立独立覆盖，Assignment 的固定配置或全局继承保持不变。`model-plan-inherit` 去掉 Bot 自己的模型，改为跟随 Profile 默认模型。`model-preset-update` 修改预设的名称或路由；没有给出的参数保持当前值，可选的 `--plan-stdin` `{"assignmentModels":[...]}` 替换它的 Assignment 模型。每条路由都由 Host 按模型目录校验。方案和预设的写入会核对版本：`--expected-revision` 显式指定版本；不指定时命令先读取当前版本，与 `memory-save` 的 `--expected-head` 相同。方案在此期间被改过时，返回 Host 的 `invalid-input`。
 
-在线 Human CLI 的 `home-model-set` 支持 `--orchestrator-effort` 和 `--expected-revision`；后者对应 `model-catalog.defaultRevision`，省略时先读取当前默认模型 revision。`model-preset-apply` 可通过 `--expected-revision` 约束 Bot 计划、`--preset-revision` 约束预设；省略这些参数时保留原有 Human 行为。受限 Tob 调用必须明确传入对应 revision，不能借省略参数跳过已审核快照。
+在线 Human CLI 的 `home-model-set` 支持 `--orchestrator-effort` 和 `--expected-revision`；后者对应 `model-catalog.defaultRevision`，省略时先读取当前默认模型 revision。`model-preset-apply` 可通过 `--expected-revision` 约束 Bot 计划、`--preset-revision` 约束预设；省略这些参数时保留原有 Human 行为。受限 助理 调用必须明确传入对应 revision，不能借省略参数跳过已审核快照。
 
 `overview-usage`（`--period today|week|month|quarter`，`month` 为近 28 天，`quarter` 为近 84 天，默认 `today`）和 `overview-memory` 返回总览页上每个 Bot 的数据行；把返回的 `nextCursor` 作为 `--after` 传回可以继续读取。`activity-overview` 显示每个 Bot 正在做什么，`channel-activity-today` 显示每个 Channel 今天的消息。`bot-*` 读取命令按 Bot ID 定位，通过它的私聊读取 Profile 面板：`bot-usage` 需要不晚于今天、跨度小于 182 天的 `--start`/`--end`，`bot-session-usage` 按会话和 Assignment 汇总用量，`bot-activity-history` 返回活动日历（`--weeks` 为 1–104）。`group-activity` 接受群组 Channel ID。
 
@@ -1009,9 +1009,9 @@ deepseekbot pairing-review <bot-id> <pairing-id> --decision revoke --confirm
 
 `--lang zh|en` 按该语言读取列表，与市场页面按界面语言读取一致：名称和简介依次取作者 `bot.json` 里 `i18n` 的翻译、本来就是该语言的简介、市场生成的摘要（`descriptionGenerated: true`）；`marketplace-detail` 返回仓库里该语言的 README，并在 `readmeLanguage` 里注明，没有就返回 `README.md`：`zh` 依次取 `README.zh-CN.md`、`README.zh.md`，再取 `README_CN.md`、`README-zh.md` 等其他写法；`en` 取 `README.en.md`。`marketplace-submit` 和 `marketplace-report` 会像网页一样先完成 Host 下发的工作量证明，因此可能需要几秒；市场本身的拒绝（`repository-missing-topic`、`rate-limited` 等）作为错误码返回。举报说明最多 500 个字符。`release-check` 返回更新状态（`current`、`available`、`restart-required`、`development`、`unknown` 或 `unavailable`）。`release-install` 和 `release-restart` 必须带 `--confirm`；安装或重启失败时以非零退出，错误码为 `release-<原因>`，例如 `release-network` 或 `release-not-pending`。重启会中断所有正在运行的 Bot 回合，只在自己负责的 Host 上执行。`pairing-list` 列出 Bot 的配对请求和角色；`pairing-review` 自行读取当前版本号，期间被改动过的请求会被拒绝而不是被覆盖。对话类请求用一个 `--role` 批准，管理类请求用 `--capability` 批准。
 
-**上传的 Bot**（[ADR-0267](adr/0267-the-bot-marketplace-hosts-uploaded-bots-under-connect-accounts.md)）和 GitHub 仓库在同一个目录里。`marketplace-list --include-uploads` 会把它们加进来；每个条目带 `source`（`github` 或 `upload`），上传的条目还带 `author`（`name`、区分同名作者且永不改变的作者 `id`，以及头像图片地址 `avatar` 或 `null`）。上传的 Bot 的 `marketplace-detail` 还返回 `files`（`path`、`size`、`kind`：`text`、`script` 或 `image`）和 `fileSummary`：`count`、`size` 和 `types`，即每种类型（`markdown`、`text`、`data`、`script`、`image`）的文件数和字节数，按大小从大到小。`marketplace-file <listing-id> <path>` 以 `file`（`path`、`size`、`type`、`text`）读取一个文本文件：Markdown 像 README 一样经过整理和清洗，相对链接指向这个 Bot 的文件；脚本和其他文本原样返回，从不当作 Markdown 整理。图片被拒绝，错误码 `file-not-text`；不在列表里的路径返回 `file-not-found`。上传要求这个 Host 已登录 Tobs Connect（设置 → 设备）；`marketplace-account` 返回 `signedIn` 和 `author`，即已登录账户的**账户资料**（`name`、`id`、`avatar`、`termsAcceptedAt`），在 `marketplace-author --name <名称>` 创建资料之前为 `null`；之后再调用会改名，它的条目也随之更新。第一次上传还需要用 `--accept-terms` 接受一次条款（之前返回 `author-required`）。`marketplace-author-avatar --file <图片>` 用不超过 1 MB 的 PNG、JPEG 或 WebP 设置资料头像（`avatar-type-refused`、`avatar-too-large`），头像公开提供，并显示在作者的条目上；`--clear` 移除头像。`marketplace-upload-plan` 列出上传会包含的文件和跳过的文件（二进制和压缩包为 `file-type-refused`，超过 5 MB 为 `file-too-large`）。`marketplace-upload` 用给定的名称、简介和标签发布 Bot 已就绪的分享草稿（不含 Git 历史），必须带 `--confirm`：文件会公开。Bot 在自己的 Shell 里运行它时总会弹出给人类的批准卡片，即使开了完全访问。拒绝带错误码：`sign-in-required`、`author-required`、`too-many-files`（超过 2,000 个）、`too-large`（超过 50 MB）、`bot-limit`（每个账号 20 个）、`nothing-to-upload`、`share-draft-required`（还没有草稿）、`share-draft-not-ready`（还有文件没有结论）。`marketplace-install` 对两种条目都分两步。先运行 `marketplace-install <listing-id>`：暂存文件（上传的 Bot 的文件，或按目录索引到的提交克隆的 GitHub 仓库，没有索引提交时返回 `listing-not-installable`），由 Tob 用 Tob 的模型检查，输出 `reviewId`、`review` 和 `installed: false`，不会创建任何东西。`review.status` 为 `reviewed` 时带 `findings`（`kind`：`prompt-injection`、`exfiltration` 或 `script`，`path`，可选的 `note`）、`files`、`read`，有文本太长没读完时 `partial` 为 true；Tob 没能检查时为 `unavailable`，带 `reason`（`no-model`、`model-unavailable`、`llm-unavailable`、`timeout`、`model-error`、`unparseable`）。脚本文件无论如何都会列出。`--lang` 决定说明的语言。然后运行 `marketplace-install <listing-id> --review <review-id> --confirm`，把刚才暂存的这些文件（或这个提交）安装成全新的 Bot，用条目的名称、简介和标签，只有一次初始提交，返回新的 `bot`、它的 `channelId`、`listing` 和 `installed: true`。检查结果保留 30 分钟（过期为 `review-expired`，换了条目为 `review-mismatch`）；用同一个 `--operation-key` 重试会返回那个 Bot，不会装两次。Bot 建好之后，Host 发送一次**安装回执**，用一个只给市场用的随机 Host 标识（Host 数据目录里的 `marketplace-host.json`，从不使用遥测安装 ID）；每个 Host 对每个条目只计一次，安装失败不发送；`marketplace-list` 和 `marketplace-detail` 的每个条目都带 `installs`。
+**上传的 Bot**（[ADR-0267](adr/0267-the-bot-marketplace-hosts-uploaded-bots-under-connect-accounts.md)）和 GitHub 仓库在同一个目录里。`marketplace-list --include-uploads` 会把它们加进来；每个条目带 `source`（`github` 或 `upload`），上传的条目还带 `author`（`name`、区分同名作者且永不改变的作者 `id`，以及头像图片地址 `avatar` 或 `null`）。上传的 Bot 的 `marketplace-detail` 还返回 `files`（`path`、`size`、`kind`：`text`、`script` 或 `image`）和 `fileSummary`：`count`、`size` 和 `types`，即每种类型（`markdown`、`text`、`data`、`script`、`image`）的文件数和字节数，按大小从大到小。`marketplace-file <listing-id> <path>` 以 `file`（`path`、`size`、`type`、`text`）读取一个文本文件：Markdown 像 README 一样经过整理和清洗，相对链接指向这个 Bot 的文件；脚本和其他文本原样返回，从不当作 Markdown 整理。图片被拒绝，错误码 `file-not-text`；不在列表里的路径返回 `file-not-found`。上传要求这个 Host 已登录 Tobs Connect（设置 → 设备）；`marketplace-account` 返回 `signedIn` 和 `author`，即已登录账户的**账户资料**（`name`、`id`、`avatar`、`termsAcceptedAt`），在 `marketplace-author --name <名称>` 创建资料之前为 `null`；之后再调用会改名，它的条目也随之更新。第一次上传还需要用 `--accept-terms` 接受一次条款（之前返回 `author-required`）。`marketplace-author-avatar --file <图片>` 用不超过 1 MB 的 PNG、JPEG 或 WebP 设置资料头像（`avatar-type-refused`、`avatar-too-large`），头像公开提供，并显示在作者的条目上；`--clear` 移除头像。`marketplace-upload-plan` 列出上传会包含的文件和跳过的文件（二进制和压缩包为 `file-type-refused`，超过 5 MB 为 `file-too-large`）。`marketplace-upload` 用给定的名称、简介和标签发布 Bot 已就绪的分享草稿（不含 Git 历史），必须带 `--confirm`：文件会公开。Bot 在自己的 Shell 里运行它时总会弹出给人类的批准卡片，即使开了完全访问。拒绝带错误码：`sign-in-required`、`author-required`、`too-many-files`（超过 2,000 个）、`too-large`（超过 50 MB）、`bot-limit`（每个账号 20 个）、`nothing-to-upload`、`share-draft-required`（还没有草稿）、`share-draft-not-ready`（还有文件没有结论）。`marketplace-install` 对两种条目都分两步。先运行 `marketplace-install <listing-id>`：暂存文件（上传的 Bot 的文件，或按目录索引到的提交克隆的 GitHub 仓库，没有索引提交时返回 `listing-not-installable`），由 助理 用 助理 的模型检查，输出 `reviewId`、`review` 和 `installed: false`，不会创建任何东西。`review.status` 为 `reviewed` 时带 `findings`（`kind`：`prompt-injection`、`exfiltration` 或 `script`，`path`，可选的 `note`）、`files`、`read`，有文本太长没读完时 `partial` 为 true；助理 没能检查时为 `unavailable`，带 `reason`（`no-model`、`model-unavailable`、`llm-unavailable`、`timeout`、`model-error`、`unparseable`）。脚本文件无论如何都会列出。`--lang` 决定说明的语言。然后运行 `marketplace-install <listing-id> --review <review-id> --confirm`，把刚才暂存的这些文件（或这个提交）安装成全新的 Bot，用条目的名称、简介和标签，只有一次初始提交，返回新的 `bot`、它的 `channelId`、`listing` 和 `installed: true`。检查结果保留 30 分钟（过期为 `review-expired`，换了条目为 `review-mismatch`）；用同一个 `--operation-key` 重试会返回那个 Bot，不会装两次。Bot 建好之后，Host 发送一次**安装回执**，用一个只给市场用的随机 Host 标识（Host 数据目录里的 `marketplace-host.json`，从不使用遥测安装 ID）；每个 Host 对每个条目只计一次，安装失败不发送；`marketplace-list` 和 `marketplace-detail` 的每个条目都带 `installs`。
 
-上传和推送到 GitHub 读的都是**分享草稿**，源 Memory 不会被改动。`share-draft-start` 把 Bot 可分享的记忆文件（和 `marketplace-upload-plan` 会包含的一样）复制到 Host 自己的数据目录，并替换之前的草稿。`share-draft-show` 返回草稿的 `state`（`reviewing` 或 `ready`）、计数 `summary`，以及每个文件的 `path`、`kind`、`size`、`status`（`pending`、`kept`、`rewritten` 或 `dropped`）和模式扫描发现的 `flags`（`secret`、`private-key`、`url-credential`、`email`、`phone`）。`share-draft-file --path` 返回一个文本文件在草稿里的当前内容。`share-draft-decide` 记录一个结论：`--keep`、`--drop`（删除草稿里的副本）或 `--rewrite-stdin`（完整的新内容，最多 5 MB）。任何结论都会让已就绪的草稿回到 `reviewing`。`share-draft-finish` 在没有 `pending` 文件时把草稿标为 `ready`（`share-draft-pending` 会给出第一个未决文件）。`share-draft-export` 把已就绪的草稿复制到 Tob 工作区里一个不带 `.git` 的新文件夹并返回 `path`，用于推送到 GitHub。`share-draft-discard` 删除草稿。Tob 的受限 CLI 只有 `share-draft-show`、`share-draft-file`、`share-draft-decide` 和 `share-draft-finish`，而且只能处理人类已开始的草稿；开始、导出和删除草稿由人类操作。
+上传和推送到 GitHub 读的都是**分享草稿**，源 Memory 不会被改动。`share-draft-start` 把 Bot 可分享的记忆文件（和 `marketplace-upload-plan` 会包含的一样）复制到 Host 自己的数据目录，并替换之前的草稿。`share-draft-show` 返回草稿的 `state`（`reviewing` 或 `ready`）、计数 `summary`，以及每个文件的 `path`、`kind`、`size`、`status`（`pending`、`kept`、`rewritten` 或 `dropped`）和模式扫描发现的 `flags`（`secret`、`private-key`、`url-credential`、`email`、`phone`）。`share-draft-file --path` 返回一个文本文件在草稿里的当前内容。`share-draft-decide` 记录一个结论：`--keep`、`--drop`（删除草稿里的副本）或 `--rewrite-stdin`（完整的新内容，最多 5 MB）。任何结论都会让已就绪的草稿回到 `reviewing`。`share-draft-finish` 在没有 `pending` 文件时把草稿标为 `ready`（`share-draft-pending` 会给出第一个未决文件）。`share-draft-export` 把已就绪的草稿复制到 助理 工作区里一个不带 `.git` 的新文件夹并返回 `path`，用于推送到 GitHub。`share-draft-discard` 删除草稿。助理 的受限 CLI 只有 `share-draft-show`、`share-draft-file`、`share-draft-decide` 和 `share-draft-finish`，而且只能处理人类已开始的草稿；开始、导出和删除草稿由人类操作。
 
 `marketplace-mine` 按时间从新到旧列出已登录作者自己上传的 Bot，每项为 `{ bot, files, bytes, blocked }`；`blocked` 的条目别人看不到，但仍可更新或删除。`marketplace-upload --replaces <listing-id>` 用这个 Bot 当前的记忆文件整体替换其中一个：没有版本，条目 id 不变，新文件全部存好后才对外可见，随后删除旧文件。每小时最多替换 10 次（`replace-limit`）；替换不占 20 个 Bot 的名额。`marketplace-delete` 删除条目、文件和计数，必须带 `--confirm`；和 `marketplace-upload` 一样，Bot 在自己的 Shell 里运行它时总会弹出给人类的批准卡片。已安装的副本永远不会被改动：本 Host 装过的条目在 `marketplace-list` 和 `marketplace-detail` 里带 `installed`（`bots` 为装出来的 Bot id，作者在安装之后替换过文件时 `authorUpdated` 为 true）。注销 Connect 账号会一并删除它上传的所有 Bot 和作者信息。
 
@@ -1165,17 +1165,17 @@ deepseekbot memory-move <bot-id> --default-location
 
 仓库会移到 `<absolute-dir>/<bot-id>`；该文件夹必须已存在，且其中还没有这个 Bot。移动前会先归档 Bot 的主会话，下一轮对话会在新文件夹里开启新的主会话；聊天记录、记忆提交和任务都会保留。Bot 正在工作时返回 `bot-busy`，文件夹不存在或已被占用时返回 `invalid-memory-dir`，记忆修复未完成时返回 `memory-conflict`。跨磁盘移动时会先复制、核对 HEAD 与原仓库一致，再删除旧文件夹；结果里若有 `leftover`，表示该旧文件夹未能删除。
 
-## Home 与 Tob
+## Home 与 助理
 
-`deepseekbot tob-home` 幂等准备受保护的本地 Tob、Memory、管理 Workspace 与 DM，返回标识及权威 Attention 摘要，不发送消息。`deepseekbot home-model-set --provider <id> --model <id>` 修改原生 Host 默认模型，保留其他 Bot 的独立计划。
+`deepseekbot tob-home` 幂等准备受保护的本地 助理、Memory、管理 Workspace 与 DM，返回标识及权威 Attention 摘要，不发送消息。`deepseekbot home-model-set --provider <id> --model <id>` 修改原生 Host 默认模型，保留其他 Bot 的独立计划。
 
-Tob 通过普通原生 bash／pwsh Tool 调用 `deepseekbot`；专用的 `tob_assignment_limit_read`、`tob_assignment_limit_set` Tool 及直接运行入口已移除。既有 Assignment Tools 不变。受限 CLI 流程支持下方列出的 Bot 创建／资料／生命周期、建群／邀请、群设置／成员移除、取消邀请／入群决定、模型、运行、隐私、Git 和更新操作；这是明确的允许清单，不代表开放全部 Human CLI 命令或其他 Bot 的数据。
+助理 通过普通原生 bash／pwsh Tool 调用 `deepseekbot`；专用的 `tob_assignment_limit_read`、`tob_assignment_limit_set` Tool 及直接运行入口已移除。既有 Assignment Tools 不变。受限 CLI 流程支持下方列出的 Bot 创建／资料／生命周期、建群／邀请、群设置／成员移除、取消邀请／入群决定、模型、运行、隐私、Git 和更新操作；这是明确的允许清单，不代表开放全部 Human CLI 命令或其他 Bot 的数据。
 
-在具备权限的 Tob Shell 执行中：
+在具备权限的 助理 Shell 执行中：
 
-Tob 的受信任系统说明随插件打包，只注入受保护的 Tob Orchestrator；升级不会覆盖用户修改过的人格或记忆。用户只需问“你能做什么？”，Tob 会先发现当前安装版本的 CLI 能力，再用用户的语言解释可完成的事情，并提出一个具体的下一步。能力询问只读，不提交变更或审批；后续明确的修改请求仍走现有权限与审批校验。
+助理 的受信任系统说明随插件打包，只注入受保护的 助理 Orchestrator；升级不会覆盖用户修改过的人格或记忆。用户只需问“你能做什么？”，助理 会先发现当前安装版本的 CLI 能力，再用用户的语言解释可完成的事情，并提出一个具体的下一步。能力询问只读，不提交变更或审批；后续明确的修改请求仍走现有权限与审批校验。
 
-npm Bundle 自带 core CLI 模块和产品 CLI 入口。Tob 使用 Host 注入当前 Shell 的受管执行入口，不依赖全局安装的 `deepseekbot`、源码目录或手动复制的 skill。发布校验会拒绝缺少 CLI 入口的包；运行时缺失入口则报告安装问题，不回退到其他管理通道。
+npm Bundle 自带 core CLI 模块和产品 CLI 入口。助理 使用 Host 注入当前 Shell 的受管执行入口，不依赖全局安装的 `deepseekbot`、源码目录或手动复制的 skill。发布校验会拒绝缺少 CLI 入口的包；运行时缺失入口则报告安装问题，不回退到其他管理通道。
 
 ```bash
 deepseekbot capabilities
@@ -1184,17 +1184,17 @@ deepseekbot settings botharness-client
 printf '%s' '{"assignmentConcurrencyLimit":3}' | deepseekbot settings-set botharness-client --patch-stdin --expected-revision 12 --previous-value '{"assignmentConcurrencyLimit":8}'
 ```
 
-`capabilities`（以及受限模式的 `--help`）列出支持的命令、字段、必需的审核输入和带代码的拒绝原因。读取返回 `{scope, ns, revision, value}`，`value` 只包含授权字段。写入将解析后的命名空间、旧值、新值和 revision 交给现有 Host 审批策略；审批前后和执行时重验真实 Tob root Orchestrator 与准确的已准入 Human DM 来源，随后读回 native Settings 的值。群聊／外部 IM、Bot 来源、Assignment Sessions 和调用方自报身份均不能授予此权限。
+`capabilities`（以及受限模式的 `--help`）列出支持的命令、字段、必需的审核输入和带代码的拒绝原因。读取返回 `{scope, ns, revision, value}`，`value` 只包含授权字段。写入将解析后的命名空间、旧值、新值和 revision 交给现有 Host 审批策略；审批前后和执行时重验真实 助理 root Orchestrator 与准确的已准入 Human DM 来源，随后读回 native Settings 的值。群聊／外部 IM、Bot 来源、Assignment Sessions 和调用方自报身份均不能授予此权限。
 
 Host 将短期 loopback endpoint 与受限 token 注入这次 Shell 的子进程环境。它是短期 bearer capability，不是 Human 管理员凭据，也不构成同一 OS 用户之间的隔离边界；不要打印或持久化它。Shell 完成、取消或释放后立即撤销。不支持的命令／参数、不完整的受限上下文、指定其他 Host／token／离线 home 的尝试均会拒绝，不回退到 Human 或离线访问。`stale-setting` 要求重新读取并提案；`agent-write-uncertain`、`setting-outcome-uncertain` 和 `setting-readback-mismatch` 要求重试前先读回。上下文过期后必须发起新的 Shell 执行。
 
-已认证 Human 的 `settings-set` 保持原行为，新增成对的 `--expected-revision` 与 `--previous-value` 参数，用于提交已审核的 patch；后者为与 patch 字段一致的 JSON 对象。同时省略这两个参数仍使用原有先读再写流程。Tob 的删除／归档仍返回 `protected-bot`。
+已认证 Human 的 `settings-set` 保持原行为，新增成对的 `--expected-revision` 与 `--previous-value` 参数，用于提交已审核的 patch；后者为与 patch 字段一致的 JSON 对象。同时省略这两个参数仍使用原有先读再写流程。助理 的删除／归档仍返回 `protected-bot`。
 
-[UI／CLI 覆盖清单](agents/cli-ui-coverage.md) 区分既有 Human 命令和 Tob 受限访问，并跟踪后续缺口。身份与生命周期边界见 [ADR-0224](adr/0224-tob-management-uses-scoped-native-shell-cli.md)。
+[UI／CLI 覆盖清单](agents/cli-ui-coverage.md) 区分既有 Human 命令和 助理 受限访问，并跟踪后续缺口。身份与生命周期边界见 [ADR-0224](adr/0224-tob-management-uses-scoped-native-shell-cli.md)。
 
-### Tob 创建 Bot、资料与生命周期
+### 助理 创建 Bot、资料与生命周期
 
-Tob 的受限 `create` 只在受管 Memory 位置创建空白 Bot。用户只需提供名称；Tob 为本次操作准备稳定的 `--operation-key`。可选 `--description`、重复的 `--role` 标签、`--avatar-file`、`--persona`／`--persona-stdin` 和 `--core-memory`／`--core-memory-stdin` 复用现有创建校验。仅一个内容参数可读取 stdin。初始人格和记忆写入 `SOUL.md`、`MEMORY.md`，不复制其他 Workspace Grants 或凭据。
+助理 的受限 `create` 只在受管 Memory 位置创建空白 Bot。用户只需提供名称；助理 为本次操作准备稳定的 `--operation-key`。可选 `--description`、重复的 `--role` 标签、`--avatar-file`、`--persona`／`--persona-stdin` 和 `--core-memory`／`--core-memory-stdin` 复用现有创建校验。仅一个内容参数可读取 stdin。初始人格和记忆写入 `SOUL.md`、`MEMORY.md`，不复制其他 Workspace Grants 或凭据。
 
 ```bash
 deepseekbot create --name Translator --operation-key create-translator-001 --persona 'Translate clearly.' --core-memory 'Prefer concise explanations.'
@@ -1206,7 +1206,7 @@ deepseekbot resume <bot-id> --expected-profile <profileFingerprint>
 
 Host 先通过持久创建回执保留一个身份，再创建 Memory Repository 和 DM。响应丢失后重复**同一个 operation key 和同一份 payload**：已完成的回执返回原 Bot 与 DM，部分完成的操作沿用预留身份进行核对。受限模式已完成的重试走权限检查后的读取，不再申请一次创建审批。相同 key 配不同 payload 返回 `creation-key-conflict`；身份已归档或删除返回 `creation-identity-unavailable`，不会因重放而重建。`creation-memory-conflict` 表示预留目录已经存在但 Registry 身份未落地，应保留现场修复，不要删除目录或换 key 再建。回执不构成文件系统与数据库之间的原子事务，也不承诺自动修复该中断状态。
 
-已认证 Human 的在线 `create` 同样支持 `--operation-key`，适用于受管 Memory 中的空白创建或已检查的 Git 来源，不可同时传 `--preset` 或自定义 Memory 位置；模型计划和 Memory 迁移另行操作。不传 key 保留原行为。本片不向 Tob 授予 Git／Zip／目录导入、市场搜索或修改其他 Bot 既有 Memory 的权限。
+已认证 Human 的在线 `create` 同样支持 `--operation-key`，适用于受管 Memory 中的空白创建或已检查的 Git 来源，不可同时传 `--preset` 或自定义 Memory 位置；模型计划和 Memory 迁移另行操作。不传 key 保留原行为。本片不向 助理 授予 Git／Zip／目录导入、市场搜索或修改其他 Bot 既有 Memory 的权限。
 
 Human 在线命令 `create-status` 在原 Host 只读查询创建回执。名称、人格、简介、标签等空白创建输入和 key 必须与原请求一致；不同输入会被拒绝。尚无操作时返回 `{receipt:null}`，否则返回 `{receipt:{operationKey,botSlug,status,channelId?}}`。`reserved` 可用完全相同的输入和 key 再次执行 `create` 恢复；`created` 指向已创建的同一个 Bot 和私聊。结果不确定时不要换 Host 或生成新 key。移动端在首次创建前先查询，以免旧 Host 不支持恢复却仍创建 Bot。
 
@@ -1227,13 +1227,13 @@ printf '%s' '{"token":"<preview.token>"}' | deepseekbot bot-delete-confirm <bot-
 deepseekbot bot-delete-retry <bot-id> --confirm
 ```
 
-删除默认保留 Memory。仅在 `preview.eraseAvailable` 允许时，`--erase-memory` 才选择擦除 owner 审核过的准确目录；不接受调用方另选路径。`bot-delete-memory-folder` 返回经校验的 `{target:{path,relativePath,kind}}` 供检查，不提供任意文件系统访问。预览 token、依赖范围和路径所有权检查仍具权威性。重试沿用已接受的保留／擦除选择，不得改变选择。受限 confirm 与 retry 每次都需 Human 新作决定，full access、已记住规则和自动审批不能替代。Human 的这两个命令也新增必需的 `--confirm`，已有清理脚本需更新。Tob 自身不能归档或删除（`protected-bot`）；名称、人格文本和导入内容都不能赋予其权限。
+删除默认保留 Memory。仅在 `preview.eraseAvailable` 允许时，`--erase-memory` 才选择擦除 owner 审核过的准确目录；不接受调用方另选路径。`bot-delete-memory-folder` 返回经校验的 `{target:{path,relativePath,kind}}` 供检查，不提供任意文件系统访问。预览 token、依赖范围和路径所有权检查仍具权威性。重试沿用已接受的保留／擦除选择，不得改变选择。受限 confirm 与 retry 每次都需 Human 新作决定，full access、已记住规则和自动审批不能替代。Human 的这两个命令也新增必需的 `--confirm`，已有清理脚本需更新。助理 自身不能归档或删除（`protected-bot`）；名称、人格文本和导入内容都不能赋予其权限。
 
-详见 [ADR-0225](adr/0225-bot-creation-receipts-and-reviewed-profile-lifecycle.md) 与[覆盖清单](agents/cli-ui-coverage.md#2089-bot-management-scope)。直接 CLI、真实 Tob 对话、Web 导航和 macOS Desktop 是独立验收入口，命令契约不代表这些验证已通过。
+详见 [ADR-0225](adr/0225-bot-creation-receipts-and-reviewed-profile-lifecycle.md) 与[覆盖清单](agents/cli-ui-coverage.md#2089-bot-management-scope)。直接 CLI、真实 助理 对话、Web 导航和 macOS Desktop 是独立验收入口，命令契约不代表这些验证已通过。
 
-### Tob 建群与邀请
+### 助理 建群与邀请
 
-[#2090](https://github.com/BotHarness/DeepSeekBot/issues/2090) 的首个切片允许 Tob 从已准入的 Human DM 建群并加入现有 Bot。管理操作审批通过后，受邀 Bot 按既有默认值 `autoAcceptGroupInvites=true` 立即入群，无需另作邀请决定。受限 CLI 复用现有 Channel owner，不新增模型 Tool。Tob 管理其他 Bot，自身不能作为初始成员或邀请目标。
+[#2090](https://github.com/BotHarness/DeepSeekBot/issues/2090) 的首个切片允许 助理 从已准入的 Human DM 建群并加入现有 Bot。管理操作审批通过后，受邀 Bot 按既有默认值 `autoAcceptGroupInvites=true` 立即入群，无需另作邀请决定。受限 CLI 复用现有 Channel owner，不新增模型 Tool。助理 管理其他 Bot，自身不能作为初始成员或邀请目标。
 
 ```bash
 deepseekbot channels --limit 25
@@ -1243,23 +1243,23 @@ deepseekbot group-create "计划" --operation-key group-planning-001
 deepseekbot group-invite <channel-id> --bot <bot-c> --operation-key invite-research-001 --expected-channel <channelFingerprint>
 ```
 
-受限 `channels` 返回有界频道元数据，不返回消息正文；`--limit` 为 1–100，默认 50，将返回的 `nextCursor` 传入 `--cursor` 继续读取。`channel <group-channel-id>` 返回 `{channel, channelFingerprint, invitationPolicy:{autoAccept}, wakePolicies}`，拒绝非群频道。受限投影最多保留 100 个成员、最近 100 条邀请和最近 100 条入群申请，并报告被省略的数量。这些读取不会让 Tob 加入群聊，也不把群消息变成管理指令来源。
+受限 `channels` 返回有界频道元数据，不返回消息正文；`--limit` 为 1–100，默认 50，将返回的 `nextCursor` 传入 `--cursor` 继续读取。`channel <group-channel-id>` 返回 `{channel, channelFingerprint, invitationPolicy:{autoAccept}, wakePolicies}`，拒绝非群频道。受限投影最多保留 100 个成员、最近 100 条邀请和最近 100 条入群申请，并报告被省略的数量。这些读取不会让 助理 加入群聊，也不把群消息变成管理指令来源。
 
-`group-create` 支持空群，或用重复的 `--member` 指定现有可用 Bot。明确指定的初始成员直接加入，与现有 Human／UI 创建行为一致。之后的 `group-invite` 复用现有邀请 owner。默认 `autoAcceptGroupInvites=true` 时，同一事务记录已接受邀请（`respondedBy: "profile-policy"`）和成员关系，不唤醒受邀 Bot 单独决定。本片不新增设置或 UI 开关。仅当 Human 已主动关闭自动接受时，才沿用待处理邀请的原有决定流程；Tob 保留这一选择并报告实际状态。
+`group-create` 支持空群，或用重复的 `--member` 指定现有可用 Bot。明确指定的初始成员直接加入，与现有 Human／UI 创建行为一致。之后的 `group-invite` 复用现有邀请 owner。默认 `autoAcceptGroupInvites=true` 时，同一事务记录已接受邀请（`respondedBy: "profile-policy"`）和成员关系，不唤醒受邀 Bot 单独决定。本片不新增设置或 UI 开关。仅当 Human 已主动关闭自动接受时，才沿用待处理邀请的原有决定流程；助理 保留这一选择并报告实际状态。
 
 受限建群／邀请写入必须提供稳定的 `--operation-key`：长度 8–128，以字母或数字开头，只含字母、数字、点、下划线、冒号或连字符；邀请还必须传入前一次读取的 `--expected-channel` 指纹。审核快照绑定当前频道元数据、成员、邀请策略及目标 Bot 身份；消息到达和未读计数不会使其过期。审批和执行重新检查已准入 Human DM 与当前目标状态。审核期间相关设置发生变化时，应重新读取并提案，不能悄悄刷新已批准的快照。
 
 带 key 的结果包含 `receipt`，字段为 `operationKey`、`kind`、`channelId`、可选 `invitationId` 及完成 `status`，同时返回规范频道状态及适用的邀请。持久操作回执预留频道或邀请身份。响应不确定时，使用**相同命令、key 和 payload**重试以核对原操作，不要换新 key。已完成的受限重放读回原结果，不再次请求变更审批。输入变化、目标不可用或 Bot 身份代次变化均拒绝；重放不会重建已删除群或重复邀请。Shell／Host 重启后仍须具备当前权限；回执不保留已过期的 Shell capability。
 
-`stale-channel` 或 `stale-profile` 要求重新读取并审核；`operation-key-conflict` 表示该 key 已绑定不同输入。`channel-operation-unavailable`、`unknown-channel`、`unknown-bot` 和 `archived-bot` 拒绝不可用身份；`protected-bot` 拒绝以 Tob 为目标。不可用邀请返回 `group-invite-unavailable`。这些失败不允许回退到其他命令或另造身份。
+`stale-channel` 或 `stale-profile` 要求重新读取并审核；`operation-key-conflict` 表示该 key 已绑定不同输入。`channel-operation-unavailable`、`unknown-channel`、`unknown-bot` 和 `archived-bot` 拒绝不可用身份；`protected-bot` 拒绝以 助理 为目标。不可用邀请返回 `group-invite-unavailable`。这些失败不允许回退到其他命令或另造身份。
 
-已认证 Human 的在线 `group-create` 和 `group-invite` 也支持稳定 operation key；邀请支持 `--expected-channel` 绑定已读取状态。这些审核／重试参数对 Human 命令可选，对受限 Tob 必需。原有不带 key 的 Human 操作保持既有 owner 行为。
+已认证 Human 的在线 `group-create` 和 `group-invite` 也支持稳定 operation key；邀请支持 `--expected-channel` 绑定已读取状态。这些审核／重试参数对 Human 命令可选，对受限 助理 必需。原有不带 key 的 Human 操作保持既有 owner 行为。
 
-后续切片加入下节所述的群名称／头像、成员唤醒设置、移除成员、取消待处理邀请和决定待处理入群申请；个人免打扰／置顶／昵称／显隐、删除群、附件和外部成员管理仍不在受限允许清单内。部分已有上文的 Human CLI 命令，不等于已向 Tob 开放。#2090 保留未完成范围，不因本切片关闭。详见 [ADR-0226](adr/0226-group-management-receipts-preserve-channel-authority.md) 和[覆盖清单](agents/cli-ui-coverage.md#2090-group-management-scope)。直接 CLI、真实 Tob 审批／读回、Web 成员／历史和 macOS Desktop 分别验收。
+后续切片加入下节所述的群名称／头像、成员唤醒设置、移除成员、取消待处理邀请和决定待处理入群申请；个人免打扰／置顶／昵称／显隐、删除群、附件和外部成员管理仍不在受限允许清单内。部分已有上文的 Human CLI 命令，不等于已向 助理 开放。#2090 保留未完成范围，不因本切片关闭。详见 [ADR-0226](adr/0226-group-management-receipts-preserve-channel-authority.md) 和[覆盖清单](agents/cli-ui-coverage.md#2090-group-management-scope)。直接 CLI、真实 助理 审批／读回、Web 成员／历史和 macOS Desktop 分别验收。
 
-### Tob 群设置与成员移除
+### 助理 群设置与成员移除
 
-从已准入的 Human DM，Tob 可经现有审批修改群名称、头像和成员的普通群消息唤醒策略，或将 Bot 移出群聊。它沿用相同 Channel owner、权限和持久数据，不新增模型 Tool、数据库迁移或 UI。受限 `channel-rename` 仅接受群频道，不能通过此命令重命名 Bot 私聊。
+从已准入的 Human DM，助理 可经现有审批修改群名称、头像和成员的普通群消息唤醒策略，或将 Bot 移出群聊。它沿用相同 Channel owner、权限和持久数据，不新增模型 Tool、数据库迁移或 UI。受限 `channel-rename` 仅接受群频道，不能通过此命令重命名 Bot 私聊。
 
 ```bash
 deepseekbot group-wake-policies <channel-id>
@@ -1275,13 +1275,13 @@ deepseekbot group-member-remove <channel-id> --bot <bot-id> --expected-channel <
 
 这些写入都必须传入刚读取的 `--expected-channel`；每次成功修改后重新读取，再准备下一次修改。群名为非空文本，最多 120 个字符；头像使用上述有界 PNG／JPEG／WebP 或 `--clear`。唤醒模式为 `all`、`mentions`、`digest`、`silent`；`--count` 为 1–100，`--interval` 为 1–3600 秒，默认 5／30；`--inherit` 移除该群覆盖并恢复 Bot 默认值。移除成员保留 Bot 身份、Memory、其他频道与该群历史；若被移除的是群 owner，清除其群管理身份，群改由 Human 管理。可移除已归档的现有成员；修改唤醒策略要求目标 Bot 活跃。
 
-审批绑定旧状态、准确目标及新值，执行前重验当前 Human 的群访问权限和目标 Bot 身份。已拒绝／过期审批、Human 已离群、非群目标、目标非成员、身份被替换均拒绝，不绕过检查；Tob 仍不能入群。`stale-channel`／`stale-profile` 要求重新读取和审核，不自动覆盖并发修改。
+审批绑定旧状态、准确目标及新值，执行前重验当前 Human 的群访问权限和目标 Bot 身份。已拒绝／过期审批、Human 已离群、非群目标、目标非成员、身份被替换均拒绝，不绕过检查；助理 仍不能入群。`stale-channel`／`stale-profile` 要求重新读取和审核，不自动覆盖并发修改。
 
-这些编辑不接受 `--operation-key`，不新增重放回执。结果不确定时，先用 `channel`／`group-wake-policies` 核对实际状态，不能盲目重试；仍需修改时按最新快照重新提案。原建群／邀请回执和默认自动入群行为不变。已认证 Human 的对应在线命令可选 `--expected-channel`，省略时保留现有行为；这不放宽 Tob 的必需输入。#2090 仍保留未交付范围；命令说明不是 Web、真实模型或 macOS 验收通过的证据。
+这些编辑不接受 `--operation-key`，不新增重放回执。结果不确定时，先用 `channel`／`group-wake-policies` 核对实际状态，不能盲目重试；仍需修改时按最新快照重新提案。原建群／邀请回执和默认自动入群行为不变。已认证 Human 的对应在线命令可选 `--expected-channel`，省略时保留现有行为；这不放宽 助理 的必需输入。#2090 仍保留未交付范围；命令说明不是 Web、真实模型或 macOS 验收通过的证据。
 
-### Tob 取消邀请与入群决定
+### 助理 取消邀请与入群决定
 
-Tob 可从已准入的 Human DM，经现有审批取消一条**待处理**群邀请，或接受／拒绝一条**待处理**入群申请。先用 `channel <channel-id>` 读取准确的邀请／申请 ID、状态及 `channelFingerprint`，再提出对应操作：
+助理 可从已准入的 Human DM，经现有审批取消一条**待处理**群邀请，或接受／拒绝一条**待处理**入群申请。先用 `channel <channel-id>` 读取准确的邀请／申请 ID、状态及 `channelFingerprint`，再提出对应操作：
 
 ```bash
 deepseekbot channel <channel-id>
@@ -1296,13 +1296,13 @@ deepseekbot group-join-decide <channel-id> --request <request-id> --decline --ex
 
 默认 `autoAcceptGroupInvites=true` 不变：受邀 Bot 通常已经立即入群，不能用取消邀请撤销已接受的邀请，也不会因此移除现有成员。取消仅适用于尚待处理的邀请，例如 Human 先前关闭自动接受后产生的邀请。需要移除已入群 Bot 时，另行使用经审核的 `group-member-remove`；不要把取消失败回退成移除。
 
-接受申请由原 Channel owner 持久保存成员关系与接受状态，拒绝则不增加成员；既有决定通知只记录一次。Tob 不加入群，也不把群内容当作管理授权来源。此切片复用原状态与通知流程，不增加模型 Tool、数据库迁移或操作回执。
+接受申请由原 Channel owner 持久保存成员关系与接受状态，拒绝则不增加成员；既有决定通知只记录一次。助理 不加入群，也不把群内容当作管理授权来源。此切片复用原状态与通知流程，不增加模型 Tool、数据库迁移或操作回执。
 
-已认证 Human 的同名在线命令可选 `--expected-channel`；`group-join-decide` 省略时保留既有的同向已完成决定幂等读回。Tob 的受限入口仅接受待处理记录，不能通过省略指纹或重复终态决定绕过新审核。结果不确定时先读回准确记录的状态与成员关系；若仍待处理且需要继续，再基于新快照提案，不盲目重试。其他个人展示、整群删除与外部成员能力仍另行交付，#2090 不因本片关闭。
+已认证 Human 的同名在线命令可选 `--expected-channel`；`group-join-decide` 省略时保留既有的同向已完成决定幂等读回。助理 的受限入口仅接受待处理记录，不能通过省略指纹或重复终态决定绕过新审核。结果不确定时先读回准确记录的状态与成员关系；若仍待处理且需要继续，再基于新快照提案，不盲目重试。其他个人展示、整群删除与外部成员能力仍另行交付，#2090 不因本片关闭。
 
-### Tob 模型与运行设置
+### 助理 模型与运行设置
 
-在 Tob 具备权限的 Shell 执行中使用 `deepseekbot capabilities` 查看当前命令。下列命令复用已有 Host owner；写入仍须满足已准入 Human DM 和现有审核策略。
+在 助理 具备权限的 Shell 执行中使用 `deepseekbot capabilities` 查看当前命令。下列命令复用已有 Host owner；写入仍须满足已准入 Human DM 和现有审核策略。
 
 ```bash
 deepseekbot list
@@ -1321,7 +1321,7 @@ deepseekbot model-plan-assignments-set <bot-id> --plan-stdin --expected-revision
 deepseekbot model-preset-apply <bot-id> --preset <preset-id> --expected-revision <plan-revision> --preset-revision <preset-revision>
 ```
 
-`model-catalog` 返回可用模型及 `default`／`defaultRevision`；读取 model-plan 返回 Bot 计划的 revision。修改 Host 默认模型保留其他 Bot 的独立配置。Customize 修改 Orchestrator 并保留 Assignment 选择；inherit 让 Bot 恢复跟随 Host 默认值。Host 在准备操作和执行前均检查模型可用性：不可用路由返回 `model-unavailable`，已审核 revision 发生变化返回 `stale-setting`。需要修复的旧计划返回 `legacy-model-repair-required`，不会静默重写。凭据配置仍使用原生私密输入和既有凭据界面；Tob 只获取目录／就绪状态，不获取密钥值。
+`model-catalog` 返回可用模型及 `default`／`defaultRevision`；读取 model-plan 返回 Bot 计划的 revision。修改 Host 默认模型保留其他 Bot 的独立配置。Customize 修改 Orchestrator 并保留 Assignment 选择；inherit 让 Bot 恢复跟随 Host 默认值。Host 在准备操作和执行前均检查模型可用性：不可用路由返回 `model-unavailable`，已审核 revision 发生变化返回 `stale-setting`。需要修复的旧计划返回 `legacy-model-repair-required`，不会静默重写。凭据配置仍使用原生私密输入和既有凭据界面；助理 只获取目录／就绪状态，不获取密钥值。
 
 预设的创建、读取、更新和应用复用既有 preset owner。受限 `model-preset-create --name <name>` 与 `model-preset-update <preset-id> --name <name> --expected-revision <revision>` 必须显式提供 `--orchestrator-provider`、`--orchestrator-model`、`--assignment-provider`、`--assignment-model`；可选 effort 参数和包含 `{"assignmentModels":[...]}` 的 `--plan-stdin` 沿用既有格式。受限更新要求完整的目标名称与模型路由，Human 命令仍可局部更新。应用预设同时校验 Bot 和 preset revision。当前没有预设删除 owner 或命令，本片不新增删除操作，也不宣称完整 preset CRUD。
 
@@ -1336,7 +1336,7 @@ deepseekbot model-preset-apply <bot-id> --preset <preset-id> --expected-revision
 
 `settings-set botharness-client --patch-stdin` 必须配合成对的审核参数；previous-value JSON 必须与 patch 使用完全一致的字段。`settings agent-default-model` 读取默认模型路由，通过 `home-model-set` 修改。未知字段、其他命名空间和直接 patch 默认模型均拒绝，不绕过 owner 编辑配置文件。本片范围不包含动效、主题、语言、快捷键、布局等其他偏好。
 
-### Tob 隐私、Git 与更新
+### 助理 隐私、Git 与更新
 
 ```bash
 deepseekbot telemetry-status
@@ -1373,7 +1373,7 @@ Host 重启后先检查草稿、重新读取群聊，再通过同一个
 
 ## Desktop 新手引导
 
-`deepseekbot onboarding` 读取 Profile 引导及实际 Bot／群聊结果引用。`--action start|pause|skip|continue|restart|finish` 控制生命周期；finish 不再要求已实际创建 Bot 与群聊：引导的身份模板和采访会在用户需要时由托布创建。重新开始保留资源、审批、布局和历史。布局教学完成记录属于当前 Client；CLI 不操作界面，也不把模型配置视为执行成功。
+`deepseekbot onboarding` 读取 Profile 引导及实际 Bot／群聊结果引用。`--action start|pause|skip|continue|restart|finish` 控制生命周期；finish 不再要求已实际创建 Bot 与群聊：引导的身份模板和采访会在用户需要时由助理创建。重新开始保留资源、审批、布局和历史。布局教学完成记录属于当前 Client；CLI 不操作界面，也不把模型配置视为执行成功。
 
 ### 绑定版本的 Memory PNG 图片
 
@@ -1603,7 +1603,7 @@ deepseekbot appearance-reset --client-id <id> --expected-revision <appearance-re
 
 ### 三个审批动作（#2080）
 
-`tool-approval-decide ... --outcome allowed-always-tool` 对应网页的“始终允许”：批准本次并记住此 Bot、角色及当前授权范围中的当前工具。参数变化仍可匹配；其他工具和变化后的范围不能匹配。`tool-approval-rules` 返回 `tool` 类型；`tool-approval-rule-revoke --confirm` 撤销后恢复询问。旧 exact／broad／Secret 规则不改义。权限与策略变更、浏览器与电脑授权，以及 Tob 安装更新、重启和删除 Bot 均可用相同命令保存“始终允许”。这些操作使用独立范围，旧普通规则不会自动扩大权限；撤销规则或切换设备目标后恢复询问。Secret CLI 仍只记住程序、账号及环境变量名；MCP 服务记忆保留独立检查。
+`tool-approval-decide ... --outcome allowed-always-tool` 对应网页的“始终允许”：批准本次并记住此 Bot、角色及当前授权范围中的当前工具。参数变化仍可匹配；其他工具和变化后的范围不能匹配。`tool-approval-rules` 返回 `tool` 类型；`tool-approval-rule-revoke --confirm` 撤销后恢复询问。旧 exact／broad／Secret 规则不改义。权限与策略变更、浏览器与电脑授权，以及 助理 安装更新、重启和删除 Bot 均可用相同命令保存“始终允许”。这些操作使用独立范围，旧普通规则不会自动扩大权限；撤销规则或切换设备目标后恢复询问。Secret CLI 仍只记住程序、账号及环境变量名；MCP 服务记忆保留独立检查。
 
 Full Access 保留原生 `ask`，使识别出的权限变更可以到达 Human；明确范围内的普通请求自动回答，不再逐次弹卡。不会扩大选定 mode／scope 或已有 Assignment 权限。原生 `never` 仍表示直接拒绝，没有绕过它。目录授权仍使用 `grant-request-approve --confirm`。
 

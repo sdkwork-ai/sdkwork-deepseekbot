@@ -20,7 +20,7 @@ The native ComputerUseRegistry JavaScript is identical in the two qualified rele
 
 ## Before publishing 1.4.0
 
-- Integrate and review #2159 and this range change. Independently closed Tob/Home PRs are not implicitly approved or included.
+- Integrate and review #2159 and this range change. Independently closed Assistant/Home PRs are not implicitly approved or included.
 - Prepare one immutable 1.4.0 candidate using the existing release tooling, with source SHA and tarball digests. Verify every first-party package's range in those exact tarballs.
 - Run the existing fresh-Profile artifact installation gate on both DSH 0.2.0-rc.2 and 0.2.1-rc.2, including the bundled IM Provider: install without pre-approved builds, boot, create a Bot and DM, restart and read back. An engine preflight alone is insufficient.
 - On macOS Desktop, verify actual package installation, Bot mode, a real DM reply, delegation/Assignment completion and restart. Qualify Browser/Computer and Provider seams affected by the native upgrade; retain platform-specific gaps as explicit gates. UI checks for this task are Desktop-only.

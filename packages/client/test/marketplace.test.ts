@@ -453,7 +453,7 @@ describe('Bot Marketplace modal', () => {
         expect(host.querySelector('[data-market-commit]')?.textContent).toBe(
           '0123456 · 2026-09-30',
         );
-        expect(host.textContent).toContain('Tob 没发现风险');
+        expect(host.textContent).toContain('助理没发现风险');
         expect(createBot).not.toHaveBeenCalled();
 
         await click(host, '确认安装');

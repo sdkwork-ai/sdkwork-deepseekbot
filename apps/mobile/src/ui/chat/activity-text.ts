@@ -3,6 +3,7 @@ import type { RosterView } from '../../host/client';
 import type { ConversationMessage } from '../../host/conversation';
 import { t } from '../strings';
 import { callRecordLines } from './call-record-text';
+import { rosterBotName } from './bot-name';
 
 export type ActivityTarget =
   | { pathname: '/channel/[id]'; params: { id: string; focus: string; focusWindow: 'latest' } }
@@ -40,19 +41,19 @@ export function activityText(
   count = 1,
   copy = t.activityRow,
 ): ActivityText {
-  const botName = (slug: string, fallback = copy.unavailableBot) =>
-    roster?.bots.find((bot) => bot.slug === slug)?.displayName ?? fallback;
+  const nameOf = (slug: string, fallback = copy.unavailableBot) =>
+    rosterBotName(roster, slug) ?? fallback;
   const actor = message.bot;
   const sender = {
     ...(actor === undefined ? {} : { botSlug: actor }),
-    name: actor === undefined ? copy.human : botName(actor),
+    name: actor === undefined ? copy.human : nameOf(actor),
   };
   const elsewhere = (kind: 'post' | 'memory', channelId: string, botSlug: string) => {
     const channel = roster?.activityChannels?.find((entry) => entry.id === channelId);
     if (channel?.type === 'dm') {
       const peers = channel.members
         .filter((slug) => slug !== botSlug)
-        .map((slug) => botName(slug))
+        .map((slug) => nameOf(slug))
         .join('、');
       return kind === 'memory' ? copy.memoryMessaging(peers) : copy.messaged(peers, count);
     }
@@ -67,7 +68,7 @@ export function activityText(
     case 'dm-action':
       return {
         ...sender,
-        verb: copy.dm(botName(activity.recipientBotSlug)),
+        verb: copy.dm(nameOf(activity.recipientBotSlug)),
         target: {
           pathname: '/channel/[id]',
           params: { id: activity.channelId, focus: activity.messageId, focusWindow: 'latest' },
@@ -86,10 +87,7 @@ export function activityText(
     case 'bot-create':
       return {
         ...sender,
-        verb: copy.created(
-          roster?.bots.find((bot) => bot.slug === activity.botSlug)?.displayName ??
-            activity.displayName,
-        ),
+        verb: copy.created(rosterBotName(roster, activity.botSlug) ?? activity.displayName),
         target: { pathname: '/dm/[slug]', params: { slug: activity.botSlug } },
       };
     case 'memory': {
@@ -113,7 +111,7 @@ export function activityText(
               .join(' ');
       return {
         botSlug: commit.botSlug,
-        name: botName(commit.botSlug, commit.authorName || copy.unavailableBot),
+        name: nameOf(commit.botSlug, commit.authorName || copy.unavailableBot),
         verb:
           activity.noticeOrigin === undefined
             ? copy.memory
@@ -132,7 +130,10 @@ export function activityText(
     case 'departure':
       return {
         ...(activity.memberKind === 'bot' ? { botSlug: activity.memberId } : {}),
-        name: activity.displayName,
+        name:
+          activity.memberKind === 'bot'
+            ? (rosterBotName(roster, activity.memberId) ?? activity.displayName)
+            : activity.displayName,
         verb: activity.departureType === 'removed' ? copy.removed : copy.left,
       };
     case 'voice-call': {
@@ -140,10 +141,11 @@ export function activityText(
       return { name: title, verb: '', detail };
     }
     case 'turn-stop': {
+      const stoppedBotName = rosterBotName(roster, activity.botSlug) ?? activity.botName;
       if (activity.cause === 'failures')
         return {
           botSlug: activity.botSlug,
-          name: activity.botName,
+          name: stoppedBotName,
           verb: copy.stoppedFailures(activity.failures ?? 0),
           detail: copy.stoppedRetry,
         };
@@ -153,12 +155,12 @@ export function activityText(
         name: activity.humanName,
         verb:
           target?.scope === 'bot'
-            ? copy.stoppedBot(activity.botName)
+            ? copy.stoppedBot(stoppedBotName)
             : session?.role === 'orchestrator'
-              ? copy.stoppedOrchestrator(activity.botName)
+              ? copy.stoppedOrchestrator(stoppedBotName)
               : session?.role === 'assignment'
-                ? copy.stoppedAssignment(activity.botName, session.title)
-                : copy.stopped(activity.botName),
+                ? copy.stoppedAssignment(stoppedBotName, session.title)
+                : copy.stopped(stoppedBotName),
         ...(session?.role === 'orchestrator'
           ? { detail: copy.stoppedOrchestratorHeld }
           : activity.held === true

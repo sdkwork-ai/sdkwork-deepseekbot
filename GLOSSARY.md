@@ -31,8 +31,8 @@ A persistent local PersonaBot with its own Memory and read access to the Human's
 _Avoid_: global Orchestrator, Home panel, dashboard
 
 **Tob**:
-The built-in local Steward Bot, with a persistent identity distinct from any ordinary DeepSeek Bot; its name reverses “Bot” and also stands for “Thousands of Bot.” Tob cannot be deleted or archived, while its Soul and Memory remain editable and portable without transferring its local management authority. Management uses the DeepSeekBot CLI through native Shell; the Host grants only explicitly supported operations for the current accepted Human DM execution and retains ownership, approval and revision checks. This role is not unrestricted CLI or administrator access.
-_Avoid_: Home panel, global Orchestrator
+The built-in local Steward Bot, with a persistent identity distinct from any ordinary DeepSeek Bot. The product term remains Tob, a reversal of “Bot” that also stands for “Thousands of Bot,” while visible UI text calls it **your assistant**. Tob cannot be deleted or archived, while its Soul and Memory remain editable and portable without transferring its local management authority. Management uses the DeepSeekBot CLI through native Shell; the Host grants only explicitly supported operations for the current accepted Human DM execution and retains ownership, approval and revision checks. This role is not unrestricted CLI or administrator access.
+_Avoid_: Home panel, global Orchestrator, Tob (in UI copy)
 
 **Tob Mode**:
 On mobile, the Tob DM's normal chat detail screen opened by pulling and holding on Chats, sliding in from the top. Only the entry and animation differ from tapping the Tob row; it is the same Tob DM and history, never a second conversation or screen. The pull always targets a Tob, falling back to the most recently used computer Environment's Tob. Desktop has no Tob Mode: the former Home panel is removed, and hiding the Side column in Simple layout mode gives a focused conversation with any Channel.

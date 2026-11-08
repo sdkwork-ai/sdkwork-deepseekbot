@@ -76,7 +76,7 @@ import {
   type BotCreationInput,
   type BotCreationReceipt,
 } from '../bots/creation.js';
-import { TobError, type TobService, type TobHome } from '../tob/service.js';
+import { TOB_DEFAULT_DISPLAY_NAMES, TobError, type TobService, type TobHome } from '../tob/service.js';
 import { directToolTrace, summarizeToolTrace, type TurnTrace } from '../bots/tool-trace.js';
 import type { BotOnboarding, OnboardingSnapshot, TutorialAction } from '../onboarding/service.js';
 import type { HttpsFallback } from '../memory/clone.js';
@@ -1847,7 +1847,9 @@ function summarize(
     ...(protectedTob
       ? {
           tob: {
-            defaultName: record.displayNameCustomized !== true && record.displayName === 'Tob',
+            defaultName:
+              record.displayNameCustomized !== true &&
+              TOB_DEFAULT_DISPLAY_NAMES.includes(record.displayName),
             defaultAvatar:
               record.avatarCustomized !== true &&
               ((!record.avatar?.trim() && record.appearance === undefined) ||
@@ -2270,7 +2272,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
     const slug = asSlug(payload);
     if (slug === undefined) return invalidInput('slug is required');
     if (paused && deps.tob?.isTob(slug))
-      return { ok: false, error: { code: 'protected-bot', message: 'Tob cannot be archived' } };
+      return { ok: false, error: { code: 'protected-bot', message: 'Assistant cannot be archived' } };
     const result = deps.registry.setPaused(slug, paused);
     if (!result.ok) return unknownBot(slug);
     if (paused) deps.channels.cancelInvitationsForBot(slug);
@@ -2840,7 +2842,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
           ok: false,
           error: {
             code: error instanceof Error ? error.message : 'tob-unavailable',
-            message: error instanceof Error ? error.message : 'Tob unavailable',
+            message: error instanceof Error ? error.message : 'Assistant unavailable',
           },
         };
       }
@@ -3504,7 +3506,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       if (deps.deletions === undefined) return unavailable();
       try {
         if (deps.tob?.isTob(slug))
-          return { ok: false, error: { code: 'protected-bot', message: 'Tob cannot be deleted' } };
+          return { ok: false, error: { code: 'protected-bot', message: 'Assistant cannot be deleted' } };
         return { ok: true, value: { preview: deps.deletions.preview(slug) } };
       } catch (error) {
         return invalidInput(
@@ -3524,7 +3526,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       if (deps.deletions === undefined) return unavailable();
       try {
         if (deps.tob?.isTob(slug))
-          return { ok: false, error: { code: 'protected-bot', message: 'Tob cannot be deleted' } };
+          return { ok: false, error: { code: 'protected-bot', message: 'Assistant cannot be deleted' } };
         const result = deps.deletions.confirm(slug, source['token'], source['eraseMemory']);
         deps.computerAccess?.changed(slug);
         deps.browserAccess?.changed(slug);
@@ -5257,7 +5259,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       if (members.some((slug) => deps.tob?.isTob(slug)))
         return {
           ok: false,
-          error: { code: 'protected-bot', message: 'Tob cannot join group Channels' },
+          error: { code: 'protected-bot', message: 'Assistant cannot join group Channels' },
         };
       const channel = deps.channels.createGroup({ name, members: [...members] });
       return { ok: true, value: { channel: channelView(channel) } };
@@ -5388,7 +5390,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       if (deps.tob?.isTob(botSlug))
         return {
           ok: false,
-          error: { code: 'protected-bot', message: 'Tob cannot join group Channels' },
+          error: { code: 'protected-bot', message: 'Assistant cannot join group Channels' },
         };
       const bot = deps.registry.get(botSlug);
       const channel = deps.channels.get(channelId);
@@ -5482,7 +5484,7 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       if (accept && deps.tob?.isTob(request.requesterBotSlug))
         return {
           ok: false,
-          error: { code: 'protected-bot', message: 'Tob cannot join group Channels' },
+          error: { code: 'protected-bot', message: 'Assistant cannot join group Channels' },
         };
       if (request.status !== 'pending')
         return request.status === (accept ? 'accepted' : 'declined')

@@ -71,7 +71,8 @@ function fixture() {
     database: attachOperationalModule(owner, 'push'),
     source: {
       pending: () => ({ items, badge }),
-      botName: (slug) => (slug === 'ada' ? 'Ada' : undefined),
+      botName: (slug) => (slug === 'ada' ? 'Ada' : slug === 'tob' ? 'Tob' : undefined),
+      isDefaultSteward: (slug) => slug === 'tob',
     },
     sender: expo.sender,
     host: () => pairing.host(),
@@ -119,6 +120,17 @@ const approval = (id: string, createdAt: string): PushCandidate => ({
   botSlug: 'ada',
   createdAt,
   channelId: 'dm-ada',
+  messageId: `msg-${id}`,
+  categoryId: 'tool-approval',
+});
+
+const stewardApproval = (id: string, createdAt: string): PushCandidate => ({
+  id,
+  kind: 'approval',
+  attentionKind: 'tool-approval',
+  botSlug: 'tob',
+  createdAt,
+  channelId: 'dm-tob',
   messageId: `msg-${id}`,
   categoryId: 'tool-approval',
 });
@@ -205,6 +217,26 @@ describe('Push delivery', () => {
       },
     });
     expect(JSON.stringify(f.events)).not.toMatch(/ExponentPushToken/u);
+  });
+  it('names an uncustomized steward in the device language', async () => {
+    const f = fixture();
+    const phone = f.device('Phone');
+    const tablet = f.device('Tablet');
+    f.push.register(phone.device.id, { token: TOKEN_A, platform: 'ios', locale: 'zh' });
+    f.push.register(tablet.device.id, { token: TOKEN_B, platform: 'android', locale: 'en' });
+    f.advance(1000);
+    f.setInbox([stewardApproval('steward:1', f.at(0))]);
+
+    await f.push.reconcile();
+
+    const titled = f.expo
+      .flat()
+      .map((message) => [message.to, message.title, message.data.sender] as const)
+      .sort();
+    expect(titled).toEqual([
+      [TOKEN_A, '助理', '助理'],
+      [TOKEN_B, 'Assistant', 'Assistant'],
+    ]);
   });
 
   it('records how long after its item was created each push reached Expo', async () => {

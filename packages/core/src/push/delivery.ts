@@ -38,6 +38,7 @@ export interface PushCandidate {
 export interface PushSource {
   pending(): { items: PushCandidate[]; badge: number };
   botName(slug: string): string | undefined;
+  isDefaultSteward?(slug: string): boolean;
 }
 
 export interface PushData {
@@ -249,6 +250,7 @@ const LEADS: Record<PushLocale, Record<PushCopyKey, (bot: string | undefined) =>
 };
 
 const SEPARATOR: Record<PushLocale, string> = { en: ': ', zh: '：' };
+const STEWARD: Record<PushLocale, string> = { en: 'Assistant', zh: '助理' };
 
 const TEST: Record<PushLocale, { title: string; body: (host: string) => string }> = {
   en: { title: 'Notifications are on', body: (host) => `Sent from ${host}.` },
@@ -478,8 +480,12 @@ export function createPushDelivery(options: PushDeliveryOptions): PushDelivery {
           !(item.kind === 'reply' && item.channelId !== undefined && quiet.has(item.channelId)),
       );
       const messages: ExpoMessage[] = notify.map((item) => {
-        const sender = source.botName(item.botSlug) ?? item.botSlug;
-        const { message, ...shown } = text(item, sender, localeOf(device.locale));
+        const locale = localeOf(device.locale);
+        const sender =
+          source.isDefaultSteward?.(item.botSlug) === true
+            ? STEWARD[locale]
+            : (source.botName(item.botSlug) ?? item.botSlug);
+        const { message, ...shown } = text(item, sender, locale);
         const drawn = device.platform === 'android' && device.render === 'app';
         const data: PushData = {
           v: 1,

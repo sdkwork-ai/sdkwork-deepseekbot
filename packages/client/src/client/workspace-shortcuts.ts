@@ -52,7 +52,7 @@ export function registerWorkspaceShortcuts(
     ? shortcuts.register({
         id: workspaceShortcutId(HOME_SLOT),
         label: () => t('workspace.openTob', { name: t('tob.defaultName') }),
-        aliases: ['Bot mode', 'Tob', 'Home', HOME_SLOT],
+        aliases: ['Bot mode', 'Tob', 'Assistant', 'Home', HOME_SLOT],
         defaults: defaultBindings(HOME_SLOT),
         regions: ['page', 'editable'],
         modals: [],

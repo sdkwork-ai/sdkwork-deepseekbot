@@ -17,6 +17,7 @@ import { useComposerContext } from './composer-context';
 import { modelLabel } from './composer-labels';
 import { DmActivitySettings } from './dm-activity-settings';
 import { BotNameSetting } from './bot-name-setting';
+import { botName } from './bot-name';
 
 export function BotSettingsPanel({ client, bot }: { client: HostClient; bot: RosterBot }) {
   const t = useStrings();
@@ -72,7 +73,7 @@ export function BotSettingsPanel({ client, bot }: { client: HostClient; bot: Ros
           <BotNameSetting
             on="raised"
             icon="account"
-            name={bot.displayName}
+            name={botName(bot)}
             onSave={(name) => renameBot(client, bot.slug, name)}
           />,
           true,
@@ -83,7 +84,7 @@ export function BotSettingsPanel({ client, bot }: { client: HostClient; bot: Ros
             on="raised"
             title={t.contextModel}
             detail={model}
-            accessibilityLabel={`${t.contextModel} · ${bot.displayName} · ${model}`}
+            accessibilityLabel={`${t.contextModel} · ${botName(bot)} · ${model}`}
             icon="model"
             control={{ kind: 'chevron' }}
             onPress={() => {
@@ -136,7 +137,7 @@ export function BotSettingsPanel({ client, bot }: { client: HostClient; bot: Ros
           on="raised"
           hostId={saved.hostId}
           botSlug={bot.slug}
-          name={bot.displayName}
+          name={botName(bot)}
         />
       )}
     </View>

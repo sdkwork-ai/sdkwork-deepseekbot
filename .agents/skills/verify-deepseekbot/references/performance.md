@@ -35,7 +35,7 @@ mounted (`--no-load-all` keeps only the opening window), waits three seconds and
 | `typing.scriptMs` | Script time spent while typing; a high value means each key re-renders far too much |
 | `idleHottest`, `typing.hottest` | Top self-time functions from the CPU profile (`--profile`) |
 
-`--animate` adds one small infinite CSS animation (a `transform` bob; on these runs it still caused about 60 main-thread style recalculations per second), standing in for Tob, a working indicator or a
+`--animate` adds one small infinite CSS animation (a `transform` bob; on these runs it still caused about 60 main-thread style recalculations per second), standing in for Assistant, a working indicator or a
 speaking avatar. With it on, any per-frame cost that scales with the DOM becomes visible. Run
 both variants: users nearly always have something animating.
 

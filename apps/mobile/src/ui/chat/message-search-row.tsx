@@ -12,6 +12,7 @@ import {
   ConversationRowFrame,
 } from './conversation-row';
 import { shortTime, titleOf, type Conversation } from './conversations';
+import { botName } from './bot-name';
 
 export function MessageSearchHeading({ loading }: { loading: boolean }) {
   const t = useStrings();
@@ -58,7 +59,7 @@ export function MessageSearchRow({
       ? t.searchMessageAuthorYou
       : hit.author.kind === 'bot'
         ? ((conversation.kind === 'bot' && conversation.bot.slug === hit.author.slug
-            ? conversation.bot.displayName
+            ? botName(conversation.bot)
             : undefined) ?? hit.author.slug)
         : hit.author.kind === 'bridged'
           ? hit.author.source

@@ -84,11 +84,11 @@ Observatory Studio Group (天文台工作室) were created with the `deepseekbot
 ordinary Git commits, made before the DM: visitor feedback notes, a spring exhibit plan and a
 merged `research/kids` branch. In the Chinese capture, the uncommitted change to
 `projects/spring-exhibit.md` was made by Mira herself during the Group reply. Kai made the
-weekly schedule from the DM request. Tob answered the Home starter question. The Bot
+weekly schedule from the DM request. Assistant answered the Home starter question. The Bot
 Marketplace showed four `sample-bots/*` listings served by a loopback stub through the Host's
 `marketplaceUrl` setting, because the capture container could not reach the real Marketplace.
 The wallpapers are procedurally drawn images (gradients and hills) imported through the
-Appearance page. The capture skipped the onboarding tutorial and removed Tob's Window
+Appearance page. The capture skipped the onboarding tutorial and removed Assistant's Window
 Companion from the view, as a Human can. No real IM message was sent, and no credential, token, local path or personal
 data is visible.
 
@@ -99,5 +99,5 @@ data is visible.
 | `group.jpg`       | Observatory Studio: three @mentioned Bots reply in turn, with the Members panel.                   |
 | `schedules.jpg`   | Kai's DM after he created a weekly schedule, with the Schedules panel.                             |
 | `marketplace.jpg` | The Bot Marketplace with topic filters, pixel banners and Install buttons (sample data).           |
-| `home.jpg`        | Home (token usage, Bot activity) docked beside Tob's DM answering "How are my Bots doing?".        |
+| `home.jpg`        | Home (token usage, Bot activity) docked beside Assistant's DM answering "How are my Bots doing?".        |
 | `appearance.jpg`  | Bot settings → Appearance with Mist Purple, a three-item wallpaper library and see-through panels. |

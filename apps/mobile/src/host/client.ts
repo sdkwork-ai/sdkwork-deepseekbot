@@ -55,6 +55,7 @@ export type ConnectionState =
 
 export interface RosterBot {
   tob?: boolean;
+  tobDefaultName?: boolean;
   slug: string;
   displayName: string;
   avatarUrl?: string;
@@ -488,6 +489,7 @@ export function createHostClient(options: HostClientOptions): HostClient {
             slug: bot.slug,
             displayName: bot.displayName,
             tob: bot.tob !== undefined,
+            ...(bot.tob?.defaultName === true ? { tobDefaultName: true } : {}),
             ...(bot.avatar === undefined ? {} : avatar(bot.avatar)),
 
             ...(bot.appearance === undefined ? {} : { appearance: bot.appearance }),

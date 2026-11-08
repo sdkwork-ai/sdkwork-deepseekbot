@@ -9,6 +9,7 @@ import { approvalSummaryTool } from '../../host/requests';
 import { DEFAULT_ROSTER_SORTING } from '../../host/roster-sorting';
 import type { HumanAttentionItem } from '../../host/wire';
 import { t } from '../strings';
+import { botName } from './bot-name';
 
 interface Attention {
   needsYou: number;
@@ -344,7 +345,7 @@ function byLatest(a: Conversation, b: Conversation): number {
 }
 
 export function titleOf(row: Conversation): string {
-  return row.kind === 'bot' ? row.bot.displayName : row.channel.name;
+  return row.kind === 'bot' ? botName(row.bot) : row.channel.name;
 }
 
 export function searchKey(value: string): string {

@@ -201,10 +201,10 @@ const TOB_CLI_ONLY_TOOLS = new Set([
 function groupCollaborationPrompt(text: PromptText): string {
   return `In a Group Channel, bot_send_message mentions a joined Bot colleague through mention_bot_ids (stable IDs from list_bot_contacts or channel_list) or when body contains @ followed by its exact display name; the Host validates current membership, shows the @ badge and wakes it. ${text('group-mentions')} You may create a Group with group_create, invite a colleague with group_invite_bot, and manage the Group you created with group_rename or group_remove_member. Use group_leave to leave any joined Group, including one you created; you then lose read and send access. Report changed only when left=true; unchanged with reason=not-member means no current membership changed, without implying prior membership. Missing Channels and non-Group targets fail; report the Tool error, never a successful departure. An invitation arriving in your Inbox does not grant Group access; call group_invite_respond with accept true or false to decide, then use bot_send_message in that Group only after acceptance. A Human-selected #Group reference in your Human DM gives you only the current Group ID and name. If you need to collaborate there, call group_join_request in that same turn; it does not grant access. A Human or the Bot Group creator may approve. You receive a separate Inbox decision, and only then can you read or send in that Group. If you created a Group, group_join_decide can accept or decline its pending join requests.`;
 }
-const TOB_GROUP_PROMPT = `Tob is the Human's private steward, never a Group participant. Manage supported Group Channels on the Human's behalf through the scoped deepseekbot CLI: discover current commands with deepseekbot capabilities and preserve its approval, revision and identity checks. Creating or managing a Group does not join you to it. Never request Group membership, accept a Group invitation, add yourself to a Group, or use the legacy group management tools. Continue reporting to the Human with bot_send_message in your private Human DM.`;
+const TOB_GROUP_PROMPT = `You are the Human's private steward, never a Group participant. Manage supported Group Channels on the Human's behalf through the scoped deepseekbot CLI: discover current commands with deepseekbot capabilities and preserve its approval, revision and identity checks. Creating or managing a Group does not join you to it. Never request Group membership, accept a Group invitation, add yourself to a Group, or use the legacy group management tools. Continue reporting to the Human with bot_send_message in your private Human DM.`;
 const BOT_CREATION_PROMPT = `Create a new PersonaBot with bot_create only when the Human asks for one. Fill display_name, description, tags, soul and core_memory from the conversation, and pass avatar_path or memory_location only when the Human gave them. When the name is unclear, ask the Human with ask_user_question first. Report the new Bot in the Channel only from the tool result, with its name and DM; never claim a Bot was created when the tool failed. The new Bot is an independent colleague: reach it with bot_send_message using bot_id or invite it to a Group.`;
 const TOB_DELEGATION_PROMPT = `Tob Delegation: you are the Human's single point of contact for their Bots. Answer a trivial request yourself, such as a greeting, a quick fact or a question about you or your abilities, and handle a management task the scoped deepseekbot CLI covers yourself. Keep your own Memory updates, Bot Schedules and reminders, and MCP or credential setup with you as described below; never delegate them. For any other request in your Human DM, delegate it without asking the Human first: call list_bot_contacts with a query drawn from the request, compare the candidates' descriptions, and choose the one colleague whose description fits best. Send that colleague one bot_send_message with its botId as bot_id, restating the Human's request completely and asking for the result in that Bot-to-Bot DM. Send to one colleague only and never repeat the send; the Host's action notice already shows the Human each send, so no separate confirmation is needed. Keep the Human's request open while you wait. When the colleague's reply arrives in your Inbox, report its result, naming the colleague, with bot_send_message in your Human DM, then resolve both items; do not answer the colleague only to acknowledge. If no colleague's description fits, send nothing to any Bot: tell the Human no current Bot suits the request and offer to create one, creating it only after the Human agrees. Delegation carries no approval authority: never relay, make or promise an approval decision for a colleague; its own approvals still go to the Human.`;
-const TOB_CREATION_PROMPT = `When the Human asks you to create a Bot, use the scoped deepseekbot CLI through your Shell. Discover the installed create command with deepseekbot capabilities, prepare its supported fields from the conversation, and keep the same operation key and payload when recovering a possibly interrupted creation. Report the canonical Bot and DM only after a successful CLI result. Never use bot_create for Tob or bypass the CLI's current authority and approval checks.`;
+const TOB_CREATION_PROMPT = `When the Human asks you to create a Bot, use the scoped deepseekbot CLI through your Shell. Discover the installed create command with deepseekbot capabilities, prepare its supported fields from the conversation, and keep the same operation key and payload when recovering a possibly interrupted creation. Report the canonical Bot and DM only after a successful CLI result. Never use bot_create for Assistant or bypass the CLI's current authority and approval checks.`;
 function orchestratorPrompt(text: PromptText, tob = false): string {
   return `You are the Orchestrator for one PersonaBot, and your working directory is its Memory Repository.
 ## You coordinate work from an inbox
@@ -1052,7 +1052,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
       if (borrowed) borrowedDisposers.push(disposeRolePrompt);
       if (run.tobCli) {
         const disposeLegacyManagement = agentCtx.tools.guard(({ name }) =>
-          TOB_CLI_ONLY_TOOLS.has(name) ? 'Tob must use the scoped deepseekbot CLI' : undefined,
+          TOB_CLI_ONLY_TOOLS.has(name) ? 'Assistant must use the scoped deepseekbot CLI' : undefined,
         );
         if (borrowed) borrowedDisposers.push(disposeLegacyManagement);
         const disposeTobPrompt = agentCtx.systemPrompt.section({
@@ -3147,7 +3147,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator')
             throw new Error('group_create: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_create: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_create: Assistant must use the scoped deepseekbot CLI');
           return JSON.stringify(
             groupCommandResult(active.run.channels.createGroup(args.name), 'created'),
           );
@@ -3199,7 +3199,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator' || active.run.channels.createBot === undefined)
             throw new Error('bot_create: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('bot_create: Tob must use the scoped deepseekbot CLI');
+            throw new Error('bot_create: Assistant must use the scoped deepseekbot CLI');
           const created = active.run.channels.createBot({
             displayName: args.display_name,
             ...(args.description === undefined ? {} : { description: args.description }),
@@ -3237,7 +3237,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator')
             throw new Error('group_invite_bot: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_invite_bot: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_invite_bot: Assistant must use the scoped deepseekbot CLI');
           const invitation = active.run.channels.inviteGroup({
             channelId: args.channel_id,
             targetBotSlug: args.bot_id,
@@ -3271,7 +3271,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator')
             throw new Error('group_invite_respond: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_invite_respond: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_invite_respond: Assistant must use the scoped deepseekbot CLI');
           const result = active.run.channels.respondToGroupInvite({
             invitationId: args.invite_id,
             accept: args.accept,
@@ -3304,7 +3304,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator' || active.run.channels.requestGroupJoin === undefined)
             throw new Error('group_join_request: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_join_request: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_join_request: Assistant must use the scoped deepseekbot CLI');
           const request = active.run.channels.requestGroupJoin({ channelId: args.channel_id });
           return JSON.stringify(groupJoinResult(args.channel_id, request));
         },
@@ -3329,7 +3329,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator' || active.run.channels.decideGroupJoin === undefined)
             throw new Error('group_join_decide: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_join_decide: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_join_decide: Assistant must use the scoped deepseekbot CLI');
           const result = active.run.channels.decideGroupJoin({
             channelId: args.channel_id,
             requestId: args.request_id,
@@ -3359,7 +3359,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator')
             throw new Error('group_rename: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_rename: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_rename: Assistant must use the scoped deepseekbot CLI');
           const channel = active.run.channels.renameGroup({
             channelId: args.channel_id,
             name: args.name,
@@ -3389,7 +3389,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator')
             throw new Error('group_remove_member: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_remove_member: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_remove_member: Assistant must use the scoped deepseekbot CLI');
           const channel = active.run.channels.removeGroupMember({
             channelId: args.channel_id,
             botSlug: args.bot_id,
@@ -3871,7 +3871,7 @@ class DshBotAgentAdapter implements BotAgentAdapter {
           if (active?.role !== 'orchestrator')
             throw new Error('group_leave: Orchestrator run is unavailable');
           if (active.run.tobCli)
-            throw new Error('group_leave: Tob must use the scoped deepseekbot CLI');
+            throw new Error('group_leave: Assistant must use the scoped deepseekbot CLI');
           const result = active.run.channels.leaveGroup({ channelId: args.channel_id });
           return JSON.stringify(
             result.left

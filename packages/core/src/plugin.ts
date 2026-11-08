@@ -1724,7 +1724,7 @@ export function apply(ctx: Context, config: BotHarnessConfig): void {
         | { create(path: string, title: string): Promise<{ id: string }> }
         | undefined;
       if (!owner) throw new Error('workspace-unavailable');
-      return owner.create(path, 'Tob');
+      return owner.create(path, 'Assistant');
     },
     tobSettings: () => ctx.get('settings') as unknown as TobSettingsProvider | undefined,
     workspaces: () => ctx.get('workspaceRegistry') as unknown as DshWorkspaceLookup | undefined,
@@ -1808,6 +1808,8 @@ export function apply(ctx: Context, config: BotHarnessConfig): void {
         core.humanAttention,
         (slug) => core.registry.get(slug)?.displayName,
         (channelId, messageId) => core.channels.message(channelId, messageId)?.toolApprovalRequest,
+        (slug) =>
+          core.tob.slug() === slug && core.registry.get(slug)?.displayNameCustomized !== true,
       ),
       watch: (changed) => {
         const offDatabase = core.operationalDatabase.subscribe(({ topics }) => {

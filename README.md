@@ -91,7 +91,7 @@ Tobs（托布）原名 **DeepSeekBot**。已有用户仍可使用 `deepseekbot` 
     <td width="50%"><a href="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/marketplace.jpg"><img src="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/marketplace.jpg" alt="Bot 市场：按话题筛选、搜索，每个 Bot 卡片有像素横幅、头像、岗位、Star 数和安装按钮" /></a><br /><b>Bot 市场</b>：按话题和关键词找 Bot，点「安装」就多一位同事（图中为示例数据）。</td>
   </tr>
   <tr>
-    <td width="50%"><a href="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/home.jpg"><img src="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/home.jpg" alt="首页和托布的私聊并排：左边是 Token 用量和 Bot 活跃情况，右边是托布汇报各个 Bot 的状态" /></a><br /><b>首页与托布</b>：面板可以并排摆放；问托布一句，它就汇报所有 Bot 的状态。</td>
+    <td width="50%"><a href="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/home.jpg"><img src="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/home.jpg" alt="首页和助理的私聊并排：左边是 Token 用量和 Bot 活跃情况，右边是助理汇报各个 Bot 的状态" /></a><br /><b>首页与助理</b>：面板可以并排摆放；问助理一句，它就汇报所有 Bot 的状态。</td>
     <td width="50%"><a href="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/appearance.jpg"><img src="https://raw.githubusercontent.com/BotHarness/DeepSeekBot/f995657f424e/docs/assets/readme/v3/zh/appearance.jpg" alt="助理设置的界面设置页：主题、配色、壁纸库和面板材质，背后是换上壁纸的工作区" /></a><br /><b>界面设置</b>：主题、配色、壁纸库和半透明面板，只保存在这台设备上。</td>
   </tr>
 </table>

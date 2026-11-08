@@ -1,24 +1,24 @@
 # Share a Bot to the Bot Marketplace
 
-You can share a Bot two ways: upload it to the Tobs Marketplace with your Tobs account, or push it to a public repository on your GitHub. Either way, only a **Share Draft** goes out: a copy of the Bot's Memory files that Tob checks with you first, without any Git history. When someone installs it from the Bot Marketplace, they get a new Bot with the same memory. Your Bot itself, its chats, Workspace grants and IM connections are not shared, and later conversations on your side are not synced to installed copies.
+You can share a Bot two ways: upload it to the Tobs Marketplace with your Tobs account, or push it to a public repository on your GitHub. Either way, only a **Share Draft** goes out: a copy of the Bot's Memory files that Assistant checks with you first, without any Git history. When someone installs it from the Bot Marketplace, they get a new Bot with the same memory. Your Bot itself, its chats, Workspace grants and IM connections are not shared, and later conversations on your side are not synced to installed copies.
 
 ## Not ready to go public? Send a zip
 
 To hand a Bot to someone you know, or move it to another computer, you don't need the Marketplace: export a zip with **Share** at the top right of the Bot profile, and the other person uses **Import from zip** to get a new Bot. See [Export and import a Bot](/docs/bot-zip).
 
-## Share with Tob (recommended)
+## Share with Assistant (recommended)
 
 1. Open the Bot's profile, click **⋯** at the top right, then **Share to Marketplace**. (In the Bot Marketplace, **Upload a Bot → Share a Bot** does the same.)
-2. Click **Check with Tob**. Tob copies the Bot's files into a Share Draft and opens its DM. It goes through the files one at a time and, for anything that looks private, such as keys, passwords, email addresses, phone numbers or private conversations, asks you whether to keep it, rewrite it or drop it. The Bot's own Memory is never changed.
+2. Click **Check with Assistant**. Assistant copies the Bot's files into a Share Draft and opens its DM. It goes through the files one at a time and, for anything that looks private, such as keys, passwords, email addresses, phone numbers or private conversations, asks you whether to keep it, rewrite it or drop it. The Bot's own Memory is never changed.
 3. When every file is decided, the upload form opens on the draft. Choose where it goes:
    - **Tobs Marketplace**: sign in to your Tobs account, pick an author name the first time, check the name, bio and tags, and upload. No GitHub account is needed.
-   - **My GitHub**: Tob pushes the draft as a new public repository with one commit and the `botharness-bot` topic, and sends you the URL. The Host needs the [GitHub CLI](https://cli.github.com/) signed in with `gh auth login`.
+   - **My GitHub**: Assistant pushes the draft as a new public repository with one commit and the `botharness-bot` topic, and sends you the URL. The Host needs the [GitHub CLI](https://cli.github.com/) signed in with `gh auth login`.
 
 Because the draft has no history, files deleted earlier in the Bot's Git history never become public.
 
 ## Publish the Memory Repository yourself
 
-This publishes the whole Memory Repository, including its Git history, without Tob's check, so look through the files and history first. Find the Bot's Memory Repository path under **Settings → Workspace grants**, then run (replace `<path>` and `<name>`):
+This publishes the whole Memory Repository, including its Git history, without Assistant's check, so look through the files and history first. Find the Bot's Memory Repository path under **Settings → Workspace grants**, then run (replace `<path>` and `<name>`):
 
 ```bash
 cd <path>
