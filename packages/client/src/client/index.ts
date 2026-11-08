@@ -1138,7 +1138,18 @@ export function apply(ctx: ClientContext): void {
         key: PANEL_ID,
         locale: LOCALE_NS,
         inject: () => {
-          const iam = ctx.get('iam') as { requestSignIn?: () => Promise<boolean> } | undefined;
+          const iamService = ctx.get('iam') as
+            | {
+                requestSignIn?: () => Promise<boolean>;
+                requestSignInInPlace?: () => Promise<boolean>;
+              }
+            | undefined;
+          const requestModelSignIn =
+            iamService?.requestSignInInPlace !== undefined
+              ? () => iamService.requestSignInInPlace!()
+              : iamService?.requestSignIn !== undefined
+                ? () => iamService.requestSignIn!()
+                : undefined;
           return {
             actions,
             companion,
@@ -1162,9 +1173,7 @@ export function apply(ctx: ClientContext): void {
               if (!result.ok) throw new Error(`${result.error.code}: ${result.error.message}`);
               return result.value;
             },
-            ...(iam?.requestSignIn === undefined
-              ? {}
-              : { requestModelSignIn: () => iam.requestSignIn!() }),
+            ...(requestModelSignIn === undefined ? {} : { requestModelSignIn }),
           };
         },
       },
