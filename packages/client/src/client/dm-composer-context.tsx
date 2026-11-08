@@ -1,6 +1,7 @@
 import { useScopedState } from './scoped-state.js';
 import {
   useCallback,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -8,6 +9,7 @@ import {
   type ReactElement,
 } from 'react';
 import { Toast } from '@deepseek-ai/dsh-client-ui-primitives';
+import type { ModelSelection } from '@deepseek-ai/dsh-api-session-controller/types';
 import type { BridgeActions } from './actions.js';
 import type {
   ModelCatalogView,
@@ -46,6 +48,8 @@ import { BotPromptViewer, type BotPromptView } from './bot-prompt-viewer.js';
 import { ComposerContextBar, type ComposerFooterHandle } from './composer-context-bar.js';
 import { ChipButton } from './ds/chip-button.js';
 import { ComposerModelMenu } from './composer-model-menu.js';
+import { AssistantModelPicker, type AssistantModelPickResult } from './assistant-model-picker.js';
+import { useModelPickerHost } from './model-picker-host.js';
 
 const subscribeUnavailable = (): (() => void) => () => {};
 const unavailableSnapshot = () => undefined;
@@ -95,6 +99,8 @@ export function useDmComposerContext({
   }>(channelId);
   const [modelBusy, setModelBusy] = useScopedState(channelId, false);
   const [modelError, setModelError] = useScopedState<string | undefined>(channelId, undefined);
+  const [modelRevision, setModelRevision] = useScopedState(channelId, 0);
+  const refreshModels = (): void => setModelRevision((revision) => revision + 1);
   const companionState = useSyncExternalStore(
     companion?.subscribe ?? subscribeUnavailable,
     companion?.getSnapshot ?? unavailableSnapshot,
@@ -155,7 +161,7 @@ export function useDmComposerContext({
       active = false;
       unsubscribe();
     };
-  }, [actions, channelId, modelSlug, plan?.revision]);
+  }, [actions, channelId, modelSlug, plan?.revision, modelRevision]);
   if (bot === undefined || bot.deleted || channelId === undefined) return;
   const data = modelData?.slug === bot.slug ? modelData : undefined;
   const catalog = data?.catalog;
@@ -174,21 +180,56 @@ export function useDmComposerContext({
   const open = (kind: 'model' | 'workspace') => setPanel({ slug, kind });
   const route = plan?.orchestrator ?? data?.inheritedRoute;
   const defaultEffort = t('modelPreset.providerDefault');
-  const applyModelRoute = (route: ModelRouteView): void => {
-    if (planState === undefined || modelBusy) return;
+  const reportModelFailure = (message: string): void =>
+    setModelError(t('modelPreset.changeFailed', { error: message }));
+  const applyModelRoute = async (route: ModelRouteView): Promise<AssistantModelPickResult> => {
+    if (planState === undefined) {
+      return {
+        ok: false,
+        error: { code: 'botharness/model-plan', message: t('composerContext.unavailable') },
+      };
+    }
+    if (modelBusy) {
+      return {
+        ok: false,
+        error: { code: 'botharness/model-busy', message: t('composerContext.modelBusy') },
+      };
+    }
     setModelBusy(true);
-    void applyBotModelRoute(actions, slug, planState, route)
-      .then((next) =>
-        setModelData((current) =>
-          current?.slug === slug
-            ? { ...current, state: { revision: next.revision, plan: next } }
-            : current,
-        ),
-      )
-      .catch((failure: unknown) => {
-        setModelError(t('modelPreset.changeFailed', { error: errorMessage(failure) }));
-      })
-      .finally(() => setModelBusy(false));
+    try {
+      const next = await applyBotModelRoute(actions, slug, planState, route);
+      setModelData((current) =>
+        current?.slug === slug
+          ? { ...current, state: { revision: next.revision, plan: next } }
+          : current,
+      );
+      return { ok: true, value: undefined };
+    } catch (failure) {
+      return {
+        ok: false,
+        error: { code: 'botharness/model-plan', message: errorMessage(failure) },
+      };
+    } finally {
+      setModelBusy(false);
+    }
+  };
+  const waitForSignedInModel = async (
+    selection: ModelSelection,
+    timeoutMs = 15_000,
+  ): Promise<boolean> => {
+    const deadline = Date.now() + timeoutMs;
+    for (;;) {
+      const catalog = await actions.modelCatalog().catch(() => undefined);
+      const entry = catalog?.models.find(
+        (model) => model.provider === selection.provider && model.model === selection.model,
+      );
+      if (entry !== undefined && entry.credential === undefined) {
+        refreshModels();
+        return true;
+      }
+      if (Date.now() >= deadline) return false;
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
   };
   const routeChoice = (
     id: 'model' | 'effort',
@@ -200,7 +241,11 @@ export function useDmComposerContext({
     label: choice.label,
     selected: choice.current,
     disabled: modelStatus !== 'ready' || modelBusy || planState === undefined,
-    run: () => applyModelRoute(choice.route),
+    run: () => {
+      void applyModelRoute(choice.route).then((result) => {
+        if (!result.ok) reportModelFailure(result.error.message);
+      });
+    },
   });
   const shortcuts: ComposerShortcut[] = [
     {
@@ -271,7 +316,11 @@ export function useDmComposerContext({
           models={catalog?.models ?? []}
           modelStatus={modelStatus}
           modelBusy={modelBusy}
+          modelError={modelError}
           onPickModel={applyModelRoute}
+          onReportModelFailure={reportModelFailure}
+          onReloadModels={refreshModels}
+          waitForSignedInModel={waitForSignedInModel}
           route={route}
         />
         {modelError === undefined ? null : (
@@ -303,7 +352,11 @@ function DmComposerContextView({
   models,
   modelStatus,
   modelBusy,
+  modelError,
   onPickModel,
+  onReportModelFailure,
+  onReloadModels,
+  waitForSignedInModel,
   route,
 }: {
   footerSettings?: Ref<ComposerFooterHandle>;
@@ -321,9 +374,15 @@ function DmComposerContextView({
   models: readonly ModelCatalogEntryView[];
   modelStatus: 'loading' | 'ready' | 'unavailable';
   modelBusy: boolean;
-  onPickModel(route: ModelRouteView): void;
+  modelError: string | undefined;
+  onPickModel(route: ModelRouteView): Promise<AssistantModelPickResult>;
+  onReportModelFailure(message: string): void;
+  onReloadModels(): void;
+  waitForSignedInModel(selection: ModelSelection, timeoutMs?: number): Promise<boolean>;
   route: ModelRouteView | undefined;
 }): ReactElement {
+  const pickerHost = useModelPickerHost();
+  const pickerCatalog = useMemo<ModelCatalogView>(() => ({ models: [...models] }), [models]);
   const [grants, setGrants] = useState<WorkspaceGrantView[]>();
   const [grantError, setGrantError] = useState(false);
   const [usageOpen, setUsageOpen] = useState(false);
@@ -402,9 +461,9 @@ function DmComposerContextView({
   const effortName =
     route?.reasoningEffort === undefined
       ? undefined
-      : ((models
+      : (models
           .find((entry) => entry.provider === route.provider && entry.model === route.model)
-          ?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name) ??
+          ?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name ??
         route.reasoningEffort);
   const modelChipLabel = effortName === undefined ? modelLabel : `${modelLabel} · ${effortName}`;
   const defaultEffortLabel = t('modelPreset.providerDefault');
@@ -450,18 +509,37 @@ function DmComposerContextView({
         }
       >
         <span data-composer-chip="model" style={{ display: 'contents' }}>
-          <ComposerModelMenu
-            label={modelChipLabel}
-            ariaLabel={t('composerContext.modelMenuAria', {
-              model: modelLabel,
-              effort: effortName ?? defaultEffortLabel,
-            })}
-            current={route}
-            catalog={{ models: [...models] }}
-            defaultEffortLabel={defaultEffortLabel}
+          <AssistantModelPicker
+            catalog={pickerCatalog}
+            route={route}
+            status={modelStatus}
+            busy={modelBusy}
+            error={modelError}
             disabled={modelStatus !== 'ready' || modelBusy}
             onPick={onPickModel}
-            t={t}
+            onLoad={onReloadModels}
+            requestSignIn={pickerHost.requestSignIn}
+            waitForSignedInModel={waitForSignedInModel}
+            renderFactorySlot={pickerHost.renderFactorySlot}
+            fallback={
+              <ComposerModelMenu
+                label={modelChipLabel}
+                ariaLabel={t('composerContext.modelMenuAria', {
+                  model: modelLabel,
+                  effort: effortName ?? defaultEffortLabel,
+                })}
+                current={route}
+                catalog={pickerCatalog}
+                defaultEffortLabel={defaultEffortLabel}
+                disabled={modelStatus !== 'ready' || modelBusy}
+                onPick={(picked) => {
+                  void onPickModel(picked).then((result) => {
+                    if (!result.ok) onReportModelFailure(result.error.message);
+                  });
+                }}
+                t={t}
+              />
+            }
           />
         </span>
         {avgPerf === undefined ? null : (

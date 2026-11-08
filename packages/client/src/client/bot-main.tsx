@@ -23,6 +23,8 @@ import {
 import { GroupChannelIcon } from './group-avatar-stack.js';
 import { MobileConversationHeader } from './mobile-conversation-header.js';
 import { useDmComposerContext } from './dm-composer-context.js';
+import { ModelPickerHostContext, type ModelPickerHost } from './model-picker-host.js';
+import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots';
 import { useGroupComposerContext } from './group-composer-context.js';
 import type { WindowCompanions } from './window-companions.js';
 import { COMPANION_READ_INSET } from './companion-surface.js';
@@ -3957,6 +3959,8 @@ export function BotPanel({
   nativeChatT,
   releaseNotes,
   telemetryNotice,
+  renderFactorySlot,
+  requestModelSignIn,
   t,
 }: {
   onMobileBack?: (() => void) | undefined;
@@ -3973,11 +3977,20 @@ export function BotPanel({
   appearance?: Appearance | undefined;
   wallpaper?: Wallpaper | undefined;
   workspace?: WorkspaceOptions | undefined;
+  renderFactorySlot?: RenderFactorySlot | undefined;
+  requestModelSignIn?: (() => Promise<boolean>) | undefined;
   t: BotHarnessTranslate;
 }): ReactElement {
   const onboarding = onboardingFor(actions);
   const deferRelease = useSyncExternalStore(onboarding.subscribe, () =>
     releaseDeferred(onboarding.getSnapshot()),
+  );
+  const pickerHost = useMemo<ModelPickerHost>(
+    () => ({
+      ...(renderFactorySlot === undefined ? {} : { renderFactorySlot }),
+      ...(requestModelSignIn === undefined ? {} : { requestSignIn: requestModelSignIn }),
+    }),
+    [renderFactorySlot, requestModelSignIn],
   );
   const modeMount = useMountedResource<HTMLSpanElement>(() => {
     store.setMode('bot');
@@ -3986,7 +3999,7 @@ export function BotPanel({
     };
   }, []);
   return (
-    <>
+    <ModelPickerHostContext.Provider value={pickerHost}>
       <span ref={modeMount} hidden aria-hidden="true" />
       <OnboardingOverlay actions={actions} companion={companion} t={t} />
       <BotIntro actions={actions} appearance={appearance} wallpaper={wallpaper} t={t} />
@@ -4010,6 +4023,6 @@ export function BotPanel({
         nativeChatT={nativeChatT}
         t={t}
       />
-    </>
+    </ModelPickerHostContext.Provider>
   );
 }

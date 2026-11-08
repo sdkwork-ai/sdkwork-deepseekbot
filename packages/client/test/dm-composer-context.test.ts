@@ -6,6 +6,8 @@ import { createActions, type BridgeActions } from '../src/client/actions.js';
 import { createStore, type BotSummary } from '../src/client/store.js';
 import type { WorkspaceGrantView } from '../src/client/bridge.js';
 import { useDmComposerContext } from '../src/client/dm-composer-context.js';
+import { ModelPickerHostContext } from '../src/client/model-picker-host.js';
+import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots';
 import { WindowCompanions } from '../src/client/window-companions.js';
 import { CompanionPin } from '../src/client/window-companions-view.js';
 import { zhTranslate } from '../src/client/locale.js';
@@ -719,6 +721,72 @@ it('uses compact icon labels and a left context/right usage split, with keyboard
     await render();
     await act(async () => resolve({ slug: ada.slug, weeks: 26, since: '', rows: [] }));
     expect(document.body.querySelector('.bh-composer-usage-popover')).toBeNull();
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+  }
+});
+
+it('renders the shell model picker factory over the bot route when the host publishes it', async () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  const host = document.createElement('div');
+  document.body.append(host);
+  const root = createRoot(host);
+  const bot = { ...ada, slug: 'footer-hosted-picker' };
+  const route = { provider: 'deepseek', model: 'flash', reasoningEffort: 'high' };
+  const actions = {
+    modelPlanState: async () => ({}),
+    modelCatalog: async () => ({
+      default: route,
+      models: [
+        {
+          ...route,
+          modelName: 'DeepSeek-V4.1-Flash',
+          providerName: 'DeepSeek',
+          efforts: [{ id: 'high', name: 'High' }],
+          defaultEffort: 'high',
+        },
+      ],
+    }),
+    listWorkspaceGrants: async () => [],
+  } as unknown as BridgeActions;
+  const renderFactorySlot = vi.fn(() => createElement('span', { 'data-model-picker': 'factory' }));
+  function Harness() {
+    const content = useDmComposerContext({
+      bot,
+      channelId: `dm-${bot.slug}`,
+      actions,
+      companion: undefined,
+      activity: undefined,
+      loading: false,
+      t: zhTranslate,
+      onUsage() {},
+    })?.content;
+    return createElement(
+      ModelPickerHostContext.Provider,
+      { value: { renderFactorySlot: renderFactorySlot as unknown as RenderFactorySlot } },
+      content,
+    );
+  }
+  const settle = () =>
+    act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  try {
+    await act(async () => root.render(createElement(Harness)));
+    await settle();
+    expect(host.querySelector('[data-model-picker="factory"]')).not.toBeNull();
+    const [name, inputs] = renderFactorySlot.mock.calls.at(-1) as unknown as [
+      string,
+      { state: { current: unknown; groups: unknown[] } },
+    ];
+    expect(name).toBe('model.select');
+    expect(inputs.state.current).toMatchObject({
+      provider: 'deepseek',
+      model: 'flash',
+      reasoningEffort: 'high',
+    });
+    expect(inputs.state.groups).toHaveLength(1);
   } finally {
     await act(async () => root.unmount());
     host.remove();
