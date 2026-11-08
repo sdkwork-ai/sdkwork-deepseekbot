@@ -25,6 +25,7 @@ import { MobileConversationHeader } from './mobile-conversation-header.js';
 import { useDmComposerContext } from './dm-composer-context.js';
 import { ModelPickerHostContext, type ModelPickerHost } from './model-picker-host.js';
 import type { RenderFactorySlot } from '@deepseek-ai/dsh-client-ui-slots';
+import type { ModelCatalog } from '@deepseek-ai/dsh-api-session-controller/types';
 import { useGroupComposerContext } from './group-composer-context.js';
 import type { WindowCompanions } from './window-companions.js';
 import { COMPANION_READ_INSET } from './companion-surface.js';
@@ -1107,6 +1108,7 @@ function ConversationView({
   profileCards = EMPTY_PROFILE_CARDS,
   nativeChatT,
   nativeSessions,
+  readSessionCatalog,
   t,
 }: {
   onMobileBack?: (() => void) | undefined;
@@ -1119,6 +1121,7 @@ function ConversationView({
   nativeSessions?: NativeSessionCatalog | undefined;
   profileCards?: ProfileCardRegistry | undefined;
   nativeChatT?: NativeChatFailureText | undefined;
+  readSessionCatalog?: (() => Promise<ModelCatalog>) | undefined;
   t: BotHarnessTranslate;
 }): ReactElement {
   const sidebar = useChannelSidebar(state);
@@ -1868,6 +1871,7 @@ function ConversationView({
     loading: profileUsageLoading,
     t,
     avgPerf,
+    readSessionCatalog,
     onUsage: () => {
       setProfileViewOpen(true);
     },
@@ -3834,6 +3838,7 @@ function BotMainContent({
   dockPanels,
   profileCards,
   nativeChatT,
+  readSessionCatalog,
   t = zhTranslate,
 }: {
   onMobileBack?: (() => void) | undefined;
@@ -3844,6 +3849,7 @@ function BotMainContent({
   nativeSessions?: NativeSessionCatalog | undefined;
   profileCards?: ProfileCardRegistry | undefined;
   nativeChatT?: NativeChatFailureText | undefined;
+  readSessionCatalog?: (() => Promise<ModelCatalog>) | undefined;
   t?: BotHarnessTranslate | undefined;
 }): ReactElement {
   const state = useClientStore(selectConversationState, sameConversationInputs);
@@ -3871,6 +3877,7 @@ function BotMainContent({
       dockPanels={dockPanels}
       profileCards={profileCards}
       nativeChatT={nativeChatT}
+      readSessionCatalog={readSessionCatalog}
       t={t}
     />
   );
@@ -3961,6 +3968,7 @@ export function BotPanel({
   telemetryNotice,
   renderFactorySlot,
   requestModelSignIn,
+  readSessionCatalog,
   t,
 }: {
   onMobileBack?: (() => void) | undefined;
@@ -3979,6 +3987,7 @@ export function BotPanel({
   workspace?: WorkspaceOptions | undefined;
   renderFactorySlot?: RenderFactorySlot | undefined;
   requestModelSignIn?: (() => Promise<boolean>) | undefined;
+  readSessionCatalog?: (() => Promise<ModelCatalog>) | undefined;
   t: BotHarnessTranslate;
 }): ReactElement {
   const onboarding = onboardingFor(actions);
@@ -3989,8 +3998,9 @@ export function BotPanel({
     () => ({
       ...(renderFactorySlot === undefined ? {} : { renderFactorySlot }),
       ...(requestModelSignIn === undefined ? {} : { requestSignIn: requestModelSignIn }),
+      ...(readSessionCatalog === undefined ? {} : { readCatalog: readSessionCatalog }),
     }),
-    [renderFactorySlot, requestModelSignIn],
+    [renderFactorySlot, requestModelSignIn, readSessionCatalog],
   );
   const modeMount = useMountedResource<HTMLSpanElement>(() => {
     store.setMode('bot');
@@ -4021,6 +4031,7 @@ export function BotPanel({
         dockPanels={dockPanels}
         profileCards={profileCards}
         nativeChatT={nativeChatT}
+        readSessionCatalog={readSessionCatalog}
         t={t}
       />
     </ModelPickerHostContext.Provider>

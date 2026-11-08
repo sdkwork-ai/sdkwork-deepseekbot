@@ -869,3 +869,107 @@ it('keeps the model picker enabled while an open-triggered catalog refresh is in
     host.remove();
   }
 });
+
+it('renders the session catalog groups when the host publishes them', async () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  const host = document.createElement('div');
+  document.body.append(host);
+  const root = createRoot(host);
+  const bot = { ...ada, slug: 'footer-session-catalog' };
+  const previewGroups = [
+    {
+      id: 'birdcoder',
+      name: 'BirdCoder',
+      requiresSignIn: true,
+      models: [
+        {
+          id: 'deepseek/deepseek-v4-pro',
+          name: 'DeepSeek: DeepSeek V4 Pro',
+          badge: { text: 'New', tone: 'info' as const },
+          reasoning: {
+            efforts: [{ id: 'high', name: 'High' }],
+            defaultEffort: 'high',
+          },
+        },
+      ],
+    },
+    {
+      id: 'deepseek',
+      name: 'DeepSeek',
+      models: [{ id: 'deepseek-v41-flash', name: 'DeepSeek-V4.1-Flash' }],
+    },
+  ];
+  let requiresSignIn = true;
+  const signedInGroups = [
+    { id: 'birdcoder', name: 'BirdCoder', models: previewGroups[0]!.models },
+    previewGroups[1]!,
+  ];
+  const readSessionCatalog = vi.fn(async () => ({
+    default: { provider: 'deepseek', model: 'deepseek-v41-flash' },
+    routableProviders: ['deepseek'],
+    groups: requiresSignIn ? previewGroups : signedInGroups,
+    failures: [{ id: 'custom', name: 'Custom', message: 'offline' }],
+  }));
+  const actions = {
+    modelPlanState: async () => ({}),
+    modelCatalog: async () => ({ models: [] }),
+    listWorkspaceGrants: async () => [],
+  } as unknown as BridgeActions;
+  const renderFactorySlot = vi.fn(() =>
+    createElement('span', { 'data-model-picker': 'factory' }),
+  ) as unknown as RenderFactorySlot;
+  function Harness() {
+    const content = useDmComposerContext({
+      bot,
+      channelId: `dm-${bot.slug}`,
+      actions,
+      companion: undefined,
+      activity: undefined,
+      loading: false,
+      t: zhTranslate,
+      readSessionCatalog,
+      onUsage() {},
+    })?.content;
+    return createElement(
+      ModelPickerHostContext.Provider,
+      { value: { renderFactorySlot } },
+      content,
+    );
+  }
+  const settle = () =>
+    act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  try {
+    await act(async () => root.render(createElement(Harness)));
+    await settle();
+    const inputs = (renderFactorySlot as unknown as ReturnType<typeof vi.fn>).mock.calls.at(
+      -1,
+    )?.[1] as {
+      state: {
+        groups: unknown;
+        failures: unknown;
+        current: unknown;
+      };
+      waitForSignedInModel: (
+        selection: { provider: string; model: string },
+        timeoutMs?: number,
+      ) => Promise<boolean>;
+    };
+    expect(inputs.state.groups).toEqual(previewGroups);
+    expect(inputs.state.failures).toEqual([{ id: 'custom', name: 'Custom', message: 'offline' }]);
+    expect(inputs.state.current).toEqual({ provider: 'deepseek', model: 'deepseek-v41-flash' });
+    requiresSignIn = false;
+    await act(async () => {
+      await expect(
+        inputs.waitForSignedInModel(
+          { provider: 'birdcoder', model: 'deepseek/deepseek-v4-pro' },
+          600,
+        ),
+      ).resolves.toBe(true);
+    });
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+  }
+});

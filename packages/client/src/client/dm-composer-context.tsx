@@ -9,7 +9,7 @@ import {
   type ReactElement,
 } from 'react';
 import { Toast } from '@deepseek-ai/dsh-client-ui-primitives';
-import type { ModelSelection } from '@deepseek-ai/dsh-api-session-controller/types';
+import type { ModelCatalog, ModelSelection } from '@deepseek-ai/dsh-api-session-controller/types';
 import type { BridgeActions } from './actions.js';
 import type {
   ModelCatalogView,
@@ -59,6 +59,36 @@ const compactTokens = new Intl.NumberFormat('en', {
   maximumFractionDigits: 1,
 });
 
+function sessionCatalogView(catalog: ModelCatalog): ModelCatalogView {
+  return {
+    models: catalog.groups.flatMap((group) =>
+      group.models.map((model) => ({
+        provider: group.id,
+        providerName: group.name,
+        model: model.id,
+        modelName: model.name,
+        efforts:
+          model.reasoning?.efforts.map((effort) => ({ id: effort.id, name: effort.name })) ?? [],
+        ...(model.reasoning?.defaultEffort === undefined
+          ? {}
+          : { defaultEffort: model.reasoning.defaultEffort }),
+        ...(group.requiresSignIn === true ? { credential: 'missing' as const } : {}),
+      })),
+    ),
+    ...(catalog.default === undefined
+      ? {}
+      : {
+          default: {
+            provider: catalog.default.provider,
+            model: catalog.default.model,
+            ...(catalog.default.reasoningEffort === undefined
+              ? {}
+              : { reasoningEffort: catalog.default.reasoningEffort }),
+          },
+        }),
+  };
+}
+
 export function useDmComposerContext({
   bot,
   channelId,
@@ -69,6 +99,7 @@ export function useDmComposerContext({
   t,
   onUsage,
   avgPerf,
+  readSessionCatalog,
 }: {
   bot: BotSummary | undefined;
   channelId: string | undefined;
@@ -79,6 +110,7 @@ export function useDmComposerContext({
   t: BotHarnessTranslate;
   onUsage(): void;
   avgPerf?: AveragePerfView | undefined;
+  readSessionCatalog?: (() => Promise<ModelCatalog>) | undefined;
 }): ComposerContext | undefined {
   const footerSettings = useRef<ComposerFooterHandle>(null);
   const [panel, setPanel] = useScopedState<{
@@ -93,6 +125,7 @@ export function useDmComposerContext({
   const [modelData, setModelData] = useScopedState<{
     slug: string;
     catalog: ModelCatalogView;
+    sessionCatalog?: ModelCatalog;
     state: ModelPlanStateView;
     inheritedRoute?: ModelRouteView;
     unavailable?: boolean;
@@ -118,21 +151,34 @@ export function useDmComposerContext({
         .then(async (state) => {
           if (!active || current !== generation) return;
           rememberModelPlan(modelSlug, state?.plan);
-          const catalog = await actions.modelCatalog();
+          const sessionCatalog =
+            readSessionCatalog === undefined ? undefined : await readSessionCatalog();
           if (!active || current !== generation) return;
-          const route = catalog.default;
+          const catalog =
+            sessionCatalog === undefined
+              ? await actions.modelCatalog()
+              : sessionCatalogView(sessionCatalog);
+          if (!active || current !== generation) return;
+          const route = sessionCatalog?.default ?? catalog.default;
           const inheritedRoute =
             state?.plan === undefined &&
             state?.repair === undefined &&
             route !== undefined &&
-            catalog.models.some(
-              (entry) => entry.provider === route.provider && entry.model === route.model,
-            )
+            (sessionCatalog !== undefined
+              ? sessionCatalog.groups.some(
+                  (group) =>
+                    group.id === route.provider &&
+                    group.models.some((model) => model.id === route.model),
+                )
+              : catalog.models.some(
+                  (entry) => entry.provider === route.provider && entry.model === route.model,
+                ))
               ? route
               : undefined;
           setModelData({
             slug: modelSlug,
             catalog,
+            ...(sessionCatalog === undefined ? {} : { sessionCatalog }),
             state: state ?? {},
             ...(inheritedRoute === undefined ? {} : { inheritedRoute }),
           });
@@ -157,7 +203,7 @@ export function useDmComposerContext({
       active = false;
       unsubscribe();
     };
-  }, [actions, channelId, modelSlug, plan?.revision, modelRevision]);
+  }, [actions, channelId, modelSlug, plan?.revision, modelRevision, readSessionCatalog]);
   if (bot === undefined || bot.deleted || channelId === undefined) return;
   const data = modelData?.slug === bot.slug ? modelData : undefined;
   const catalog = data?.catalog;
@@ -215,13 +261,27 @@ export function useDmComposerContext({
   ): Promise<boolean> => {
     const deadline = Date.now() + timeoutMs;
     for (;;) {
-      const catalog = await actions.modelCatalog().catch(() => undefined);
-      const entry = catalog?.models.find(
-        (model) => model.provider === selection.provider && model.model === selection.model,
-      );
-      if (entry !== undefined && entry.credential === undefined) {
-        refreshModels();
-        return true;
+      if (readSessionCatalog === undefined) {
+        const catalog = await actions.modelCatalog().catch(() => undefined);
+        const entry = catalog?.models.find(
+          (model) => model.provider === selection.provider && model.model === selection.model,
+        );
+        if (entry !== undefined && entry.credential === undefined) {
+          refreshModels();
+          return true;
+        }
+      } else {
+        const catalog = await readSessionCatalog().catch(() => undefined);
+        const routable = catalog?.groups.some(
+          (group) =>
+            group.id === selection.provider &&
+            group.requiresSignIn !== true &&
+            group.models.some((model) => model.id === selection.model),
+        );
+        if (routable === true) {
+          refreshModels();
+          return true;
+        }
       }
       if (Date.now() >= deadline) return false;
       await new Promise((resolve) => setTimeout(resolve, 500));
@@ -310,6 +370,7 @@ export function useDmComposerContext({
           panel={panel?.slug === bot.slug ? panel.kind : undefined}
           onClose={() => setPanel(undefined)}
           models={catalog?.models ?? []}
+          sessionCatalog={data?.sessionCatalog}
           modelStatus={modelStatus}
           modelBusy={modelBusy}
           modelError={modelError}
@@ -346,6 +407,7 @@ function DmComposerContextView({
   panel,
   onClose,
   models,
+  sessionCatalog,
   modelStatus,
   modelBusy,
   modelError,
@@ -368,6 +430,7 @@ function DmComposerContextView({
   panel: 'model' | 'workspace' | undefined;
   onClose(): void;
   models: readonly ModelCatalogEntryView[];
+  sessionCatalog: ModelCatalog | undefined;
   modelStatus: 'loading' | 'ready' | 'unavailable';
   modelBusy: boolean;
   modelError: string | undefined;
@@ -507,6 +570,7 @@ function DmComposerContextView({
         <span data-composer-chip="model" style={{ display: 'contents' }}>
           <AssistantModelPicker
             catalog={pickerCatalog}
+            sessionCatalog={sessionCatalog}
             route={route}
             status={modelStatus}
             busy={modelBusy}

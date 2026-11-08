@@ -1157,6 +1157,11 @@ export function apply(ctx: ClientContext): void {
             exitBotMode: () => ctx.layout.selectPanel(null),
             openBotSettings: (sectionId?: string) => botSettings.open(sectionId),
             quickSwitcherSettings,
+            readSessionCatalog: async () => {
+              const result = await ctx.remote.session.modelCatalog();
+              if (!result.ok) throw new Error(`${result.error.code}: ${result.error.message}`);
+              return result.value;
+            },
             ...(iam?.requestSignIn === undefined
               ? {}
               : { requestModelSignIn: () => iam.requestSignIn!() }),

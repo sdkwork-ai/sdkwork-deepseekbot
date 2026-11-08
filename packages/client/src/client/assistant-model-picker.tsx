@@ -1,5 +1,6 @@
 import { useMemo, useRef, type ReactElement, type ReactNode } from 'react';
 import type {
+  ModelCatalog,
   ModelCatalogModel,
   ModelProviderGroup,
   ModelSelection,
@@ -89,14 +90,15 @@ export function assistantModelState(
   busy: boolean,
   pending: ModelSelection | null,
   error: string | undefined,
+  sessionCatalog?: ModelCatalog | undefined,
 ): AssistantModelDirectoryState {
-  const entry = catalog?.models.find(
-    (model) => model.provider === route?.provider && model.model === route?.model,
-  );
+  const groups = sessionCatalog?.groups ?? assistantModelGroups(catalog);
+  const group = groups.find((candidate) => candidate.id === route?.provider);
+  const model = group?.models.find((candidate) => candidate.id === route?.model);
   const effortName =
     route?.reasoningEffort === undefined
       ? undefined
-      : (entry?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name ??
+      : (model?.reasoning?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name ??
         route.reasoningEffort);
   return {
     current:
@@ -111,8 +113,8 @@ export function assistantModelState(
           },
     ...(effortName === undefined ? {} : { retainedEffort: effortName }),
     routable: true,
-    groups: assistantModelGroups(catalog),
-    failures: [],
+    groups,
+    failures: sessionCatalog?.failures ?? [],
     status: busy
       ? 'selecting'
       : status === 'loading'
@@ -127,6 +129,7 @@ export function assistantModelState(
 
 export interface AssistantModelPickerProps {
   catalog: ModelCatalogView | undefined;
+  sessionCatalog?: ModelCatalog | undefined;
   route: ModelRouteView | undefined;
   status: 'loading' | 'ready' | 'unavailable';
   busy: boolean;
@@ -144,6 +147,7 @@ export interface AssistantModelPickerProps {
 
 export function AssistantModelPicker({
   catalog,
+  sessionCatalog,
   route,
   status,
   busy,
@@ -158,8 +162,8 @@ export function AssistantModelPicker({
 }: AssistantModelPickerProps): ReactElement {
   const pending = useRef<ModelSelection | null>(null);
   const state = useMemo(
-    () => assistantModelState(catalog, route, status, busy, pending.current, error),
-    [catalog, route, status, busy, error],
+    () => assistantModelState(catalog, route, status, busy, pending.current, error, sessionCatalog),
+    [catalog, sessionCatalog, route, status, busy, error],
   );
   if (renderFactorySlot === undefined) return <>{fallback}</>;
   return (
