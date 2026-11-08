@@ -20,7 +20,10 @@ export interface ModelCatalog {
 }
 
 export function createModelCatalog(
-  llm: Pick<LlmRuntime, 'listProviders' | 'listModels' | 'resolveModelInfo' | 'resolveCallConfig'>,
+  llm: Pick<
+    LlmRuntime,
+    'listProviders' | 'listModels' | 'documentedModels' | 'resolveModelInfo' | 'resolveCallConfig'
+  >,
   options: {
     credentials?: Pick<ProviderCredentialHealth, 'failure'>;
     defaultRoute?: () => ModelRoute | undefined;
@@ -34,11 +37,14 @@ export function createModelCatalog(
       const groups = await Promise.all(
         providers.map(async (provider) => {
           const models = await llm.listModels(provider.id);
-          const credential =
-            options.credentials?.failure(provider.id) ??
-            (await options.credentialFailure?.(provider.id));
+          const advertised = models.length === 0 ? await llm.documentedModels(provider.id) : models;
+          const requiresSignIn = models.length === 0 && advertised.length > 0;
+          const credential = requiresSignIn
+            ? ('missing' as const)
+            : (options.credentials?.failure(provider.id) ??
+              (await options.credentialFailure?.(provider.id)));
           return Promise.all(
-            models.map(async (model): Promise<ModelCatalogEntry> => {
+            advertised.map(async (model): Promise<ModelCatalogEntry> => {
               const exact = await llm.resolveModelInfo(provider.id, model.id);
               return {
                 provider: provider.id,

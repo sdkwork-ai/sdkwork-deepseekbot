@@ -126,10 +126,7 @@ export function useDmComposerContext({
             state?.repair === undefined &&
             route !== undefined &&
             catalog.models.some(
-              (entry) =>
-                entry.provider === route.provider &&
-                entry.model === route.model &&
-                entry.credential === undefined,
+              (entry) => entry.provider === route.provider && entry.model === route.model,
             )
               ? route
               : undefined;

@@ -58,3 +58,47 @@ describe('provider credential health', () => {
     await catalog.validate({ provider: 'deepseek', model: 'deepseek-chat' });
   });
 });
+
+describe('sign-in preview catalog', () => {
+  it('advertises documented models for a provider without a credential, like the session catalog', async () => {
+    let signedIn = false;
+    const llm = {
+      listProviders: () => [
+        { id: 'birdcoder', name: 'BirdCoder' },
+        { id: 'deepseek', name: 'DeepSeek' },
+      ],
+      listModels: async (provider: string) =>
+        provider === 'deepseek'
+          ? [{ id: 'deepseek-v4', name: 'DeepSeek: DeepSeek V4' }]
+          : signedIn
+            ? [{ id: 'deepseek/deepseek-v4-pro', name: 'DeepSeek: DeepSeek V4 Pro' }]
+            : [],
+      documentedModels: async (provider: string) =>
+        provider === 'birdcoder'
+          ? [
+              {
+                provider: 'birdcoder',
+                id: 'deepseek/deepseek-v4-pro',
+                name: 'DeepSeek: DeepSeek V4 Pro',
+              },
+            ]
+          : [],
+      resolveModelInfo: async () => ({}),
+      resolveCallConfig: vi.fn(async () => ({})),
+    };
+    const catalog = createModelCatalog(llm as never);
+    expect(
+      (await catalog.list()).map((entry) => [entry.provider, entry.model, entry.credential]),
+    ).toEqual([
+      ['birdcoder', 'deepseek/deepseek-v4-pro', 'missing'],
+      ['deepseek', 'deepseek-v4', undefined],
+    ]);
+    signedIn = true;
+    expect(
+      (await catalog.list()).map((entry) => [entry.provider, entry.model, entry.credential]),
+    ).toEqual([
+      ['birdcoder', 'deepseek/deepseek-v4-pro', undefined],
+      ['deepseek', 'deepseek-v4', undefined],
+    ]);
+  });
+});
