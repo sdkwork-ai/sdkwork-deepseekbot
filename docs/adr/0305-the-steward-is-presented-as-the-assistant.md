@@ -16,6 +16,8 @@ The built-in protected steward Bot was shown as **Tob** / **托布**. In Chinese
 
 **The product term stays in code, not in copy.** Routes, flags, settings keys, storage keys and the glossary keep `tob`, and the glossary keeps Tob, Tob Mode and Tob Delegation as domain terms. Every user-facing surface — app copy on Web and mobile, model prompts, error messages, the user guides and the README — names the assistant 助理 / Assistant. The Tobs / 托布 product name is unchanged, as are its domain and release identities.
 
+**The Assistant-mode sidebar header names the assistant.** The logo row's label is the localized assistant name (`tob.defaultName`) beside the assistant's mark, not the product wordmark: the row identifies the steward whose avatar and DM it opens, and the product name sat there as a second, conflicting identity.
+
 ## Consequences
 
 - Existing Profiles adopt the new name on display without rewriting Persona Bots; a Human-chosen steward name and avatar stay exactly as chosen.

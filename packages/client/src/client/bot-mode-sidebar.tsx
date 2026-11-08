@@ -155,7 +155,7 @@ export function BotModeSidebar(props: BotModeSidebarProps): ReactElement {
             </span>
           </button>
         </Tooltip>
-        {wide ? <span {...stylex.props(styles.brandName)}>{t('panel.brand')}</span> : null}
+        {wide ? <span {...hooked('bh-mode-sidebar-brand', styles.brandName)}>{t('tob.defaultName')}</span> : null}
         <Tooltip label={toggleLabel} side="right" delayMs={500}>
           <button
             type="button"

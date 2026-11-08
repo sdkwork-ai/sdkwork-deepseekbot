@@ -143,7 +143,8 @@ describe('Bot mode sidebar', () => {
 
     expect(calls.refreshActivityListStatus).toHaveBeenCalledTimes(1);
     expect(node.querySelector('[data-roster]')?.getAttribute('data-roster')).toBe('wide');
-    expect(node.textContent).toContain('Tobs');
+    expect(node.querySelector('.bh-mode-sidebar-brand')?.textContent).toBe('Assistant');
+    expect(node.textContent).not.toContain('Tobs');
     expect(node.textContent).not.toContain('Bot mode');
     expect(node.querySelectorAll('button[aria-label="Exit Bot mode"]')).toHaveLength(1);
     const logo = button('Exit Bot mode');
@@ -173,6 +174,7 @@ describe('Bot mode sidebar', () => {
     expect(node.querySelector('[data-roster]')?.getAttribute('data-roster')).toBe('rail');
     expect(button('Open sidebar')).toBeTruthy();
     expect(button('Exit Bot mode').classList.contains('bh-mode-sidebar-logo')).toBe(true);
+    expect(node.querySelector('.bh-mode-sidebar-brand')).toBeNull();
     expect(node.textContent).not.toContain('Tobs');
   });
 
