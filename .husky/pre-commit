@@ -1,1 +1,2 @@
+node scripts/check-pr-evidence.mjs
 pnpm exec lint-staged
