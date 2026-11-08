@@ -3188,6 +3188,7 @@ export const zh = {
   'profile.banner.crop.title': '裁剪横幅',
   'profile.banner.crop.description': '拖动或缩放图片，横幅按 3:1 保存。',
 
+  'sessions.botFolders': '助理',
   'sessions.view': '会话范围',
   'sessions.shortcut.migration':
     '工作已并入会话。原有会话快捷键已保留；未能自动迁移的工作快捷键请在此重新设置。',
@@ -8208,6 +8209,7 @@ My relationship with you, established lore and topics to avoid: [fill in].
   'profile.banner.crop.title': 'Crop the banner',
   'profile.banner.crop.description': 'Drag or zoom the image. The banner is saved at 3:1.',
 
+  'sessions.botFolders': 'Assistants',
   'sessions.view': 'Session view',
   'sessions.shortcut.migration':
     'Work is now part of Sessions. Your existing Sessions shortcut is preserved. Review the shortcut here if the Work binding could not be migrated.',

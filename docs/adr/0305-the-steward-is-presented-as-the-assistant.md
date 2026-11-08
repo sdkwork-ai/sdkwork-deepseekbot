@@ -18,6 +18,8 @@ The built-in protected steward Bot was shown as **Tob** / **托布**. In Chinese
 
 **The Assistant-mode sidebar header names the assistant.** The logo row's label is the localized assistant name (`tob.defaultName`) beside the assistant's mark, not the product wordmark: the row identifies the steward whose avatar and DM it opens, and the product name sat there as a second, conflicting identity.
 
+**The Session tree's grouping section names its contents.** The section that the native DSH Session list shows above the Bot subgroups is labelled 助理 / Assistants (`sessions.botFolders`), not the product wordmark: its badge counts the assistants whose Sessions are folded under it, so the product name there read as a container of assistants rather than the product.
+
 ## Consequences
 
 - Existing Profiles adopt the new name on display without rewriting Persona Bots; a Human-chosen steward name and avatar stay exactly as chosen.

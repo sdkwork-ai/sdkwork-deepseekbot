@@ -272,7 +272,7 @@ export function BotSessionFolders({
     >
       <PanelHeader
         icon={<BotIcon icon={icon} size={16} />}
-        label="Tobs"
+        label={t('sessions.botFolders')}
         badge={<span {...stylex.props(styles.count)}>{shown.length}</span>}
         disclosure={{
           expanded: rootExpanded,

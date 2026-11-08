@@ -210,7 +210,7 @@
     },
     {
       "id": "desktop.sessions.bot-folders",
-      "label": "Group native Sessions under DeepSeekBot and Bot-avatar subgroups without changing execution directories",
+      "label": "Group native Sessions under an Assistants section with Bot-avatar subgroups without changing execution directories",
       "source": "packages/client/src/client/bot-session-folders.tsx",
       "guide": ".agents/skills/verify-deepseekbot/features/bot-session-folders.md",
       "task": 1997,
@@ -1017,9 +1017,9 @@
       "path": "scripts/e2e-bot-session-folders.mjs",
       "category": "mapped",
       "behaviors": ["desktop.sessions.bot-folders"],
-      "reason": "Prepared isolated Host with explicit Bot-owned roots; verifies product icon, Bot avatars, independent folding, reload, native navigation and retained cwd, with optional owned-Host restart.",
+      "reason": "Prepared isolated Host with explicit Bot-owned roots; verifies the Assistants section header, product icon, Bot avatars, independent folding, reload, native navigation and retained cwd, with optional owned-Host restart.",
       "task": 1997,
-      "sha256": "df0d4696321bab94ea2364c4c32b768fef20104757d2321bd68e73fdc87bb46b"
+      "sha256": "16f2e23b9e7d25d7b9d1eb163fe6af84303bd31ce11673f8b19b8ab2cf435688"
     },
     {
       "path": "scripts/e2e-activity-entry.mjs",

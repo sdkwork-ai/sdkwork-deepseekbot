@@ -80,7 +80,7 @@ try {
   if (await page.$(`${rootFolder}[aria-expanded="false"]`)) await page.click(rootHeader);
   assert.equal(
     await page.$eval(`${rootHeader} [data-panel-label]`, (node) => node.textContent),
-    'DeepSeekBot',
+    'Assistants',
   );
   assert.ok(await page.$(`${rootHeader} .bh-bot-icon`));
   assert.equal(await page.$(`${rootHeader} [data-panel-chevron]`), null);
