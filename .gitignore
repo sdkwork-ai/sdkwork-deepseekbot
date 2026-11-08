@@ -7,6 +7,8 @@ dist/
 coverage/
 packages/client/lib/
 packages/vrm-companion/lib/
+packages/browser/lib/
+packages/computer/lib/
 packages/core/cli/
 apps/docs/public/slides/
 apps/docs/src/content/docs/docs/file-open.mdx
@@ -54,6 +56,7 @@ docs/assets/pr/
 docs/evidence/
 docs/qa/
 docs/research/evidence/
+docs/research/patches/
 *.r2.json
 
 # logs
