@@ -310,11 +310,23 @@ it('applies a picked model and reasoning level from the composer menu', async ()
         ok: true,
         value: {
           default: flash,
-          models: [flash, pro].map((entry) => ({
+          models: [
+            flash,
+            pro,
+            {
+              provider: 'typesafe',
+              model: 'jev',
+              modelName: 'Jev 1.14',
+              providerName: 'TypeSafe AI',
+              credential: 'missing',
+              efforts: [],
+            },
+          ].map((entry) => ({
             ...entry,
-            modelName: entry.model === 'flash' ? 'Flash' : 'Pro',
-            providerName: 'DeepSeek',
-            efforts: [{ id: 'high', name: 'High' }],
+            modelName:
+              entry.model === 'flash' ? 'Flash' : entry.model === 'pro' ? 'Pro' : 'Jev 1.14',
+            providerName: entry.model === 'jev' ? 'TypeSafe AI' : 'DeepSeek',
+            efforts: entry.model === 'jev' ? [] : [{ id: 'high', name: 'High' }],
           })),
         },
       };
@@ -368,6 +380,12 @@ it('applies a picked model and reasoning level from the composer menu', async ()
     );
     expect(document.body.querySelector('[data-composer-model-menu]')).not.toBeNull();
     await act(async () => menuRow('模型').click());
+    const list = document.body.querySelector('[data-composer-model-menu]')!;
+    expect(list.querySelector('input[type="search"]')?.getAttribute('placeholder')).toBe(
+      '搜索模型…',
+    );
+    expect(list.textContent).toContain('TypeSafe AI');
+    expect(list.textContent).toContain('需登录');
     await act(async () => menuRow('Pro').click());
     expect(calls).toHaveLength(1);
     expect(calls[0]!.orchestrator).toEqual(pro);
