@@ -118,6 +118,7 @@ vi.mock('@deepseek-ai/dsh-client-ui-primitives', () => ({
   IconPinFillRegular: () => null,
   IconPinOutlineRegular: () => null,
   IconCloseOutlineRegular: () => null,
+  Toast: () => null,
   IconChevronRightOutlineRegular: () => null,
   Modal: ({ children, title }: { children: ReactNode; title: string }) =>
     createElement('div', { role: 'dialog', 'aria-label': title }, children),
@@ -195,8 +196,13 @@ it('keeps model, workspace and usage actions available across mobile and desktop
     await act(async () =>
       host.querySelector<HTMLButtonElement>('[data-composer-context] button')!.click(),
     );
-    expect(host.querySelectorAll('[role="dialog"]')).toHaveLength(1);
-    expect(host.querySelector('[role="dialog"]')!.textContent).toContain('model:footer-mobile');
+    // The chip opens the same two-level model menu the shell's conversation
+    // uses, not the full model editor dialog.
+    expect(document.body.querySelector('[data-composer-model-menu]')).not.toBeNull();
+    await act(async () =>
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+    );
+    expect(document.body.querySelector('[data-composer-model-menu]')).toBeNull();
     await resize(false);
     expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(3);
     expect(host.querySelector('[data-composer-context-leading]')!.textContent).toContain(
@@ -264,7 +270,12 @@ it('shows the full catalog model name for inherited and custom routes and keeps 
     expect(model().getAttribute('aria-label')).not.toContain('继承全局');
     expect(model().getAttribute('aria-label')).not.toContain('DeepSeek Provider');
     await act(async () => model().click());
-    expect(host.querySelector('[role="dialog"]')!.textContent).toContain(`model:${bot.slug}`);
+    expect(document.body.querySelector('[data-composer-model-menu]')?.textContent).toContain(
+      alternateName,
+    );
+    await act(async () =>
+      document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
+    );
     await act(async () =>
       rememberModelPlan(bot.slug, {
         revision: 3,
@@ -277,6 +288,116 @@ it('shows the full catalog model name for inherited and custom routes and keeps 
       }),
     );
     expect(model().textContent).toBe(modelName);
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+  }
+});
+
+it('applies a picked model and reasoning level from the composer menu', async () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  const host = document.createElement('div');
+  document.body.append(host);
+  const root = createRoot(host);
+  const bot = { ...ada, slug: 'footer-menu-apply' };
+  const flash = { provider: 'deepseek', model: 'flash' };
+  const pro = { provider: 'deepseek', model: 'pro' };
+  const calls: { orchestrator: Record<string, string> }[] = [];
+  const actions = createActions(async (method, payload) => {
+    if (method === 'modelPlan') return { ok: true, value: {} };
+    if (method === 'modelCatalog')
+      return {
+        ok: true,
+        value: {
+          default: flash,
+          models: [
+            flash,
+            pro,
+            {
+              provider: 'typesafe',
+              model: 'jev',
+              modelName: 'Jev 1.14',
+              providerName: 'TypeSafe AI',
+              credential: 'missing',
+              efforts: [],
+            },
+          ].map((entry) => ({
+            ...entry,
+            modelName:
+              entry.model === 'flash' ? 'Flash' : entry.model === 'pro' ? 'Pro' : 'Jev 1.14',
+            providerName: entry.model === 'jev' ? 'TypeSafe AI' : 'DeepSeek',
+            efforts: entry.model === 'jev' ? [] : [{ id: 'high', name: 'High' }],
+          })),
+        },
+      };
+    if (method === 'modelPlanCustomize') {
+      calls.push(payload as { orchestrator: Record<string, string> });
+      return {
+        ok: true,
+        value: {
+          plan: {
+            revision: 2,
+            sourcePresetId: '',
+            sourcePresetName: '',
+            orchestrator: payload.orchestrator,
+            assignmentDefault: payload.orchestrator,
+            assignmentModels: [],
+            appliedAt: '',
+          },
+        },
+      };
+    }
+    if (method === 'grants') return { ok: true, value: { grants: [] } };
+    throw new Error(`Unexpected method ${method}`);
+  }, createStore());
+  function Harness() {
+    return useDmComposerContext({
+      bot,
+      channelId: `dm-${bot.slug}`,
+      actions,
+      companion: undefined,
+      activity: undefined,
+      loading: false,
+      t: zhTranslate,
+      onUsage() {},
+    })?.content;
+  }
+  const menuRow = (text: string) => {
+    const menu = document.body.querySelector('[data-composer-model-menu]');
+    const row = [...(menu?.querySelectorAll('button') ?? [])].find((button) =>
+      (button.textContent ?? '').startsWith(text),
+    );
+    expect(row, `menu row ${text}`).toBeDefined();
+    return row!;
+  };
+  try {
+    await act(async () => root.render(createElement(Harness)));
+    await vi.waitFor(() =>
+      expect(host.querySelector('[data-composer-chip="model"]')!.textContent).toBe('Flash'),
+    );
+    await act(async () =>
+      host.querySelector<HTMLButtonElement>('[data-composer-chip="model"] button')!.click(),
+    );
+    expect(document.body.querySelector('[data-composer-model-menu]')).not.toBeNull();
+    await act(async () => menuRow('模型').click());
+    const list = document.body.querySelector('[data-composer-model-menu]')!;
+    expect(list.querySelector('input[type="search"]')?.getAttribute('placeholder')).toBe(
+      '搜索模型…',
+    );
+    expect(list.textContent).toContain('TypeSafe AI');
+    expect(list.textContent).toContain('需登录');
+    await act(async () => menuRow('Pro').click());
+    expect(calls).toHaveLength(1);
+    expect(calls[0]!.orchestrator).toEqual(pro);
+    expect(host.querySelector('[data-composer-chip="model"]')!.textContent).toBe('Pro');
+    await act(async () =>
+      host.querySelector<HTMLButtonElement>('[data-composer-chip="model"] button')!.click(),
+    );
+    await act(async () => menuRow('推理等级').click());
+    await act(async () => menuRow('High').click());
+    expect(calls).toHaveLength(2);
+    expect(calls[1]!.orchestrator).toEqual({ ...pro, reasoningEffort: 'high' });
+    expect(host.querySelector('[data-composer-chip="model"]')!.textContent).toBe('Pro · High');
   } finally {
     await act(async () => root.unmount());
     host.remove();

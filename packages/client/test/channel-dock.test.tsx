@@ -623,6 +623,57 @@ it('opens group members inside Messages and preserves the split preference acros
   expect(host.querySelector('.bh-message-members')).toBeNull();
 });
 
+it('leaves the control rail to a host that declares its own', async () => {
+  const { WorkspaceContext, WORKSPACE_CHANNELS, WORKSPACE_RAIL } =
+    await import('../src/client/workspace-context.js');
+  const registry = createDockPanelRegistry();
+  registry.register({
+    id: CHANNEL_BODY_PANEL,
+    title: 'Messages',
+    scope: 'global',
+    component: () => null,
+  });
+  registry.register({
+    id: WORKSPACE_CHANNELS,
+    title: 'Channels',
+    scope: 'global',
+    component: () => createElement('input', { 'data-roster-search': '' }),
+  });
+  let api: import('dockview-react').DockviewApi | undefined;
+  const workspace = {
+    rail: (current: import('dockview-react').DockviewApi) => {
+      api = current;
+      return createElement('nav');
+    },
+  };
+  document.documentElement.setAttribute('data-bh-host-rail', '');
+  try {
+    act(() =>
+      root.render(
+        createElement(
+          WorkspaceContext.Provider,
+          { value: workspace },
+          createElement(ChannelDock, {
+            body: createElement('input', { 'data-message-draft': '' }),
+            panels: registry.panels(),
+            registry,
+            entryProps,
+            shows: () => true,
+            t: zhTranslate,
+            storage,
+          }),
+        ),
+      ),
+    );
+    await settle();
+    expect(api!.getPanel(WORKSPACE_RAIL)).toBeUndefined();
+    expect(api!.getPanel(WORKSPACE_CHANNELS)).toBeDefined();
+    expect(host.querySelector('.bh-workspace-rail')).toBeNull();
+  } finally {
+    document.documentElement.removeAttribute('data-bh-host-rail');
+  }
+});
+
 it('persists hidden rail controls, closes only the hidden Panel and supports header close', async () => {
   const { WorkspaceContext, WORKSPACE_CHANNELS } =
     await import('../src/client/workspace-context.js');

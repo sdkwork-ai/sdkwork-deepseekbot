@@ -45,6 +45,7 @@ import { DmComposerUsagePopover } from './dm-composer-usage.js';
 import { BotPromptViewer, type BotPromptView } from './bot-prompt-viewer.js';
 import { ComposerContextBar, type ComposerFooterHandle } from './composer-context-bar.js';
 import { ChipButton } from './ds/chip-button.js';
+import { ComposerModelMenu } from './composer-model-menu.js';
 
 const subscribeUnavailable = (): (() => void) => () => {};
 const unavailableSnapshot = () => undefined;
@@ -269,6 +270,8 @@ export function useDmComposerContext({
           onClose={() => setPanel(undefined)}
           models={catalog?.models ?? []}
           modelStatus={modelStatus}
+          modelBusy={modelBusy}
+          onPickModel={applyModelRoute}
           route={route}
         />
         {modelError === undefined ? null : (
@@ -299,6 +302,8 @@ function DmComposerContextView({
   onClose,
   models,
   modelStatus,
+  modelBusy,
+  onPickModel,
   route,
 }: {
   footerSettings?: Ref<ComposerFooterHandle>;
@@ -315,6 +320,8 @@ function DmComposerContextView({
   onClose(): void;
   models: readonly ModelCatalogEntryView[];
   modelStatus: 'loading' | 'ready' | 'unavailable';
+  modelBusy: boolean;
+  onPickModel(route: ModelRouteView): void;
   route: ModelRouteView | undefined;
 }): ReactElement {
   const [grants, setGrants] = useState<WorkspaceGrantView[]>();
@@ -392,6 +399,15 @@ function DmComposerContextView({
           ? 'composerContext.unavailable'
           : 'composerContext.noModel',
     );
+  const effortName =
+    route?.reasoningEffort === undefined
+      ? undefined
+      : ((models
+          .find((entry) => entry.provider === route.provider && entry.model === route.model)
+          ?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name) ??
+        route.reasoningEffort);
+  const modelChipLabel = effortName === undefined ? modelLabel : `${modelLabel} · ${effortName}`;
+  const defaultEffortLabel = t('modelPreset.providerDefault');
   const workspaceLabel = grantError
     ? t('composerContext.unavailable')
     : grants === undefined
@@ -433,15 +449,21 @@ function DmComposerContextView({
           />
         }
       >
-        <ChipButton
-          data-composer-chip="model"
-          collapseLabel
-          icon={<ChannelSidebarIcon name="cpu" size={14} />}
-          label={modelLabel}
-          title={modelLabel}
-          onClick={() => onOpen('model')}
-          aria-label={`${t('entry.model')} · ${bot.displayName} · ${modelLabel}`}
-        />
+        <span data-composer-chip="model" style={{ display: 'contents' }}>
+          <ComposerModelMenu
+            label={modelChipLabel}
+            ariaLabel={t('composerContext.modelMenuAria', {
+              model: modelLabel,
+              effort: effortName ?? defaultEffortLabel,
+            })}
+            current={route}
+            catalog={{ models: [...models] }}
+            defaultEffortLabel={defaultEffortLabel}
+            disabled={modelStatus !== 'ready' || modelBusy}
+            onPick={onPickModel}
+            t={t}
+          />
+        </span>
         {avgPerf === undefined ? null : (
           <ChipButton
             data-composer-chip="avg-perf"

@@ -17,8 +17,12 @@ export interface BotModelGroup {
   key: string;
   label: string;
   provider: string;
+  /** Display name of the provider, for the grouped model list. */
+  providerName: string;
   model: string;
   current: boolean;
+  /** Set when the provider advertises this model but its sign-in is missing. */
+  credential?: 'missing' | 'invalid';
   efforts: BotModelChoice[];
 }
 
@@ -33,30 +37,30 @@ export function botModelMenuGroups(
   catalog: ModelCatalogView | undefined,
   defaultEffortLabel: string,
 ): BotModelGroup[] {
-  const groups = (catalog?.models ?? [])
-    .filter((entry) => entry.credential === undefined)
-    .map((entry) => {
-      const efforts = [{ id: '', name: defaultEffortLabel }, ...entry.efforts];
-      return {
-        key: JSON.stringify([entry.provider, entry.model]),
-        label: entry.modelName,
-        provider: entry.provider,
-        model: entry.model,
-        current: current?.provider === entry.provider && current.model === entry.model,
-        efforts: efforts.map((effort) => ({
-          label: effort.name,
-          route: {
-            provider: entry.provider,
-            model: entry.model,
-            ...(effort.id === '' ? {} : { reasoningEffort: effort.id }),
-          },
-          current:
-            current?.provider === entry.provider &&
-            current.model === entry.model &&
-            (current.reasoningEffort ?? '') === effort.id,
-        })),
-      };
-    });
+  const groups = (catalog?.models ?? []).map((entry) => {
+    const efforts = [{ id: '', name: defaultEffortLabel }, ...entry.efforts];
+    return {
+      key: JSON.stringify([entry.provider, entry.model]),
+      label: entry.modelName,
+      provider: entry.provider,
+      providerName: entry.providerName,
+      model: entry.model,
+      current: current?.provider === entry.provider && current.model === entry.model,
+      ...(entry.credential === undefined ? {} : { credential: entry.credential }),
+      efforts: efforts.map((effort) => ({
+        label: effort.name,
+        route: {
+          provider: entry.provider,
+          model: entry.model,
+          ...(effort.id === '' ? {} : { reasoningEffort: effort.id }),
+        },
+        current:
+          current?.provider === entry.provider &&
+          current.model === entry.model &&
+          (current.reasoningEffort ?? '') === effort.id,
+      })),
+    };
+  });
   return groups.sort((one, other) => Number(other.current) - Number(one.current));
 }
 
@@ -67,6 +71,7 @@ export function botModelChoices(
   filter: string,
 ): BotModelChoice[] {
   return botModelMenuGroups(current, catalog, defaultEffortLabel)
+    .filter((group) => group.credential === undefined)
     .filter((group) => matches(filter, group.label, group.model, group.provider))
     .map((group) => ({
       label: group.label,

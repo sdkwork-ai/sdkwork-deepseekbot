@@ -22,7 +22,23 @@ import { mountPanelScrollbars } from './ds/panel-scrollbars.js';
 import { usePanelMenu } from './panel-menu.js';
 import { PanelEmptyState } from './ds/empty-state.js';
 import { workspaceColumns, moveWorkspaceRail, isFullHeightRail } from './workspace-layout.js';
-import { WorkspaceContext, WORKSPACE_RAIL, WORKSPACE_CHANNELS } from './workspace-context.js';
+import { WorkspaceContext, WORKSPACE_RAIL, WORKSPACE_CHANNELS } from './workspace-context.js'
+/**
+ * Attribute an embedding host sets on `<html>` when it already provides the
+ * surface's control rail (the SDKWork shell in BirdCoder does; the standalone
+ * app does not). The in-surface rail then disappears entirely — the surface
+ * keeps one control column, the host's — and the channels column becomes the
+ * leftmost panel.
+ */
+const HOST_RAIL_ATTRIBUTE = 'data-bh-host-rail'
+/** Narrowest channel column worth keeping once the rail no longer sits beside it. */
+const HOSTED_CHANNELS_WIDTH = 260
+
+/** Whether the embedding host already owns the control rail. */
+function hostProvidesRail(): boolean {
+  return typeof document !== 'undefined'
+    && document.documentElement.hasAttribute(HOST_RAIL_ATTRIBUTE)
+}
 import {
   createContext,
   useCallback,
@@ -1621,7 +1637,10 @@ export function ChannelDock({
     panelId !== CHANNEL_BODY_PANEL && panelId !== WORKSPACE_RAIL && !inColumn(panelId);
 
   const showSimpleView = (target: DockviewApi, requested: string | null): void => {
-    let id = requested;
+    // A host that owns the control rail has no in-surface launcher for the
+    // channel list, so the list must stay on screen: an empty side column means
+    // the channels column, not no column at all.
+    let id = requested ?? (hostProvidesRail() ? WORKSPACE_CHANNELS : null);
     if (id !== null && id !== WORKSPACE_CHANNELS) {
       const panel = known.current.get(id) ?? registry?.panels().find((item) => item.id === id);
       if (panel === undefined || !sideColumnItem(id) || !layout.current.canOpen(id))
@@ -1654,13 +1673,14 @@ export function ChannelDock({
     target.clear();
     parked.current = {};
     visibilityLayout.current = undefined;
-    target.addPanel({ id: WORKSPACE_RAIL, component: WORKSPACE_RAIL });
+    const hosted = hostProvidesRail();
+    if (!hosted) target.addPanel({ id: WORKSPACE_RAIL, component: WORKSPACE_RAIL });
     const channels = known.current.get(WORKSPACE_CHANNELS);
     if (channels)
       restoreEntryPanel(
         target,
         channels,
-        { neighbor: WORKSPACE_RAIL, direction: 'right' },
+        hosted ? undefined : { neighbor: WORKSPACE_RAIL, direction: 'right' },
         gapRef.current,
       );
     const message = known.current.get(CHANNEL_BODY_PANEL);
@@ -1668,9 +1688,11 @@ export function ChannelDock({
       restoreEntryPanel(
         target,
         message,
-        { neighbor: channels ? WORKSPACE_CHANNELS : WORKSPACE_RAIL, direction: 'right' },
+        channels ? { neighbor: WORKSPACE_CHANNELS, direction: 'right' } : undefined,
         gapRef.current,
       );
+    if (hosted)
+      target.getPanel(WORKSPACE_CHANNELS)?.api.setSize({ width: HOSTED_CHANNELS_WIDTH });
     target.getPanel(CHANNEL_BODY_PANEL)?.api.updateParameters({ entryId: CHANNEL_BODY_PANEL });
     hideBodyHeader(target);
     showSimpleView(target, simpleRef.current.sideColumn);
@@ -1760,12 +1782,31 @@ export function ChannelDock({
             ready.getPanel(WORKSPACE_CHANNELS)?.api.setSize({ width: 260 });
           }
         }
-        if (!ready.getPanel(WORKSPACE_RAIL))
+        if (!hostProvidesRail() && !ready.getPanel(WORKSPACE_RAIL))
           ready.addPanel({
             id: WORKSPACE_RAIL,
             component: WORKSPACE_RAIL,
             position: { direction: 'left' },
           });
+      }
+      // A saved layout can still contain the rail (the standalone app's layout,
+      // or a profile written before this host declared its own rail): drop it
+      // and give the channel column the room the rail used to take. A profile
+      // that was saved while the rail existed can also carry a collapsed or
+      // missing channel column, so restore it here rather than leaving the
+      // surface with no list at all.
+      if (workspace && hostProvidesRail()) {
+        ready.getPanel(WORKSPACE_RAIL)?.api.close();
+        const channels = ready.getPanel(WORKSPACE_CHANNELS);
+        if (channels === undefined) {
+          const registration = known.current.get(WORKSPACE_CHANNELS);
+          if (registration !== undefined) {
+            addEntryPanel(ready, registration, undefined);
+            ready.getPanel(WORKSPACE_CHANNELS)?.api.setSize({ width: HOSTED_CHANNELS_WIDTH });
+          }
+        } else if (channels.api.width < 200) {
+          channels.api.setSize({ width: HOSTED_CHANNELS_WIDTH });
+        }
       }
       if (workspace)
         ready.getPanel(CHANNEL_BODY_PANEL)?.api.updateParameters({ entryId: CHANNEL_BODY_PANEL });
@@ -1786,6 +1827,22 @@ export function ChannelDock({
       const anchor = rightColumnAnchor(ready);
       const group = anchor === undefined ? undefined : ready.getPanel(anchor)?.group;
       if (group !== undefined) fitRightColumn(ready, group);
+    }
+    // A profile saved while the rail existed can carry a collapsed channel
+    // column: the group is restored at zero width and the surface then shows
+    // no list at all. Normalize it once the dock has a measured width — the
+    // first layout pass above may still run at width zero.
+    const hosted = workspace !== undefined && hostProvidesRail();
+    if (hosted) {
+      const normalizeChannels = (): void => {
+        const channels = ready.getPanel(WORKSPACE_CHANNELS);
+        if (channels === undefined || channels.api.width >= 200) return;
+        channels.api.setSize({
+          width: Math.min(420, Math.max(280, Math.round(ready.width * 0.22))),
+        });
+      };
+      normalizeChannels();
+      requestAnimationFrame(normalizeChannels);
     }
     hideBodyHeader(ready);
     ready.onWillShowOverlay((event) => {
@@ -2139,7 +2196,7 @@ export function ChannelDock({
     );
     const channels = byId.get(WORKSPACE_CHANNELS);
     if (workspace && channels) addEntryPanel(api, channels, undefined);
-    if (workspace)
+    if (workspace && !hostProvidesRail())
       api.addPanel({
         id: WORKSPACE_RAIL,
         component: WORKSPACE_RAIL,
