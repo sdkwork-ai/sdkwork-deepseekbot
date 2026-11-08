@@ -75,6 +75,34 @@ describe('native tool API generations', () => {
     expect(execute).toHaveBeenCalledExactlyOnceWith(call);
   });
 
+  it('leaves executor mounting to the Host when the Agent scope exposes no presentation API', async () => {
+    const ctx = { tools: { execute: vi.fn() } } as unknown as Context;
+    const release = await installNativeTools(ctx);
+    expect(release).toBeTypeOf('function');
+    expect(release()).toBeUndefined();
+  });
+
+  it('executes a direct call through the batch API of a scope that withholds executor control', async () => {
+    const result = { isError: false, value: 'written', content: [] };
+    const batch = vi.fn(async () => ({ results: [{ callId: ToolCallId('direct'), result }] }));
+    const ctx = {
+      tools: { guard: vi.fn(() => () => undefined), execute: batch },
+    } as unknown as Context;
+    const call = input();
+    expect(await executeNativeTool(ctx, call)).toBe(result);
+    expect(batch).toHaveBeenCalledExactlyOnceWith({
+      calls: [
+        {
+          type: 'tool-call',
+          id: call.callId,
+          name: call.name,
+          arguments: JSON.stringify(call.arguments),
+        },
+      ],
+      signal: call.signal,
+    });
+  });
+
   it('uses a correlated batch without logging a synthetic model step', async () => {
     const result = { isError: false, value: 'written', content: [] };
     const execute = vi.fn(async () => ({ results: [{ callId: ToolCallId('direct'), result }] }));

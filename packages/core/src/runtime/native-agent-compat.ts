@@ -39,8 +39,17 @@ export async function installNativeTools(ctx: Context, exposeTools = true): Prom
           },
     );
   }
-  const legacy = ctx.tools as unknown as { presentAs(mode: 'native'): () => void };
-  return legacy.presentAs('native');
+  const legacy = ctx.tools as unknown as { presentAs?(mode: 'native'): () => void };
+  // A newer Host withholds executor control from an Agent scope but mounts the
+  // native executor itself; its tool service has no presentation selector at
+  // all, so there is nothing to install instead of failing the Agent setup.
+  return typeof legacy.presentAs === 'function' ? legacy.presentAs('native') : () => undefined;
+}
+
+/** Whether the tool service belongs to the executor-registry generation. */
+function hasExecutorRegistry(ctx: Context): boolean {
+  const tools = ctx.tools as unknown as { setExecutor?: unknown; guard?: unknown };
+  return typeof tools.setExecutor === 'function' || typeof tools.guard === 'function';
 }
 
 export interface DirectNativeCall {
@@ -55,7 +64,7 @@ export async function executeNativeTool(
   ctx: Context,
   input: DirectNativeCall,
 ): Promise<ToolExecutionResult> {
-  if (typeof ctx.tools.setExecutor !== 'function') {
+  if (!hasExecutorRegistry(ctx)) {
     const legacy = ctx.tools as unknown as {
       execute(input: DirectNativeCall): Promise<ToolExecutionResult>;
     };
