@@ -113,7 +113,6 @@ export function useDmComposerContext({
     let generation = 0;
     const refresh = (): void => {
       const current = ++generation;
-      setModelData(undefined);
       void actions
         .modelPlanState(modelSlug)
         .then(async (state) => {
@@ -515,7 +514,7 @@ function DmComposerContextView({
             status={modelStatus}
             busy={modelBusy}
             error={modelError}
-            disabled={modelStatus !== 'ready' || modelBusy}
+            disabled={modelStatus !== 'ready'}
             onPick={onPickModel}
             onLoad={onReloadModels}
             requestSignIn={pickerHost.requestSignIn}

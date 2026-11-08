@@ -792,3 +792,80 @@ it('renders the shell model picker factory over the bot route when the host publ
     host.remove();
   }
 });
+
+it('keeps the model picker enabled while an open-triggered catalog refresh is in flight', async () => {
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  const host = document.createElement('div');
+  document.body.append(host);
+  const root = createRoot(host);
+  const bot = { ...ada, slug: 'footer-picker-refresh' };
+  const route = { provider: 'deepseek', model: 'flash', reasoningEffort: 'high' };
+  let release: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let catalogCalls = 0;
+  const actions = {
+    modelPlanState: async () => ({}),
+    modelCatalog: async () => {
+      catalogCalls += 1;
+      if (catalogCalls > 1) await gate;
+      return {
+        default: route,
+        models: [
+          {
+            ...route,
+            modelName: 'DeepSeek-V4.1-Flash',
+            providerName: 'DeepSeek',
+            efforts: [{ id: 'high', name: 'High' }],
+            defaultEffort: 'high',
+          },
+        ],
+      };
+    },
+    listWorkspaceGrants: async () => [],
+  } as unknown as BridgeActions;
+  const renderFactorySlot = ((_name: string, inputs: { locked?: boolean; load(): void }) =>
+    createElement('button', {
+      'data-picker': '1',
+      disabled: inputs.locked === true,
+      onClick: () => inputs.load(),
+    })) as unknown as RenderFactorySlot;
+  function Harness() {
+    const content = useDmComposerContext({
+      bot,
+      channelId: `dm-${bot.slug}`,
+      actions,
+      companion: undefined,
+      activity: undefined,
+      loading: false,
+      t: zhTranslate,
+      onUsage() {},
+    })?.content;
+    return createElement(
+      ModelPickerHostContext.Provider,
+      { value: { renderFactorySlot } },
+      content,
+    );
+  }
+  const settle = () =>
+    act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+  const picker = () => host.querySelector<HTMLButtonElement>('[data-picker="1"]')!;
+  try {
+    await act(async () => root.render(createElement(Harness)));
+    await settle();
+    expect(picker().disabled).toBe(false);
+    await act(async () => picker().click());
+    await settle();
+    expect(catalogCalls).toBeGreaterThan(1);
+    expect(picker().disabled).toBe(false);
+    await act(async () => release());
+    await settle();
+    expect(picker().disabled).toBe(false);
+  } finally {
+    await act(async () => root.unmount());
+    host.remove();
+  }
+});
