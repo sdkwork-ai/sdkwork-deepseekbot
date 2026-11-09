@@ -205,6 +205,8 @@ flowchart TD
 
 Only one BotHarness writer may own a DSH profile at a time. Module migrations combine into one monotonically increasing Schema Generation. Migration runs against a temporary copy and atomically replaces the active database only after validation. Open, migration, or page-integrity failure enters recovery mode; the Host never falls back to NDJSON, a storage domain, or in-memory writes. Foreign key orphans left by an outside writer do not block the mount; they are recorded in diagnostics and the startup log, and a migration may not add new ones (ADR-0258).
 
+The writer belongs to the process, not to each mount. A second mount of the same profile path at the same Schema Generation in the same process attaches to the ready process-wide owner and shares its connection, lease and transactions; closing releases only that handle, and the OS writer lease is released when the last handle closes. Applying or reloading the plugin tree twice in one Host therefore no longer pushes the later instance into recovery mode, and diagnostics expose the sharing through `mounts` and `phase=shared-mount`. A different Schema Generation never shares; across processes the OS writer lease still decides and the holder stays in `leaseHolder`. Offline `deepseekbot` maintenance always mounts as its own writer and returns `lease-unavailable` (ADR-0307).
+
 ## 4 · Messaging transaction and external side effects
 
 ```mermaid

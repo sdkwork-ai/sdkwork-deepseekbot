@@ -323,6 +323,8 @@ flowchart TD
 
 一个 DSH profile 同时只允许一个 BotHarness writer。所有 module migration 合并成单调递增的 Schema Generation；迁移只在临时副本上完成，校验后原子替换。打开、迁移或页完整性检查失败时进入 recovery mode，不回退到 NDJSON、storage domain 或内存写入。外部工具留下的外键孤儿行不阻止挂载，只记录在诊断和启动日志中；迁移不得新增孤儿（ADR-0258）。
 
+writer 属于进程而不是每次挂载：同一进程内对同一 profile 路径、同一 Schema Generation 的第二次挂载会附加到已就绪的 process-wide owner 并共享同一连接、租约和事务，关闭只释放自己的 handle；最后一个 handle 关闭时才释放 OS writer lease。插件树在同一个 Host 中被应用两次或重载时因此不会把后一个实例推入 recovery mode，诊断以 `mounts` 和 `phase=shared-mount` 暴露共享。不同 Schema Generation 不共享，跨进程仍由 OS writer lease 决定，持有者信息保留在 `leaseHolder`；离线 `deepseekbot` 维护始终按独立 writer 挂载并返回 `lease-unavailable`（ADR-0307）。
+
 ## 4 · Messaging 事务与外部副作用
 
 ```mermaid

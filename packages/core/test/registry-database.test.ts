@@ -16,6 +16,7 @@ import {
 } from '../src/database/owner.js';
 import { BOT_HARNESS_SCHEMA_PLAN } from '../src/database/schema-plan.js';
 import { createCore } from '../src/plugin.js';
+import { holdProfileWriterLease } from './helpers.js';
 
 const homes: string[] = [];
 const owners: OperationalDatabaseOwner[] = [];
@@ -363,7 +364,7 @@ describe('Registry database authority', () => {
     writeFileSync(f.file, JSON.stringify(legacy));
     const owner = mount(f.home);
     const registry = createPersonaBotRegistry({ rootDir: f.rootDir, database: owner });
-    const second = mount(f.home);
+    const second = mount(f.home, { shareProcessOwner: false });
     expect(second.mode).toBe('recovery');
     const refused = createPersonaBotRegistry({
       rootDir: f.rootDir,
@@ -410,7 +411,7 @@ describe('Registry database authority', () => {
   });
   it('keeps Core recovery diagnostics available and rejects Registry operations in a competing Host', async () => {
     const f = fixture();
-    const first = createCore({ dshHome: f.home });
+    const holder = holdProfileWriterLease(f.home, 'competing-host');
     const second = createCore({ dshHome: f.home });
     try {
       expect(second.operationalDatabase.diagnostics().mode).toBe('recovery');
@@ -424,12 +425,11 @@ describe('Registry database authority', () => {
       ).toThrow();
       expect(existsSync(join(f.rootDir, 'denied'))).toBe(false);
     } finally {
-      for (const core of [second, first]) {
-        await core.runtime.close();
-        core.live.close();
-        core.externalMessaging.close();
-        core.operationalDatabase.close();
-      }
+      await second.runtime.close();
+      second.live.close();
+      second.externalMessaging.close();
+      second.operationalDatabase.close();
+      holder.release();
     }
   });
 });

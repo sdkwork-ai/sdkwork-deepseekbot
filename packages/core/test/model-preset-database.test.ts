@@ -195,7 +195,12 @@ describe('Model Preset owning database persistence', () => {
     const owner = mount(root);
     writeFileSync(join(root, 'model-presets.json'), JSON.stringify([legacy]));
     const first = createModelPresetStore({ rootDir: root, database: owner });
-    const second = mount(root);
+    const second = mountOperationalDatabase({
+      dshHome: root,
+      schemaPlan: BOT_HARNESS_SCHEMA_PLAN,
+      shareProcessOwner: false,
+    });
+    owners.push(second);
     expect(second.mode).toBe('recovery');
     const unavailable = createModelPresetStore({ rootDir: root, database: second });
     expect(() => unavailable.list()).toThrow();

@@ -1,6 +1,7 @@
-import { mkdtempSync, realpathSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { hostname, tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 
 import { afterEach } from 'vitest';
 
@@ -33,7 +34,48 @@ export function createTempRoot(prefix = 'botharness-test-'): string {
   return root;
 }
 
+export interface HeldProfileWriterLease {
+  readonly metadata: {
+    instanceId: string;
+    pid: number;
+    hostname: string;
+    acquiredAt: string;
+  };
+  release(): void;
+}
+
+const heldLeases: (() => void)[] = [];
+
+export function holdProfileWriterLease(
+  dshHome: string,
+  instanceId = 'external-host',
+): HeldProfileWriterLease {
+  const root = join(dshHome, 'botharness');
+  mkdirSync(root, { recursive: true });
+  const lease = new DatabaseSync(join(root, 'botharness.writer-lock.db'), { timeout: 0 });
+  lease.exec('PRAGMA busy_timeout = 0; BEGIN IMMEDIATE');
+  const metadata = {
+    instanceId,
+    pid: process.pid,
+    hostname: hostname(),
+    acquiredAt: new Date().toISOString(),
+  };
+  writeFileSync(join(root, 'botharness.writer.json'), `${JSON.stringify(metadata, null, 2)}\n`);
+  let released = false;
+  const release = (): void => {
+    if (released) return;
+    released = true;
+    try {
+      if (lease.isTransaction) lease.exec('ROLLBACK');
+    } catch {}
+    lease.close();
+  };
+  heldLeases.push(release);
+  return { metadata, release };
+}
+
 export function cleanupTempRoots(): void {
+  while (heldLeases.length > 0) heldLeases.pop()?.();
   while (owners.length > 0) owners.pop()?.close();
   while (roots.length > 0) {
     const root = roots.pop();

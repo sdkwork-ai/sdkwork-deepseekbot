@@ -739,7 +739,11 @@ function openRegistry(dshHome: string): {
 } {
   let owner: OperationalDatabaseOwner;
   try {
-    owner = mountOperationalDatabase({ dshHome, schemaPlan: BOT_HARNESS_SCHEMA_PLAN });
+    owner = mountOperationalDatabase({
+      dshHome,
+      schemaPlan: BOT_HARNESS_SCHEMA_PLAN,
+      shareProcessOwner: false,
+    });
   } catch (error) {
     if (error instanceof OperationalDatabaseError) {
       throw new CliFailure(error.code, error.message, 1);

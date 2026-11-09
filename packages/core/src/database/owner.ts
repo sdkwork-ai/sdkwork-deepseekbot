@@ -23,6 +23,11 @@ export const OPERATIONAL_DATABASE_FILENAME = 'botharness.db';
 const SCHEMA_TABLE = '_botharness_schema';
 const INTEGRITY_FINDINGS_SHOWN = 5;
 
+const PROCESS_CONTRACT_VERSION = 2;
+const REGISTRY_SYMBOL = Symbol.for(
+  `botharness.operational-database.registry.v${PROCESS_CONTRACT_VERSION}`,
+);
+
 export type OperationalDatabaseMode = 'ready' | 'recovery' | 'closed';
 
 export type OperationalDatabaseErrorCode =
@@ -95,6 +100,7 @@ export interface OperationalDatabaseDiagnostics {
   walBytes: number;
   shmBytes: number;
   metrics: OperationalDatabaseMetrics;
+  mounts: number;
 }
 
 export interface PostCommitNotification {
@@ -121,6 +127,7 @@ export interface OperationalDatabaseOwnerOptions {
   instanceId?: string;
   faultInjector?: (context: OperationalDatabaseFaultContext) => void;
   onObserverError?: (error: unknown) => void;
+  shareProcessOwner?: boolean;
 }
 
 export interface OperationalDatabaseModulePort {
@@ -138,53 +145,47 @@ interface MutableMetrics {
   maxCommitDurationMs: number;
 }
 
+interface MountState {
+  closed: boolean;
+  closeEffects: Set<() => void>;
+  listeners: Set<(notification: PostCommitNotification) => unknown>;
+}
+
 interface InternalOwner {
   backupBarrier?: boolean;
-  closeEffects: Set<() => void>;
-  owner: OwnerImplementation;
   database: DatabaseSync | undefined;
+  faultInjector?: (context: OperationalDatabaseFaultContext) => void;
   lease: DatabaseSync | undefined;
   leaseMetadata: ProfileWriterLeaseMetadata;
   leaseMetadataPath: string;
-  faultInjector?: (context: OperationalDatabaseFaultContext) => void;
-  onObserverError?: (error: unknown) => void;
-  now: () => Date;
   metrics: MutableMetrics;
+  mounts: Set<MountState>;
+  now: () => Date;
+  onObserverError?: (error: unknown) => void;
+  owner: OwnerImplementation;
 }
 
-const owners = new WeakMap<OperationalDatabaseOwner, InternalOwner>();
+interface SharedProfile {
+  internal: InternalOwner;
+  owner: OwnerImplementation;
+  targetGeneration: number;
+}
 
-class OwnerImplementation implements OperationalDatabaseOwner {
+interface ProcessRegistry {
+  byPath: Map<string, SharedProfile>;
+  internals: WeakMap<object, InternalOwner>;
+  mounts: WeakMap<object, MountState>;
+}
+
+class OwnerImplementation {
   mode: OperationalDatabaseMode = 'recovery';
   generation: number | undefined;
   recovery: OperationalDatabaseErrorDetails | undefined;
   foreignKeyOrphans: string | undefined;
   readonly databasePath: string;
-  readonly #listeners = new Set<(notification: PostCommitNotification) => unknown>();
 
   constructor(databasePath: string) {
     this.databasePath = databasePath;
-  }
-
-  subscribe(listener: (notification: PostCommitNotification) => unknown): () => void {
-    if (this.mode === 'closed') {
-      throw new OperationalDatabaseError('closed', 'Operational database owner is closed');
-    }
-    this.#listeners.add(listener);
-    return () => this.#listeners.delete(listener);
-  }
-
-  notify(notification: PostCommitNotification, onError?: (error: unknown) => void): void {
-    for (const listener of this.#listeners) {
-      try {
-        const result = listener(notification);
-        if (isThenable(result)) {
-          void Promise.resolve(result).catch((error: unknown) => onError?.(error));
-        }
-      } catch (error) {
-        onError?.(error);
-      }
-    }
   }
 
   diagnostics(): OperationalDatabaseDiagnostics {
@@ -203,13 +204,13 @@ class OwnerImplementation implements OperationalDatabaseOwner {
       walBytes: fileSize(`${this.databasePath}-wal`),
       shmBytes: fileSize(`${this.databasePath}-shm`),
       metrics: { ...internal.metrics },
+      mounts: internal.mounts.size,
     };
   }
 
   close(): void {
     if (this.mode === 'closed') return;
     this.mode = 'closed';
-    this.#listeners.clear();
     const internal = requireInternal(this);
     let failure: unknown;
     const attempt = (operation: () => void): void => {
@@ -219,9 +220,6 @@ class OwnerImplementation implements OperationalDatabaseOwner {
         failure ??= error;
       }
     };
-
-    for (const effect of internal.closeEffects) attempt(effect);
-    internal.closeEffects.clear();
 
     attempt(() => closeDatabase(internal.database));
     internal.database = undefined;
@@ -238,12 +236,68 @@ class OwnerImplementation implements OperationalDatabaseOwner {
   }
 }
 
+class MountedOwner implements OperationalDatabaseOwner {
+  readonly #internal: InternalOwner;
+  readonly #state: MountState;
+
+  constructor(internal: InternalOwner, state: MountState) {
+    this.#internal = internal;
+    this.#state = state;
+  }
+
+  get databasePath(): string {
+    return this.#internal.owner.databasePath;
+  }
+
+  get mode(): OperationalDatabaseMode {
+    return this.#state.closed ? 'closed' : this.#internal.owner.mode;
+  }
+
+  get generation(): number | undefined {
+    return this.#internal.owner.generation;
+  }
+
+  get recovery(): OperationalDatabaseErrorDetails | undefined {
+    return this.#internal.owner.recovery;
+  }
+
+  get foreignKeyOrphans(): string | undefined {
+    return this.#internal.owner.foreignKeyOrphans;
+  }
+
+  subscribe(listener: (notification: PostCommitNotification) => unknown): () => void {
+    if (this.#state.closed || this.#internal.owner.mode === 'closed') {
+      throw new OperationalDatabaseError('closed', 'Operational database owner is closed');
+    }
+    this.#state.listeners.add(listener);
+    return () => this.#state.listeners.delete(listener);
+  }
+
+  diagnostics(): OperationalDatabaseDiagnostics {
+    const snapshot = this.#internal.owner.diagnostics();
+    return this.#state.closed ? { ...snapshot, mode: 'closed', mounts: 0 } : snapshot;
+  }
+
+  close(): void {
+    closeMount(this.#internal, this.#state);
+  }
+}
+
 export function mountOperationalDatabase(
   options: OperationalDatabaseOwnerOptions,
 ): OperationalDatabaseOwner {
   const rootDir = join(options.dshHome, 'botharness');
   mkdirSync(rootDir, { recursive: true });
   const databasePath = join(rootDir, OPERATIONAL_DATABASE_FILENAME);
+  const plan = options.schemaPlan ?? FOUNDATION_SCHEMA_PLAN;
+  const shareProcessOwner = options.shareProcessOwner ?? true;
+  const registry = processRegistry();
+
+  const existing = shareProcessOwner ? registry.byPath.get(databasePath) : undefined;
+  if (existing !== undefined && existing.targetGeneration === plan.targetGeneration) {
+    return attachMount(existing.internal);
+  }
+
   const owner = new OwnerImplementation(databasePath);
   const now = options.now ?? (() => new Date());
   const leaseMetadata: ProfileWriterLeaseMetadata = {
@@ -253,23 +307,24 @@ export function mountOperationalDatabase(
     acquiredAt: now().toISOString(),
   };
   const internal: InternalOwner = {
-    closeEffects: new Set(),
-    owner,
     database: undefined,
     lease: undefined,
     leaseMetadata,
     leaseMetadataPath: join(rootDir, 'botharness.writer.json'),
-    ...(options.faultInjector === undefined ? {} : { faultInjector: options.faultInjector }),
-    ...(options.onObserverError === undefined ? {} : { onObserverError: options.onObserverError }),
-    now,
     metrics: {
       reads: 0,
       transactionsCommitted: 0,
       transactionsRolledBack: 0,
       maxCommitDurationMs: 0,
     },
+    mounts: new Set(),
+    now,
+    owner,
+    ...(options.faultInjector === undefined ? {} : { faultInjector: options.faultInjector }),
+    ...(options.onObserverError === undefined ? {} : { onObserverError: options.onObserverError }),
   };
-  owners.set(owner, internal);
+  registry.internals.set(owner, internal);
+  const mounted = attachMount(internal);
 
   try {
     internal.lease = acquireWriterLease(rootDir, leaseMetadata, internal.leaseMetadataPath);
@@ -278,22 +333,31 @@ export function mountOperationalDatabase(
       owner,
       toOperationalError('lease-unavailable', 'Profile writer lease is held', error),
     );
-    return owner;
+    return mounted;
   }
 
   try {
-    const plan = options.schemaPlan ?? FOUNDATION_SCHEMA_PLAN;
-    const mounted = prepareDatabase(databasePath, plan, internal);
-    internal.database = mounted.database;
-    owner.generation = mounted.generation;
-    owner.foreignKeyOrphans = summarizeOrphans(mounted.orphans);
+    const mountedDatabase = prepareDatabase(databasePath, plan, internal);
+    internal.database = mountedDatabase.database;
+    owner.generation = mountedDatabase.generation;
+    owner.foreignKeyOrphans = summarizeOrphans(mountedDatabase.orphans);
     owner.mode = 'ready';
     owner.recovery = undefined;
+    if (shareProcessOwner) {
+      const current = registry.byPath.get(databasePath);
+      if (current === undefined || current.owner.mode !== 'ready') {
+        registry.byPath.set(databasePath, {
+          internal,
+          owner,
+          targetGeneration: plan.targetGeneration,
+        });
+      }
+    }
   } catch (error) {
     enterRecovery(owner, normalizeMountError(error));
   }
 
-  return owner;
+  return mounted;
 }
 
 export function attachOperationalModule(
@@ -303,10 +367,12 @@ export function attachOperationalModule(
   const name = module.trim();
   if (name.length === 0) throw new TypeError('Operational module name must not be blank');
   const internal = requireInternal(owner);
+  const state = requireMountState(owner);
 
   return {
     module: name,
     read<T>(query: (database: DatabaseSync) => T): T {
+      assertMountOpen(state);
       const database = readyDatabase(internal);
       internal.metrics.reads += 1;
       const result = query(database);
@@ -325,6 +391,7 @@ export function attachOperationalModule(
       command: (database: DatabaseSync) => T,
       notificationTopics: readonly string[] = [],
     ): T {
+      assertMountOpen(state);
       if (internal.backupBarrier)
         throw new OperationalDatabaseError('transaction-failed', 'Profile Backup Barrier is held');
       const database = readyDatabase(internal);
@@ -416,10 +483,7 @@ export function attachOperationalModule(
       }
 
       if (notificationTopics.length > 0) {
-        internal.owner.notify(
-          { module: name, topics: [...notificationTopics], committedAt },
-          internal.onObserverError,
-        );
+        notifyMounts(internal, { module: name, topics: [...notificationTopics], committedAt });
       }
       return value;
     },
@@ -438,6 +502,7 @@ export function withOperationalBackup<T>(
   capture: () => T,
 ): T {
   const internal = requireInternal(owner);
+  assertMountOpen(requireMountState(owner));
   const database = readyDatabase(internal);
   if (internal.backupBarrier || database.isTransaction || existsSync(snapshotPath))
     throw new OperationalDatabaseError('transaction-failed', 'Profile snapshot is busy');
@@ -466,7 +531,91 @@ export function onOperationalDatabaseClose(
   owner: OperationalDatabaseOwner,
   cleanup: () => void,
 ): void {
-  requireInternal(owner).closeEffects.add(cleanup);
+  const state = requireMountState(owner);
+  if (state.closed) {
+    throw new OperationalDatabaseError('closed', 'Operational database owner is closed');
+  }
+  state.closeEffects.add(cleanup);
+}
+
+function processRegistry(): ProcessRegistry {
+  const scope = globalThis as unknown as Record<symbol, ProcessRegistry | undefined>;
+  let registry = scope[REGISTRY_SYMBOL];
+  if (registry === undefined) {
+    registry = {
+      byPath: new Map(),
+      internals: new WeakMap(),
+      mounts: new WeakMap(),
+    };
+    scope[REGISTRY_SYMBOL] = registry;
+  }
+  return registry;
+}
+
+function attachMount(internal: InternalOwner): OperationalDatabaseOwner {
+  const state: MountState = {
+    closed: false,
+    closeEffects: new Set(),
+    listeners: new Set(),
+  };
+  internal.mounts.add(state);
+  const mounted = new MountedOwner(internal, state);
+  const registry = processRegistry();
+  registry.internals.set(mounted, internal);
+  registry.mounts.set(mounted, state);
+  return mounted;
+}
+
+function closeMount(internal: InternalOwner, state: MountState): void {
+  if (state.closed) return;
+  state.closed = true;
+  let failure: unknown;
+  for (const effect of state.closeEffects) {
+    try {
+      effect();
+    } catch (error) {
+      failure ??= error;
+    }
+  }
+  state.closeEffects.clear();
+  state.listeners.clear();
+  internal.mounts.delete(state);
+  if (internal.mounts.size > 0) {
+    if (failure !== undefined) throw failure;
+    return;
+  }
+
+  try {
+    internal.owner.close();
+  } catch (error) {
+    failure ??= error;
+  }
+  const registry = processRegistry();
+  const shared = registry.byPath.get(internal.owner.databasePath);
+  if (shared?.owner === internal.owner) registry.byPath.delete(internal.owner.databasePath);
+  if (failure !== undefined) throw failure;
+}
+
+function notifyMounts(internal: InternalOwner, notification: PostCommitNotification): void {
+  for (const state of internal.mounts) {
+    if (state.closed) continue;
+    for (const listener of state.listeners) {
+      try {
+        const result = listener(notification);
+        if (isThenable(result)) {
+          void Promise.resolve(result).catch((error: unknown) => internal.onObserverError?.(error));
+        }
+      } catch (error) {
+        internal.onObserverError?.(error);
+      }
+    }
+  }
+}
+
+function assertMountOpen(state: MountState): void {
+  if (state.closed) {
+    throw new OperationalDatabaseError('closed', 'Operational database owner is closed');
+  }
 }
 
 function acquireWriterLease(
@@ -737,12 +886,20 @@ function readyDatabase(internal: InternalOwner): DatabaseSync {
   return database;
 }
 
-function requireInternal(owner: OperationalDatabaseOwner): InternalOwner {
-  const internal = owners.get(owner);
+function requireInternal(owner: object): InternalOwner {
+  const internal = processRegistry().internals.get(owner);
   if (internal === undefined) {
     throw new TypeError('Operational database owner was not created by this module');
   }
   return internal;
+}
+
+function requireMountState(owner: object): MountState {
+  const state = processRegistry().mounts.get(owner);
+  if (state === undefined) {
+    throw new TypeError('Operational database owner was not created by this module');
+  }
+  return state;
 }
 
 function enterRecovery(owner: OwnerImplementation, error: OperationalDatabaseError): void {

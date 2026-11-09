@@ -18,7 +18,7 @@ import {
 import { attachOperationalModule } from '../src/database/owner.js';
 import { BOT_HARNESS_SCHEMA_PLAN } from '../src/database/schema-plan.js';
 import { createSessionOwnership } from '../src/sessions/ownership.js';
-import { createTempRoot, remember } from './helpers.js';
+import { createTempRoot, holdProfileWriterLease, remember } from './helpers.js';
 import { createFakeRosterDomain } from './roster-fixture.js';
 import { ChannelToolApproval } from '../src/workspaces/tool-approval.js';
 import { DeviceCallApprovals } from '../src/workspaces/device-approval.js';
@@ -506,10 +506,29 @@ describe('plugin entry', () => {
     nextHost.close();
   });
 
+  it('mounts a replacement instance on the same profile without database recovery', async () => {
+    const first = createStubContext();
+    apply(first.ctx, { enabled: true });
+    const firstCore = first.ctx.get('botharness') as BotHarnessCore;
+    expect(firstCore.operationalDatabase.mode).toBe('ready');
+
+    const second = createStubContext();
+    apply(second.ctx, { enabled: true });
+    const replacement = second.ctx.get('botharness') as BotHarnessCore;
+    expect(replacement.operationalDatabase.mode).toBe('ready');
+    expect(replacement.operationalDatabase.recovery).toBeUndefined();
+    expect(replacement.operationalDatabase.diagnostics().mounts).toBe(2);
+
+    await first.ctx.fiber.dispose();
+    expect(replacement.operationalDatabase.mode).toBe('ready');
+    expect(replacement.operationalDatabase.diagnostics().mounts).toBe(1);
+    expect(replacement.registry.list()).toEqual([]);
+  });
+
   it('keeps file-backed surfaces and diagnostics mounted in database recovery mode', async () => {
     const home = createTempRoot('botharness-plugin-recovery-');
     vi.stubEnv('DSH_HOME', home);
-    const firstHost = mountOperationalDatabase({ dshHome: home, instanceId: 'first-host' });
+    const holder = holdProfileWriterLease(home, 'first-host');
     const { ctx, stubs } = createStubContext();
 
     try {
@@ -537,7 +556,7 @@ describe('plugin entry', () => {
       expect(ctx.get('botharnessBridge')).toBeDefined();
     } finally {
       await ctx.fiber.dispose();
-      firstHost.close();
+      holder.release();
     }
   });
 

@@ -652,6 +652,11 @@ export function createCore(
     dshHome,
     schemaPlan: BOT_HARNESS_SCHEMA_PLAN,
   });
+  const databaseMounts = operationalDatabase.diagnostics().mounts;
+  if (databaseMounts > 1)
+    options.warn?.(
+      `operational-database initiator=host-startup phase=shared-mount mounts=${databaseMounts} path=${JSON.stringify(operationalDatabase.databasePath)}`,
+    );
   if (operationalDatabase.recovery !== undefined)
     options.warn?.(
       `operational-database initiator=host-startup phase=recovery code=${operationalDatabase.recovery.code} path=${JSON.stringify(operationalDatabase.databasePath)} reason=${JSON.stringify(operationalDatabase.recovery.message)}`,

@@ -43,7 +43,7 @@
 
 ### 2.1 持久化地图（ADR-0034/0041/0042）
 
-一个 profile 使用一个 `$DSH_HOME/botharness/botharness.db` 承载 BotHarness operational facts。它提供共享本地事务，但不是 generic repository：PersonaBot、Messaging、Assignment、Portability 各自拥有表、commands 和 invariants。Host-lifetime owner 获取 OS writer lease；单调 Schema Generation 在 isolated temporary copy 中迁移并校验，再 atomic replace。失败时进入 recovery mode，不回退其他写路径。
+一个 profile 使用一个 `$DSH_HOME/botharness/botharness.db` 承载 BotHarness operational facts。它提供共享本地事务，但不是 generic repository：PersonaBot、Messaging、Assignment、Portability 各自拥有表、commands 和 invariants。Host-lifetime owner 获取 OS writer lease；同一进程内对同一 profile 的重复挂载共享这个 owner，最后一个 handle 关闭时才释放 lease（ADR-0307）；单调 Schema Generation 在 isolated temporary copy 中迁移并校验，再 atomic replace。失败时进入 recovery mode，不回退其他写路径。
 
 这是终态权威图，不掩盖迁移阶段：#66 已实现的 roster 当前仍由 `botharness_roster` storage domain 承载；#79 先建立 database owner，#80 再把 roster 与 Session ownership 单向迁入数据库。迁移提交前不双写，也不把尚未迁移的表描述成已经存在。
 

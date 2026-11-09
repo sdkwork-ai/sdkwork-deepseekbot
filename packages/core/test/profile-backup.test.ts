@@ -836,7 +836,10 @@ it('rejects damaged/hash-missing/unsafe/newer packages and cancelled or racing r
 it('uses the real Writer Lease and refuses reentrant mutations at the owner cutoff', () => {
   const core = mount();
   const parent = root();
-  const second = mountOperationalDatabase({ dshHome: join(core.rootDir, '..', '..') });
+  const second = mountOperationalDatabase({
+    dshHome: join(core.rootDir, '..', '..'),
+    shareProcessOwner: false,
+  });
   expect(second.recovery?.code).toBe('lease-unavailable');
   second.close();
   const port = attachOperationalModule(core.operationalDatabase, 'test');

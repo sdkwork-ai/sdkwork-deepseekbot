@@ -15,6 +15,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   attachOperationalModule,
   mountOperationalDatabase,
+  onOperationalDatabaseClose,
   OperationalDatabaseError,
   type OperationalDatabaseFaultStage,
 } from '../src/database/owner.js';
@@ -25,7 +26,7 @@ import {
   type SchemaPlan,
 } from '../src/database/schema.js';
 import { BOT_HARNESS_SCHEMA_PLAN } from '../src/database/schema-plan.js';
-import { createTempRoot, FIXED_NOW } from './helpers.js';
+import { createTempRoot, FIXED_NOW, holdProfileWriterLease } from './helpers.js';
 
 function planWithRecords(): SchemaPlan {
   return defineSchemaPlan([
@@ -450,12 +451,94 @@ describe('operational database owner', () => {
     );
   });
 
-  it('fails a concurrent writer closed while preserving read-only diagnostics', () => {
-    const dshHome = createTempRoot('botharness-db-lease-');
-    const first = mountOperationalDatabase({ dshHome, instanceId: 'first' });
-    const second = mountOperationalDatabase({ dshHome, instanceId: 'second' });
+  it('shares one process-wide owner when the same profile is mounted twice', () => {
+    const dshHome = createTempRoot('botharness-db-shared-');
+    const first = mountOperationalDatabase({ dshHome, instanceId: 'first-mount' });
+    const second = mountOperationalDatabase({ dshHome, instanceId: 'second-mount' });
 
     expect(first.mode).toBe('ready');
+    expect(second.mode).toBe('ready');
+    expect(first.recovery).toBeUndefined();
+    expect(second.recovery).toBeUndefined();
+    expect(second.generation).toBe(first.generation);
+    expect(second.databasePath).toBe(first.databasePath);
+    expect(second.diagnostics().mounts).toBe(2);
+    expect(second.diagnostics().leaseHolder?.instanceId).toBe('first-mount');
+
+    const writer = attachOperationalModule(first, 'shared-writer');
+    const reader = attachOperationalModule(second, 'shared-reader');
+    writer.transaction((database) => {
+      database.exec('CREATE TABLE shared_probe (id INTEGER PRIMARY KEY) STRICT');
+      database.prepare('INSERT INTO shared_probe (id) VALUES (?)').run(7);
+    });
+    expect(
+      reader.read((database) => database.prepare('SELECT id FROM shared_probe').all()),
+    ).toEqual([{ id: 7 }]);
+    expect(second.diagnostics().metrics.transactionsCommitted).toBe(
+      first.diagnostics().metrics.transactionsCommitted,
+    );
+
+    first.close();
+    expect(first.mode).toBe('closed');
+    expect(second.mode).toBe('ready');
+    expect(second.diagnostics().mounts).toBe(1);
+    expect(
+      reader.read((database) => database.prepare('SELECT id FROM shared_probe').all()),
+    ).toEqual([{ id: 7 }]);
+
+    second.close();
+    expect(second.mode).toBe('closed');
+    const reopened = mountOperationalDatabase({ dshHome, instanceId: 'reopened' });
+    expect(reopened.mode).toBe('ready');
+    expect(reopened.diagnostics().leaseHolder?.instanceId).toBe('reopened');
+    reopened.close();
+  });
+
+  it('runs per-mount cleanup and listeners only for the mount that owns them', () => {
+    const dshHome = createTempRoot('botharness-db-shared-lifecycle-');
+    const first = mountOperationalDatabase({ dshHome, instanceId: 'first-mount' });
+    const second = mountOperationalDatabase({ dshHome, instanceId: 'second-mount' });
+    const closed: string[] = [];
+    const firstSeen: string[] = [];
+    const secondSeen: string[] = [];
+    onOperationalDatabaseClose(first, () => closed.push('first'));
+    onOperationalDatabaseClose(second, () => closed.push('second'));
+    first.subscribe(() => firstSeen.push('first'));
+    second.subscribe(() => secondSeen.push('second'));
+
+    const writer = attachOperationalModule(second, 'shared-writer');
+    writer.transaction(() => undefined, ['probe']);
+    expect(firstSeen).toEqual(['first']);
+    expect(secondSeen).toEqual(['second']);
+
+    first.close();
+    expect(closed).toEqual(['first']);
+    writer.transaction(() => undefined, ['probe']);
+    expect(firstSeen).toEqual(['first']);
+    expect(secondSeen).toEqual(['second', 'second']);
+
+    second.close();
+    expect(closed).toEqual(['first', 'second']);
+  });
+
+  it('does not share a process-wide owner with a different schema generation', () => {
+    const dshHome = createTempRoot('botharness-db-shared-generation-');
+    const current = mountOperationalDatabase({ dshHome, schemaPlan: planWithRecords() });
+    const older = mountOperationalDatabase({ dshHome });
+
+    expect(current.mode).toBe('ready');
+    expect(older.mode).toBe('recovery');
+    expect(older.recovery?.code).toBe('lease-unavailable');
+
+    older.close();
+    current.close();
+  });
+
+  it('fails a concurrent writer closed while preserving read-only diagnostics', () => {
+    const dshHome = createTempRoot('botharness-db-lease-');
+    const holder = holdProfileWriterLease(dshHome, 'first');
+    const second = mountOperationalDatabase({ dshHome, instanceId: 'second' });
+
     expect(second.mode).toBe('recovery');
     expect(second.recovery?.code).toBe('lease-unavailable');
     expect(second.diagnostics().leaseHolder?.instanceId).toBe('first');
@@ -464,8 +547,7 @@ describe('operational database owner', () => {
     );
 
     second.close();
-    expect(first.diagnostics().leaseHolder?.instanceId).toBe('first');
-    first.close();
+    holder.release();
 
     const nextHost = mountOperationalDatabase({ dshHome, instanceId: 'next-host' });
     expect(nextHost.mode).toBe('ready');

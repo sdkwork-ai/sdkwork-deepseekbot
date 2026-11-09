@@ -12,6 +12,7 @@ import {
 import { BOT_HARNESS_SCHEMA_PLAN } from '../src/database/schema-plan.js';
 import { createCore } from '../src/plugin.js';
 import { createRosterStore, RosterUnavailableError } from '../src/roster/store.js';
+import { holdProfileWriterLease } from './helpers.js';
 import { createFakeRosterDomain } from './roster-fixture.js';
 
 const homes: string[] = [];
@@ -263,7 +264,7 @@ describe('roster database authority', () => {
   it('refuses competing and closed owners before opening the source or accepting commands', async () => {
     const root = home();
     const database = mount(root);
-    const competitor = mount(root);
+    const competitor = mount(root, { shareProcessOwner: false });
     const open = vi.fn(async () => {
       throw new Error('should not open');
     });
@@ -293,7 +294,7 @@ describe('roster database authority', () => {
 
   it('logs why Core started with the operational database in recovery mode', () => {
     const root = home();
-    const holder = mount(root);
+    const holder = holdProfileWriterLease(root, 'holder-host');
     const warn = vi.fn();
     const core = createCore({ dshHome: root, warn });
     expect(core.operationalDatabase.mode).toBe('recovery');
@@ -301,7 +302,7 @@ describe('roster database authority', () => {
       `operational-database initiator=host-startup phase=recovery code=lease-unavailable path=${JSON.stringify(core.operationalDatabase.databasePath)} reason="Profile writer lease is held"`,
     );
     core.operationalDatabase.close();
-    holder.close();
+    holder.release();
   });
 
   it('starts Core on a database with orphaned rows and logs them', () => {
