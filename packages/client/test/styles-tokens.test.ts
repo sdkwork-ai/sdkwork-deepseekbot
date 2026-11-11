@@ -44,6 +44,12 @@ describe('client styles', () => {
     expect(source).not.toMatch(/720px, 100%/);
     expect(source).not.toMatch(/\.bh-message-group-avatar \{[^}]*position: sticky/);
   });
+  it('renders a Bot reply as flat text on the full width instead of an inset bubble', () => {
+    expect(source).toMatch(
+      /\.bh-message-group:not\(\.bh-message-group-me\) \.bh-bubble:has\(> \.bh-bubble-content \.bh-bubble-body\) \{[^}]*width: 100%;[^}]*background: transparent/,
+    );
+    expect(source).toMatch(/\.bh-bubble-me \{\s*background: var\(--bh-bubble-me-fill\)/);
+  });
   it('keeps mixed composer attachments in fixed-height cards on one horizontal scroll row', () => {
     expect(source).toMatch(/\.bh-composer-attachments \{[^}]*flex-wrap: nowrap/);
     expect(source).toMatch(/\.bh-composer-attachments \{[^}]*overflow-x: auto/);

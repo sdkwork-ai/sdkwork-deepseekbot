@@ -3663,6 +3663,27 @@ html[data-botharness-motion='reduce'] .bh-message-group-enter .bh-message-group-
 .bh-bubble:has(> .bh-bubble-body) {
   padding: ${space.x3} ${space.x4};
 }
+/* A Bot's plain reply is the author's own text, not a card: it takes the whole
+   transcript width and puts no surface between the author and their words. */
+.bh-message-group:not(.bh-message-group-me) .bh-bubble-wrap:has(.bh-bubble-content .bh-bubble-body) {
+  width: 100%;
+}
+.bh-message-group:not(.bh-message-group-me) .bh-bubble-surface:has(> .bh-bubble > .bh-bubble-content .bh-bubble-body) {
+  width: 100%;
+}
+.bh-message-group:not(.bh-message-group-me) .bh-bubble:has(> .bh-bubble-content .bh-bubble-body) {
+  width: 100%;
+  padding: 0;
+  background: transparent;
+  border-radius: 0;
+}
+/* Flat replies have no bubble edge to separate them, so consecutive ones in the
+   same group take a paragraph gap instead of the bubble stack's hairline. */
+.bh-message-group:not(.bh-message-group-me)
+  .bh-bubble-wrap:has(.bh-bubble-content .bh-bubble-body)
+  + .bh-bubble-wrap:has(.bh-bubble-content .bh-bubble-body) {
+  margin-top: ${space.x4};
+}
 .bh-bubble {
   --bh-bubble-radius: ${radius.lg};
   border-radius: var(--bh-bubble-radius);
