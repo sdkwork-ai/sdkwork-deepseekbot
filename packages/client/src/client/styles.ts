@@ -3509,6 +3509,7 @@ html[data-botharness-motion='reduce'] .bh-header-working { animation-name: bh-fa
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
+  width: 100%;
   max-width: 100%;
 }
 .bh-message-group-me .bh-message-stack {

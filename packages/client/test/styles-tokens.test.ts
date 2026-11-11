@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+﻿import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@deepseek-ai/dsh-client-ui-primitives', () => ({}));
 
@@ -40,7 +40,7 @@ describe('client styles', () => {
   it('keeps a reply on the full transcript width under a top-aligned author header', () => {
     expect(source).toMatch(/\.bh-message-group \{[^}]*flex-direction: column/);
     expect(source).toMatch(/\.bh-message-identity \{[^}]*align-items: center/);
-    expect(source).toMatch(/\.bh-message-stack \{[^}]*max-width: 100%/);
+    expect(source).toMatch(/\.bh-message-stack \{[^}]*width: 100%/);
     expect(source).not.toMatch(/720px, 100%/);
     expect(source).not.toMatch(/\.bh-message-group-avatar \{[^}]*position: sticky/);
   });
