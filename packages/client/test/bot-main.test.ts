@@ -1071,6 +1071,12 @@ describe('Bot main Sessions pane', () => {
     expect(markup).not.toContain('bh-message-group-avatar-link');
     expect(markup.match(/data-hover-card="author"/g)).toHaveLength(2);
     expect(markup).toContain('class="bh-message-group-avatar-focus" role="group" tabindex="0"');
+    const identityAt = markup.indexOf('class="bh-message-identity"');
+    const avatarAt = markup.indexOf('class="bh-message-group-avatar"');
+    const stackAt = markup.indexOf('class="bh-message-stack"');
+    expect(identityAt).toBeGreaterThan(-1);
+    expect(avatarAt).toBeGreaterThan(identityAt);
+    expect(avatarAt).toBeLessThan(stackAt);
     const group = markup.slice(markup.indexOf('class="bh-message-group"'));
     expect(group).toContain('class="bh-persona-avatar"');
     expect(group).not.toMatch(/class="bh-persona-avatar"[^>]*title=/);

@@ -353,7 +353,9 @@ try {
           human: group?.classList.contains('bh-message-group-me') ?? false,
           system: node?.classList.contains('bh-member-departure') ?? false,
           avatarLeft: avatarRect?.left,
+          avatarBottom: avatarRect?.bottom,
           stackLeft: stackRect?.left,
+          stackTop: stackRect?.top,
           visible: !!rect && rect.width > 0 && rect.height > 0,
         };
       }),
@@ -370,7 +372,8 @@ try {
       assert.equal(row.headers, 1);
       assert.equal(row.avatars, 1);
       assert.equal(row.human, false);
-      assert.ok(row.avatarLeft < row.stackLeft);
+      assert.ok(Math.abs(row.avatarLeft - row.stackLeft) <= 1, 'avatar heads the group');
+      assert.ok(row.avatarBottom <= row.stackTop, 'avatar above the bubble stack');
       assert.ok(row.visible);
     }
   assert.equal(proof.rendered.find((r) => r.id === human.id).human, true);

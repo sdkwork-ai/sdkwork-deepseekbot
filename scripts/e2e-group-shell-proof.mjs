@@ -30,7 +30,15 @@ export function assertGroupShellProof(proof) {
       assert.equal(row.avatars, 1);
       assert.equal(row.human, false);
       assert.equal(row.visible, true);
-      assert.ok(row.avatarLeft < row.stackLeft, 'Bot avatar on left');
+      if (row.avatarBottom !== undefined && row.stackTop !== undefined) {
+        assert.ok(
+          Math.abs(row.avatarLeft - row.stackLeft) <= 1,
+          'Bot avatar heads the group at the transcript edge',
+        );
+        assert.ok(row.avatarBottom <= row.stackTop, 'Bot avatar above the bubble stack');
+      } else {
+        assert.ok(row.avatarLeft < row.stackLeft, 'Bot avatar on left');
+      }
     }
   }
   for (const [before, after] of [

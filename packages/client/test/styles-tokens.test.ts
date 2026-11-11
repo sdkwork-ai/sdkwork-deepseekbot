@@ -37,9 +37,11 @@ describe('client styles', () => {
     const rule = source.slice(source.indexOf('.bh-row-glyph {'));
     expect(rule.slice(0, rule.indexOf('}'))).not.toContain('animation');
   });
-  it('pins a message group avatar to the timeline bottom edge while its group scrolls past', () => {
-    expect(source).toMatch(/\.bh-message-group \{[^}]*align-items: flex-end/);
-    expect(source).toMatch(/\.bh-message-group-avatar \{[^}]*position: sticky;\s*bottom: 0;/);
+  it('keeps a reply on the full transcript width under a top-aligned author header', () => {
+    expect(source).toMatch(/\.bh-message-group \{[^}]*flex-direction: column/);
+    expect(source).toMatch(/\.bh-message-identity \{[^}]*align-items: center/);
+    expect(source).toMatch(/\.bh-message-stack \{[^}]*max-width: min\(720px, 100%\)/);
+    expect(source).not.toMatch(/\.bh-message-group-avatar \{[^}]*position: sticky/);
   });
   it('keeps mixed composer attachments in fixed-height cards on one horizontal scroll row', () => {
     expect(source).toMatch(/\.bh-composer-attachments \{[^}]*flex-wrap: nowrap/);

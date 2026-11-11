@@ -3430,24 +3430,22 @@ html[data-botharness-motion='reduce'] .bh-chat-body { transition: none; }
 }
 .bh-message-group {
   display: flex;
-  align-items: flex-end;
-  gap: ${space.x3};
+  flex-direction: column;
+  align-items: flex-start;
   min-width: 0;
 }
 .bh-message-group-me {
-  justify-content: flex-end;
+  align-items: flex-end;
 }
-/* The avatar rests at its group's last bubble and pins to the timeline's
-   bottom edge while a taller group scrolls past, so the author stays visible.
-   The sticky edge already sits inside .bh-chat-body's bottom padding. */
+/* The author header (avatar, name, time) closes at the group's top edge and the
+   bubbles below use the full transcript width, so a reply is never indented
+   under an avatar gutter. */
 .bh-message-group-avatar {
-  position: sticky;
-  bottom: 0;
   flex: 0 0 28px;
   width: 28px;
   height: 28px;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   border: 0;
   border-radius: ${radius.round};
   padding: 0;
@@ -3511,24 +3509,26 @@ html[data-botharness-motion='reduce'] .bh-header-working { animation-name: bh-fa
   flex-direction: column;
   align-items: flex-start;
   min-width: 0;
-  max-width: min(720px, calc(100% - 56px));
+  max-width: min(720px, 100%);
 }
 .bh-message-group-me .bh-message-stack {
   align-items: flex-end;
 }
 .bh-message-identity {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: ${space.x2};
   min-width: 0;
   max-width: 100%;
   flex-wrap: wrap;
-  margin-bottom: ${space.x2};
+  margin-bottom: ${space.x3};
 }
 .bh-bubble-author {
   color: var(--dsw-alias-label-secondary);
-  font-size: ${text.metaSize};
-  margin: 0 0 0 ${space.x1};
+  font-size: ${text.bodySize};
+  font-weight: ${text.strong};
+  line-height: ${text.bodyLine};
+  margin: 0;
 }
 .bh-root .bh-bridge-source-author {
   appearance: none;
@@ -3576,7 +3576,7 @@ html[data-botharness-motion='reduce'] .bh-header-working { animation-name: bh-fa
   overflow-wrap: anywhere;
 }
 .bh-message-group-me .bh-bubble-author {
-  margin: 0 ${space.x1} 0 0;
+  margin: 0;
 }
 .bh-message-group-me .bh-message-identity {
   flex-direction: row-reverse;
@@ -3637,7 +3637,7 @@ html[data-botharness-motion='reduce'] .bh-bubble-enter { animation-name: bh-fade
   to { opacity: 1; transform: none; }
 }
 .bh-message-group-enter .bh-message-group-avatar {
-  transform-origin: center bottom;
+  transform-origin: center;
   animation: bh-avatar-enter 220ms var(--bh-ease-out) both;
 }
 .bh-message-group-enter .bh-message-identity {
@@ -3729,8 +3729,7 @@ html[data-botharness-motion='reduce'] .bh-message-group-enter .bh-message-group-
   margin-left: 0;
   margin-right: auto;
 }
-.bh-message-stack > .bh-bubble-wrap:last-child,
-.bh-message-group > .bh-message-group-avatar {
+.bh-message-stack > .bh-bubble-wrap:last-child {
   margin-bottom: ${space.x2};
 }
 .bh-reading {

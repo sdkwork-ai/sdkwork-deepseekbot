@@ -201,7 +201,6 @@ import {
   toggleSelection,
   type MessageSelection,
 } from './message-selection-state.js';
-import { useAvatarFollow } from './avatar-follow.js';
 import { useMountedResource } from './mounted-resource.js';
 import * as stylex from '@stylexjs/stylex';
 import { IconButton } from './ds/icon-button.js';
@@ -717,82 +716,81 @@ const MessageGroupView = memo(function MessageGroupView({
   const bubbleStyle = humanBubbleStyle(botNameSource(dmBot), surface.background);
   const lastId = group.messages[group.messages.length - 1]!.id;
   const arriving = arrivals?.has(lastId) === true;
-  const follow = useAvatarFollow(lastId, arriving);
   return (
     <div
       className={`bh-message-group${human ? ' bh-message-group-me' : ''}${arriving && group.messages.length === 1 ? ' bh-message-group-enter' : ''}`}
       data-group-size={group.messages.length}
       style={bubbleStyle}
     >
-      {avatar === undefined ? null : (
-        <span ref={follow} className="bh-message-group-avatar">
-          {withAuthorCard(
-            author.kind === 'bot' && currentDmBotSlug !== author.slug ? (
-              <button
-                type="button"
-                className="bh-message-group-avatar-link"
-                aria-label={t('message.mention.openDm', { bot: displayBot?.displayName ?? '' })}
-                {...(onAvatarMenu === undefined ? {} : { 'aria-haspopup': 'menu' as const })}
-                onClick={() => void actions.openBot(author.slug)}
-                onContextMenu={
-                  onAvatarMenu === undefined
-                    ? undefined
-                    : (event) => {
-                        event.preventDefault();
-                        const box = event.currentTarget.getBoundingClientRect();
-                        const keyboard = event.clientX === 0 && event.clientY === 0;
-                        onAvatarMenu(
-                          author.slug,
-                          keyboard ? box.left : event.clientX,
-                          keyboard ? box.bottom : event.clientY,
-                        );
-                      }
-                }
-              >
-                {avatar}
-              </button>
-            ) : (
-              <span
-                className="bh-message-group-avatar-focus"
-                role="group"
-                tabIndex={0}
-                aria-label={t('message.authorCard.label', {
-                  name: displayBot?.displayName ?? '',
-                })}
-              >
-                {avatar}
-              </span>
-            ),
-          )}
-        </span>
-      )}
+      <div className="bh-message-identity">
+        {avatar === undefined ? null : (
+          <span className="bh-message-group-avatar">
+            {withAuthorCard(
+              author.kind === 'bot' && currentDmBotSlug !== author.slug ? (
+                <button
+                  type="button"
+                  className="bh-message-group-avatar-link"
+                  aria-label={t('message.mention.openDm', { bot: displayBot?.displayName ?? '' })}
+                  {...(onAvatarMenu === undefined ? {} : { 'aria-haspopup': 'menu' as const })}
+                  onClick={() => void actions.openBot(author.slug)}
+                  onContextMenu={
+                    onAvatarMenu === undefined
+                      ? undefined
+                      : (event) => {
+                          event.preventDefault();
+                          const box = event.currentTarget.getBoundingClientRect();
+                          const keyboard = event.clientX === 0 && event.clientY === 0;
+                          onAvatarMenu(
+                            author.slug,
+                            keyboard ? box.left : event.clientX,
+                            keyboard ? box.bottom : event.clientY,
+                          );
+                        }
+                  }
+                >
+                  {avatar}
+                </button>
+              ) : (
+                <span
+                  className="bh-message-group-avatar-focus"
+                  role="group"
+                  tabIndex={0}
+                  aria-label={t('message.authorCard.label', {
+                    name: displayBot?.displayName ?? '',
+                  })}
+                >
+                  {avatar}
+                </span>
+              ),
+            )}
+          </span>
+        )}
+        {first.bridgeOrigin ? (
+          <BridgeSourceAuthor origin={first.bridgeOrigin} t={t} />
+        ) : (
+          withAuthorCard(
+            <span
+              className="bh-bubble-author"
+              ref={surface.probe}
+              {...(author.kind === 'remote-bot'
+                ? {
+                    role: 'group',
+                    tabIndex: 0,
+                    'aria-label': t('message.authorCard.label', { name: authorName }),
+                  }
+                : {})}
+              data-bot-name-color={nameColor}
+              style={nameColor === undefined ? undefined : { color: nameColor }}
+            >
+              {authorName}
+            </span>,
+          )
+        )}
+        <time className="bh-bubble-time" dateTime={first.at} title={fullTime(first.at, t)}>
+          {clockTime(first.at)}
+        </time>
+      </div>
       <div className="bh-message-stack">
-        <div className="bh-message-identity">
-          {first.bridgeOrigin ? (
-            <BridgeSourceAuthor origin={first.bridgeOrigin} t={t} />
-          ) : (
-            withAuthorCard(
-              <span
-                className="bh-bubble-author"
-                ref={surface.probe}
-                {...(author.kind === 'remote-bot'
-                  ? {
-                      role: 'group',
-                      tabIndex: 0,
-                      'aria-label': t('message.authorCard.label', { name: authorName }),
-                    }
-                  : {})}
-                data-bot-name-color={nameColor}
-                style={nameColor === undefined ? undefined : { color: nameColor }}
-              >
-                {authorName}
-              </span>,
-            )
-          )}
-          <time className="bh-bubble-time" dateTime={first.at} title={fullTime(first.at, t)}>
-            {clockTime(first.at)}
-          </time>
-        </div>
         {group.messages.map((message, index) => {
           const position =
             group.messages.length === 1
