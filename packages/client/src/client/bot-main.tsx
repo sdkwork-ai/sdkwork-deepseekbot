@@ -845,13 +845,15 @@ const MessageGroupView = memo(function MessageGroupView({
                   className={`bh-bubble${human ? ' bh-bubble-me' : ''}${message.pending === true || message.streaming === true ? ' bh-bubble-pending' : ''}${message.failed === undefined ? '' : ' bh-bubble-failed'}`}
                   data-group-position={position}
                 >
-                  <ReplyQuote
-                    humanName={humanName}
-                    message={message}
-                    bots={bots}
-                    onJump={onJumpReply}
-                    t={t}
-                  />
+                  {currentDmBotSlug === undefined ? (
+                    <ReplyQuote
+                      humanName={humanName}
+                      message={message}
+                      bots={bots}
+                      onJump={onJumpReply}
+                      t={t}
+                    />
+                  ) : null}
                   <ImageGalleryScope value={gallery}>
                     <MessageFold messageId={message.id} enabled={foldableMessage(message)} t={t}>
                       <ChannelMessageBody

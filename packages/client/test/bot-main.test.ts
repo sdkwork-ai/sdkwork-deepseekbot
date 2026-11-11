@@ -1416,7 +1416,7 @@ describe('Bot main Sessions pane', () => {
     await act(async () => root.unmount());
     container.remove();
   });
-  it('renders a linked reply summary and safely degrades when the original is gone', () => {
+  it('shows a linked reply summary in groups and keeps a DM reply unquoted', () => {
     const bot = {
       slug: 'ada',
       displayName: 'Ada',
@@ -1434,6 +1434,7 @@ describe('Bot main Sessions pane', () => {
       createdAt: bot.createdAt,
       updatedAt: bot.createdAt,
     };
+    const group = { ...channel, id: 'group-team', type: 'group' as const, name: 'Team' };
     const reply: ChannelMessage = {
       id: 'm2',
       at: bot.createdAt,
@@ -1442,9 +1443,6 @@ describe('Bot main Sessions pane', () => {
       replyTo: 'm1',
       replyToPreview: { author: { kind: 'bot', slug: 'ada' }, body: 'original summary' },
     };
-    store.setRoster([bot], [channel]);
-    store.select({ kind: 'bot', slug: 'ada' });
-    store.setConversation({ status: 'ready', channel, messages: [reply], sending: false });
     const render = () =>
       renderToStaticMarkup(
         createElement(BotMain, {
@@ -1452,6 +1450,16 @@ describe('Bot main Sessions pane', () => {
           channelSidebar: sidebarRegistry(),
         }),
       );
+    store.setRoster([bot], [channel]);
+    store.select({ kind: 'bot', slug: 'ada' });
+    store.setConversation({ status: 'ready', channel, messages: [reply], sending: false });
+    const direct = render();
+    expect(direct).not.toContain('class="bh-bubble-reply"');
+    expect(direct).not.toContain('original summary');
+
+    store.setRoster([bot], [group]);
+    store.select({ kind: 'channel', channelId: group.id });
+    store.setConversation({ status: 'ready', channel: group, messages: [reply], sending: false });
     const linked = render();
     expect(linked).toContain('class="bh-bubble-reply"');
     expect(linked).toContain('original summary');
