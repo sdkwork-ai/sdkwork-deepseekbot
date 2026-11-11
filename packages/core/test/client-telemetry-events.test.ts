@@ -21,24 +21,24 @@ describe('client telemetry events', () => {
     const { methods, capture } = methodsWith();
     expect(
       methods.telemetryEvent({
-        event: 'onboarding:intro_view',
-        properties: { surface: 'browser', extra: 'drop me' },
+        event: 'layout:mode_select',
+        properties: { mode: 'simple', surface: 'browser', extra: 'drop me' },
       }).ok,
     ).toBe(true);
     expect(
       methods.telemetryEvent({
-        event: 'onboarding:intro_dismiss',
-        properties: { step: 'model', via: 'skip' },
+        event: 'app:bot_mode_enter',
+        properties: { layout: 'advanced' },
       }).ok,
     ).toBe(true);
     expect(
-      methods.telemetryEvent({ event: 'onboarding:model_save', properties: { is_advanced: true } })
+      methods.telemetryEvent({ event: 'activity:inbox_open', properties: { surface: 'desktop_app' } })
         .ok,
     ).toBe(true);
     expect(capture.mock.calls).toEqual([
-      ['onboarding:intro_view', { surface: 'browser' }],
-      ['onboarding:intro_dismiss', { step: 'model', via: 'skip' }],
-      ['onboarding:model_save', { is_advanced: true }],
+      ['layout:mode_select', { mode: 'simple', surface: 'browser' }],
+      ['app:bot_mode_enter', { layout: 'advanced' }],
+      ['activity:inbox_open', { surface: 'desktop_app' }],
     ]);
   });
 
@@ -71,17 +71,16 @@ describe('client telemetry events', () => {
   it('rejects unknown events, Host-only events and invalid values without capturing', () => {
     const { methods, capture } = methodsWith();
     expect(methods.telemetryEvent({ event: 'anything' }).ok).toBe(false);
-    expect(methods.telemetryEvent({ event: 'intro_shown' }).ok).toBe(false);
+    expect(methods.telemetryEvent({ event: 'plugin_started' }).ok).toBe(false);
     expect(methods.telemetryEvent({ event: 'app:host_start' }).ok).toBe(false);
     expect(
       methods.telemetryEvent({
-        event: 'onboarding:intro_step_view',
-        properties: { step: 'secret' },
+        event: 'layout:mode_select',
+        properties: { mode: 'secret' },
       }).ok,
     ).toBe(false);
     expect(
-      methods.telemetryEvent({ event: 'onboarding:model_save', properties: { is_advanced: 'yes' } })
-        .ok,
+      methods.telemetryEvent({ event: 'activity:inbox_open', properties: { surface: 'secret' } }).ok,
     ).toBe(false);
     expect(capture).not.toHaveBeenCalled();
   });

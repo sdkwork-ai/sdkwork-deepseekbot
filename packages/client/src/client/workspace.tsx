@@ -5,7 +5,6 @@ import { MobileAppsEntry } from './mobile-apps.js';
 import { activityIndicator } from './activity-indicator.js';
 import { useActivityIndicatorMenu } from './activity-indicator-menu.js';
 import { onboardingFor } from './onboarding.js';
-import { receiveTobMessages } from './tob-requests.js';
 import { BOT_ONLY_CHANNEL_PANELS } from './dock-panels.js';
 import { resolveChannelSidebarContext } from './channel-sidebar.js';
 import { usePanelMenu, PanelVisibilityLabel } from './panel-menu.js';
@@ -137,18 +136,8 @@ export function Workspace({
         return tob;
       };
       const detachGuide = onboarding.attachTobConversation(() => void openTob().catch(() => {}));
-      const stopRequests = receiveTobMessages(
-        (body) =>
-          void openTob()
-            .then(async (tob) => {
-              if (await onboarding.prepareSend(tob.channelId, tob.botSlug, body))
-                await options.actions.sendHome(tob.channelId, body, 'human-' + crypto.randomUUID());
-            })
-            .catch(() => {}),
-      );
       setEnabled(true);
       return () => {
-        stopRequests();
         detachGuide();
         unregisterMessages();
         unregister();

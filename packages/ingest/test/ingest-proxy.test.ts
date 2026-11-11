@@ -130,7 +130,6 @@ describe('legacy event names', () => {
     for (const [from, to] of Object.entries(LEGACY_EVENT_NAMES)) {
       expect(telemetryNameIsWellFormed(to), `${from} -> ${to}`).toBe(true);
       if (
-        from.startsWith('intro_') ||
         ['plugin_started', 'daily_usage', 'bot_created', 'marketplace_bot_installed'].includes(from)
       )
         expect(

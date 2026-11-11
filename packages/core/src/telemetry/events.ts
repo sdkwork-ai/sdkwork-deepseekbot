@@ -91,30 +91,6 @@ export interface TelemetryEventSpec {
   properties: Readonly<Record<string, TelemetryPropertySpec>>;
 }
 
-const INTRO_STEPS = ['welcome', 'theme', 'model', 'community', 'start'] as const;
-const INTRO_PERSONAS = ['engineer', 'creator', 'operator', 'learner'] as const;
-const INTRO_FEATURES = ['bot', 'group', 'schedule', 'browser', 'memory', 'im'] as const;
-const INTRO_PERSONA_DETAILS = [
-  'frontend',
-  'backend',
-  'fullstack',
-  'mobile',
-  'data_ai',
-  'devops',
-  'video',
-  'writing',
-  'live',
-  'marketing',
-  'pm',
-  'user_ops',
-  'growth',
-  'project',
-  'founder',
-  'student',
-  'researcher',
-  'exam',
-  'career_switch',
-] as const;
 const SURFACE = { surface: TELEMETRY_SURFACES } as const;
 const LAYOUT_MODES = ['simple', 'advanced'] as const;
 
@@ -302,61 +278,6 @@ export const TELEMETRY_EVENTS = {
     origin: 'host',
     description: 'The tutorial finished.',
     properties: {},
-  },
-  'onboarding:intro_view': {
-    origin: 'client',
-    description: 'The first-entry intro opened.',
-    properties: SURFACE,
-  },
-  'onboarding:intro_step_view': {
-    origin: 'client',
-    description: 'An intro step became visible.',
-    properties: { step: INTRO_STEPS, ...SURFACE },
-  },
-  'onboarding:intro_dismiss': {
-    origin: 'client',
-    description: 'The intro closed before its last step.',
-    properties: { step: INTRO_STEPS, via: ['skip', 'close'], ...SURFACE },
-  },
-  'onboarding:intro_complete': {
-    origin: 'client',
-    description: 'The intro finished with a chosen starter.',
-    properties: {
-      starter: ['botPrompt', 'firstRequest', 'exampleRequest', 'own', 'persona', 'interview'],
-      persona: INTRO_PERSONAS,
-      feature: INTRO_FEATURES,
-      is_engineer: 'boolean',
-      is_creator: 'boolean',
-      is_operator: 'boolean',
-      is_learner: 'boolean',
-      has_detail: 'boolean',
-      ...SURFACE,
-    },
-  },
-  'onboarding:persona_select': {
-    origin: 'client',
-    description: 'A starting persona was picked on the last intro step.',
-    properties: { persona: INTRO_PERSONAS, ...SURFACE },
-  },
-  'onboarding:persona_detail_select': {
-    origin: 'client',
-    description: 'A focus under a starting persona was picked on the last intro step.',
-    properties: { persona: INTRO_PERSONAS, detail: INTRO_PERSONA_DETAILS, ...SURFACE },
-  },
-  'onboarding:theme_update': {
-    origin: 'client',
-    description: 'A theme setting changed in the intro.',
-    properties: { setting: ['scheme', 'preset', 'layout', 'wallpaper'], ...SURFACE },
-  },
-  'onboarding:model_save': {
-    origin: 'client',
-    description: 'The intro saved a model choice.',
-    properties: { is_advanced: 'boolean', ...SURFACE },
-  },
-  'onboarding:community_link_click': {
-    origin: 'client',
-    description: 'A community link was opened from the intro.',
-    properties: { target: ['github', 'discord', 'qq'], ...SURFACE },
   },
   'marketplace:bot_install': {
     origin: 'host',

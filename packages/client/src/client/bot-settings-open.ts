@@ -160,10 +160,3 @@ export function openExternalBindingSettings(
     { returned, unavailable },
   );
 }
-
-export function openModelsSettingsAndReturn(returned: () => void): () => void {
-  return openSettingsSection(document, MODEL_LABELS, selectModels, {
-    returned,
-    unavailable: returned,
-  });
-}

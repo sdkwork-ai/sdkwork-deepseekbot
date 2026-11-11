@@ -3,7 +3,6 @@ import { afterEach, expect, it, vi } from 'vitest';
 import {
   nativeSettingsNavigation,
   openModelsSettings,
-  openModelsSettingsAndReturn,
 } from '../src/client/bot-settings-open.js';
 
 afterEach(async () => {
@@ -11,52 +10,6 @@ afterEach(async () => {
   nativeSettingsNavigation?.close();
   document.body.replaceChildren();
   vi.useRealTimers();
-});
-
-it('reveals native Settings without leaving Bot mode and restores the sidebar after closing', async () => {
-  vi.useFakeTimers();
-  const returned = vi.fn();
-  const changed = vi.fn();
-  const stopWatching = nativeSettingsNavigation.subscribe(changed);
-  const cancel = openModelsSettingsAndReturn(returned);
-  expect(nativeSettingsNavigation.getSnapshot()).toBe(true);
-
-  const dialog = document.createElement('div');
-  dialog.setAttribute('role', 'dialog');
-  const models = document.createElement('button');
-  models.textContent = 'Models';
-  const selected = vi.fn();
-  models.onclick = selected;
-  dialog.append(models);
-  document.body.append(dialog);
-  await vi.advanceTimersByTimeAsync(1);
-  expect(selected).toHaveBeenCalledOnce();
-  expect(returned).not.toHaveBeenCalled();
-  dialog.append(document.createElement('span'));
-  await vi.advanceTimersByTimeAsync(1);
-  expect(selected).toHaveBeenCalledOnce();
-
-  dialog.remove();
-  await vi.advanceTimersByTimeAsync(1);
-  expect(nativeSettingsNavigation.getSnapshot()).toBe(false);
-  expect(returned).toHaveBeenCalledOnce();
-  expect(changed).toHaveBeenCalledTimes(2);
-  cancel();
-  stopWatching();
-});
-
-it('restores the sidebar on timeout or cancellation without opening another dialog', async () => {
-  vi.useFakeTimers();
-  const returned = vi.fn();
-  const cancel = openModelsSettingsAndReturn(returned);
-  cancel();
-  await vi.advanceTimersByTimeAsync(10000);
-  expect(nativeSettingsNavigation.getSnapshot()).toBe(false);
-  expect(returned).not.toHaveBeenCalled();
-  openModelsSettingsAndReturn(returned);
-  await vi.advanceTimersByTimeAsync(10000);
-  expect(nativeSettingsNavigation.getSnapshot()).toBe(false);
-  expect(returned).toHaveBeenCalledOnce();
 });
 
 it('selects Models in an already open Settings dialog without clicking either launcher', () => {

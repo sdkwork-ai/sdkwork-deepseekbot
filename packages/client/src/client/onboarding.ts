@@ -1,5 +1,4 @@
 import type { OnboardingSnapshot, TutorialAction } from '../../../core/src/onboarding/types.js';
-import type { ClientTelemetryEventName } from '../../../core/src/telemetry/events.js';
 import type { BridgeActions } from './actions.js';
 import { errorMessage, type ModelRouteView } from './bridge.js';
 import { requestCreation } from './create-request.js';
@@ -7,12 +6,6 @@ import { store } from './store.js';
 import { invalidateModelPlan } from './model-plan-store.js';
 import type { WindowCompanions } from './window-companions.js';
 import type { LayoutMode } from './layout-mode.js';
-import {
-  ONBOARDING_PERSONAS,
-  type OnboardingFeature,
-  type OnboardingPersona,
-  type PersonaDetail,
-} from './onboarding-personas.js';
 import {
   loadChecklistEvidence,
   type ChecklistEvidence,
@@ -42,7 +35,6 @@ export interface OnboardingViewState {
   layoutMode?: LayoutMode | undefined;
   evidence?: ChecklistEvidence | undefined;
   experience?: 'memory' | 'im' | undefined;
-  intro?: { step: number; hidden: boolean } | undefined;
   busy: boolean;
   error?: string | undefined;
 }
@@ -114,7 +106,6 @@ export class OnboardingController {
             localStorage.removeItem(`botharness/onboarding/layout-v2/${receipt.profileId}`);
           } catch {}
           this.update({ layoutComplete: false });
-          this.openIntro();
         }
         if (opening) this.revealTob?.();
       }
@@ -149,60 +140,6 @@ export class OnboardingController {
     } catch (error) {
       this.update({ error: errorMessage(error) });
     }
-  }
-  introPending(): boolean {
-    const receipt = this.state.receipt;
-    if (!receipt?.journey || receipt.journey.done || receipt.tutorial !== 'not-started')
-      return false;
-    try {
-      return localStorage.getItem(introKey(receipt.profileId)) !== '1';
-    } catch {
-      return true;
-    }
-  }
-  openIntro(): void {
-    this.update({ intro: { step: 0, hidden: false } });
-    this.introEvent('onboarding:intro_view');
-    this.introEvent('onboarding:intro_step_view', { step: INTRO_STEPS[0] });
-  }
-  setIntroStep(step: number): void {
-    if (!this.state.intro || this.state.intro.step === step) return;
-    this.update({ intro: { ...this.state.intro, step } });
-    this.introEvent('onboarding:intro_step_view', { step: INTRO_STEPS[step] ?? INTRO_STEPS[0] });
-  }
-  introEvent(event: ClientTelemetryEventName, properties?: Record<string, string | boolean>): void {
-    try {
-      this.actions.telemetryEvent?.(event, properties);
-    } catch {}
-  }
-  hideIntro(hidden: boolean): void {
-    if (this.state.intro) this.update({ intro: { ...this.state.intro, hidden } });
-  }
-  async closeIntro(outcome?: IntroOutcome): Promise<void> {
-    const receipt = this.state.receipt;
-    const intro = this.state.intro;
-    if (!intro) return;
-    this.update({ intro: undefined });
-    const step = INTRO_STEPS[intro.step] ?? INTRO_STEPS[0];
-    if (outcome && 'starter' in outcome) {
-      const { personas = [], details = [], ...rest } = outcome;
-      this.introEvent('onboarding:intro_complete', {
-        ...rest,
-        ...Object.fromEntries(ONBOARDING_PERSONAS.map((id) => [`is_${id}`, personas.includes(id)])),
-        has_detail: details.length > 0,
-      });
-    } else this.introEvent('onboarding:intro_dismiss', { step, via: outcome?.via ?? 'close' });
-    if (!receipt) return;
-    try {
-      localStorage.setItem(introKey(receipt.profileId), '1');
-    } catch {}
-    if (
-      receipt.tutorial === 'not-started' &&
-      document.querySelector('[data-workspace-enabled]') !== null
-    ) {
-      await this.refresh(undefined, 'start', undefined, true);
-      if (this.state.receipt?.tutorial === 'active') this.update({ guideOpen: true });
-    } else this.revealTob?.();
   }
   private revealTob: (() => void) | undefined;
   attachTobConversation(reveal: () => void): () => void {
@@ -501,23 +438,8 @@ export class OnboardingController {
     }
   }
 }
-function introKey(profileId: string): string {
-  return `botharness/onboarding/intro-v1/${profileId}`;
-}
 
 const controllers = new WeakMap<BridgeActions, OnboardingController>();
-export const INTRO_STEPS = ['welcome', 'theme', 'model', 'community', 'start'] as const;
-type IntroProfile = {
-  personas?: readonly OnboardingPersona[];
-  details?: readonly PersonaDetail[];
-};
-export type IntroStartOutcome = IntroProfile &
-  (
-    | { starter: 'persona'; persona: OnboardingPersona; feature: OnboardingFeature }
-    | { starter: 'interview' }
-    | { starter: 'own' }
-  );
-export type IntroOutcome = { via: 'skip' | 'close' } | IntroStartOutcome;
 
 export function onboardingFor(actions: BridgeActions): OnboardingController {
   let controller = controllers.get(actions);

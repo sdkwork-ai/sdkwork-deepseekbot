@@ -11,8 +11,6 @@ import { WorkspaceContext } from './workspace-context.js';
 import { OnboardingMemoryNavigation } from './onboarding-memory.js';
 import { useTimelineWindow } from './timeline-window.js';
 import { OnboardingOverlay } from './onboarding-view.js';
-import { BotIntro } from './bot-intro.js';
-import type { Wallpaper } from './wallpaper.js';
 import type { VoiceDictationPort } from './composer-dictation.js';
 import {
   ChannelMark,
@@ -3892,7 +3890,6 @@ function releaseDeferred(state: OnboardingViewState): boolean {
     state.guideOpen ||
     state.checklistOpen ||
     state.sessionsTourOpen ||
-    state.intro !== undefined ||
     (state.receipt === undefined && state.error === undefined)
   );
 }
@@ -3953,7 +3950,6 @@ export function BotMain({
 
 export function BotPanel({
   appearance,
-  wallpaper,
   onMobileBack,
   workspace,
   prefs,
@@ -3983,7 +3979,6 @@ export function BotPanel({
   releaseNotes?: ReleaseNotesController | undefined;
   telemetryNotice?: TelemetryNoticeController | undefined;
   appearance?: Appearance | undefined;
-  wallpaper?: Wallpaper | undefined;
   workspace?: WorkspaceOptions | undefined;
   renderFactorySlot?: RenderFactorySlot | undefined;
   requestModelSignIn?: (() => Promise<boolean>) | undefined;
@@ -4012,7 +4007,6 @@ export function BotPanel({
     <ModelPickerHostContext.Provider value={pickerHost}>
       <span ref={modeMount} hidden aria-hidden="true" />
       <OnboardingOverlay actions={actions} companion={companion} t={t} />
-      <BotIntro actions={actions} appearance={appearance} wallpaper={wallpaper} t={t} />
       {releaseNotes === undefined ? null : (
         <ReleaseNotesAnnouncement controller={releaseNotes} t={t} deferred={deferRelease} />
       )}

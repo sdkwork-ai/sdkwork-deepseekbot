@@ -510,9 +510,7 @@ export function OnboardingOverlay({
       if (!live()) return;
       void controller.refreshEvidence();
       const receipt = controller.getSnapshot().receipt;
-      if (controller.introPending()) {
-        if (!controller.getSnapshot().intro) controller.openIntro();
-      } else if (
+      if (
         receipt !== undefined &&
         !(receipt.journey?.done ?? receipt.completed) &&
         receipt.tutorial === 'not-started' &&
