@@ -720,6 +720,7 @@ const MessageGroupView = memo(function MessageGroupView({
     <div
       className={`bh-message-group${human ? ' bh-message-group-me' : ''}${arriving && group.messages.length === 1 ? ' bh-message-group-enter' : ''}`}
       data-group-size={group.messages.length}
+      {...(currentDmBotSlug === undefined ? {} : { 'data-dm': '' })}
       style={bubbleStyle}
     >
       <div className="bh-message-identity">

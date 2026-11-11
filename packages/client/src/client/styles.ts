@@ -64,7 +64,7 @@ export const CSS =
 }
 .bh-root {
   --bh-chat-card-inset: ${space.x4};
-  /* @bh-brand-aliases:start — thin BotHarness brand map onto DSH semantic
+  /* @bh-brand-aliases:start 鈥?thin BotHarness brand map onto DSH semantic
      tokens (ADR-0028): at most three entries, no second design system. */
   --bh-accent: var(--dsw-alias-state-business-primary);
   --bh-hover: var(--dsw-alias-interactive-bg-hover);
@@ -75,7 +75,7 @@ export const CSS =
   --bh-surface-danger: color-mix(in srgb, ${color.danger} 10%, ${color.surface});
   --bh-on-surface-danger: color-mix(in srgb, ${color.danger} 65%, ${color.fg});
   --bh-well-inset: color-mix(in srgb, ${color.fg} 7%, ${color.well});
-  /* @bh-profile-chart-aliases:start — the pinned DSH theme has no categorical
+  /* @bh-profile-chart-aliases:start 鈥?the pinned DSH theme has no categorical
      chart palette; read shades derive from the brand accent and output uses a
      state token so both series stay distinguishable in either theme. */
   --bh-chart-output: var(--dsw-alias-state-warn-primary);
@@ -185,10 +185,10 @@ html[data-botharness-motion='reduce'] .bh-onboarding-enter-dot { animation: none
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  /* 原生 WorkspaceBrowser 的 root 约定：右侧内衬 = --dsh-session-list-edge-inset
-     （= --dsh-sidebar-inline-padding，12px）。外层 regionArea 已抵消 sidebar 的右
-     侧 padding 并给 4px 左衬（见 hHd-Xa_regionArea）；顶层内容再补 4px 左衬即与
-     原生 sectionHeader / 新会话行（20px）对齐。 */
+  /* 鍘熺敓 WorkspaceBrowser 鐨?root 绾﹀畾锛氬彸渚у唴琛?= --dsh-session-list-edge-inset
+     锛? --dsh-sidebar-inline-padding锛?2px锛夈€傚灞?regionArea 宸叉姷娑?sidebar 鐨勫彸
+     渚?padding 骞剁粰 4px 宸﹁‖锛堣 hHd-Xa_regionArea锛夛紱椤跺眰鍐呭鍐嶈ˉ 4px 宸﹁‖鍗充笌
+     鍘熺敓 sectionHeader / 鏂颁細璇濊锛?0px锛夊榻愩€?*/
   padding: 0 var(--dsh-sidebar-inline-padding) ${space.x2} 0;
 }
 .bh-region-rail {
@@ -371,11 +371,11 @@ html[data-botharness-motion='reduce'] .bh-onboarding-enter-dot { animation: none
   gap: ${space.x3};
 }
 
-/* 原生 工作区 sectionHeader 模式（ui-workspace WorkspaceBrowser.module.css）：
-   36px 高、gap 4、左衬 4、上下 margin 2/4；原生 header 还向内容右缘外挂 4px
-   （margin-right: -4px），但最右侧按钮仍停在内容右缘（实测 280px 侧栏里
-   添加按钮右缘 268），因为原生 header 尾部还有一个占掉 gap 的调用流锚点。
-   这里用 padding-right: 4px 复现同一条可见边，不再多一个尾部节点。 */
+/* 鍘熺敓 宸ヤ綔鍖?sectionHeader 妯″紡锛坲i-workspace WorkspaceBrowser.module.css锛夛細
+   36px 楂樸€乬ap 4銆佸乏琛?4銆佷笂涓?margin 2/4锛涘師鐢?header 杩樺悜鍐呭鍙崇紭澶栨寕 4px
+   锛坢argin-right: -4px锛夛紝浣嗘渶鍙充晶鎸夐挳浠嶅仠鍦ㄥ唴瀹瑰彸缂橈紙瀹炴祴 280px 渚ф爮閲?
+   娣诲姞鎸夐挳鍙崇紭 268锛夛紝鍥犱负鍘熺敓 header 灏鹃儴杩樻湁涓€涓崰鎺?gap 鐨勮皟鐢ㄦ祦閿氱偣銆?
+   杩欓噷鐢?padding-right: 4px 澶嶇幇鍚屼竴鏉″彲瑙佽竟锛屼笉鍐嶅涓€涓熬閮ㄨ妭鐐广€?*/
 .bh-header {
   flex: none;
   display: flex;
@@ -556,10 +556,10 @@ html[data-botharness-motion='reduce'] .bh-header-actions-hidden {
   background: var(--bh-hover);
 }
 
-/* 原生侧栏面板行占满内容盒（ui-sidebar .panelRow width:100%），而原生
-   新会话行每侧内收 2px（.newSession margin: 0 2px 8px）。面板行由外壳渲染，
-   我们只注入图标，因此用 :has() 认领带本插件图标的行并对齐同一组
-   horizontal insets；active 时同一条行内命中层把再次点击变成退出模式。 */
+/* 鍘熺敓渚ф爮闈㈡澘琛屽崰婊″唴瀹圭洅锛坲i-sidebar .panelRow width:100%锛夛紝鑰屽師鐢?
+   鏂颁細璇濊姣忎晶鍐呮敹 2px锛?newSession margin: 0 2px 8px锛夈€傞潰鏉胯鐢卞澹虫覆鏌擄紝
+   鎴戜滑鍙敞鍏ュ浘鏍囷紝鍥犳鐢?:has() 璁ら甯︽湰鎻掍欢鍥炬爣鐨勮骞跺榻愬悓涓€缁?
+   horizontal insets锛沘ctive 鏃跺悓涓€鏉¤鍐呭懡涓眰鎶婂啀娆＄偣鍑诲彉鎴愰€€鍑烘ā寮忋€?*/
 button:has(.bh-panel-glyph) {
   position: relative;
   overflow: hidden;
@@ -1033,7 +1033,7 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
 }
 
 
-/* 原生 .flatList/.groupSection 行距：同一 scope 内相邻行 2px。 */
+/* 鍘熺敓 .flatList/.groupSection 琛岃窛锛氬悓涓€ scope 鍐呯浉閭昏 2px銆?*/
 .bh-list-area > * + * {
   margin-top: ${space.x1};
 }
@@ -1041,20 +1041,20 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   flex: 1 0 auto;
   min-height: 72px;
 }
-/* 区块距（PM 定稿）：section 之间、平铺列表与首个 section 之间 12px ——
-   外壳自身的块节奏（logoRow / panelList 的 margin-bottom 8px，收起态 12px）
-   里最小且仍是明确视觉断点的取整；` +
-  ` 选择器保证首个 section 不吃这个
-   间距，末尾也不留悬空（bottom-margin 反而要在 :last-child 上打补丁）。 */
+/* 鍖哄潡璺濓紙PM 瀹氱锛夛細section 涔嬮棿銆佸钩閾哄垪琛ㄤ笌棣栦釜 section 涔嬮棿 12px 鈥斺€?
+   澶栧３鑷韩鐨勫潡鑺傚锛坙ogoRow / panelList 鐨?margin-bottom 8px锛屾敹璧锋€?12px锛?
+   閲屾渶灏忎笖浠嶆槸鏄庣‘瑙嗚鏂偣鐨勫彇鏁达紱` +
+  ` 閫夋嫨鍣ㄤ繚璇侀涓?section 涓嶅悆杩欎釜
+   闂磋窛锛屾湯灏句篃涓嶇暀鎮┖锛坆ottom-margin 鍙嶈€岃鍦?:last-child 涓婃墦琛ヤ竵锛夈€?*/
 .bh-list-area + .bh-section,
 .bh-section + .bh-section {
   margin-top: ${space.x4};
 }
 
-/* 原生 .projectRow/.sessionRow 共同几何：8px 圆角、0 8px 内衬、悬停 alias
-   token。行盒落在 root 内容右缘（280px 侧栏 = x12..268），与原生行同表一致。 */
-/* .bh-root 前缀压过表单控件的 font: inherit 重置，让行盒与原生行同为
-   14px/20px（可见文本各自声明字号）。 */
+/* 鍘熺敓 .projectRow/.sessionRow 鍏卞悓鍑犱綍锛?px 鍦嗚銆? 8px 鍐呰‖銆佹偓鍋?alias
+   token銆傝鐩掕惤鍦?root 鍐呭鍙崇紭锛?80px 渚ф爮 = x12..268锛夛紝涓庡師鐢熻鍚岃〃涓€鑷淬€?*/
+/* .bh-root 鍓嶇紑鍘嬭繃琛ㄥ崟鎺т欢鐨?font: inherit 閲嶇疆锛岃琛岀洅涓庡師鐢熻鍚屼负
+   14px/20px锛堝彲瑙佹枃鏈悇鑷０鏄庡瓧鍙凤級銆?*/
 .bh-root .bh-section-head,
 .bh-root .bh-channel-row {
   display: flex;
@@ -1350,8 +1350,8 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   padding: 7px 8px;
   transition: opacity 120ms var(--ds-ease-in-out);
 }
-/* 拖拽源行原位淡出：标示来处，不占位、不推动任何布局（native 无此态，
-   系刻意偏离：overlay 插入线之外唯一的拖拽中视觉）。 */
+/* 鎷栨嫿婧愯鍘熶綅娣″嚭锛氭爣绀烘潵澶勶紝涓嶅崰浣嶃€佷笉鎺ㄥ姩浠讳綍甯冨眬锛坣ative 鏃犳鎬侊紝
+   绯诲埢鎰忓亸绂伙細overlay 鎻掑叆绾夸箣澶栧敮涓€鐨勬嫋鎷戒腑瑙嗚锛夈€?*/
 .bh-channel-row.bh-drag-source {
   opacity: 0.4;
 }
@@ -1371,9 +1371,9 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   color: var(--dsw-alias-label-tertiary);
 }
 
-/* 原生 ui-workspace sessionRow 的拖拽插入线（ADR-0031）：伪元素绝对定位，
-   不占布局；箭头 + 2px 规则线，起点在行内 4px、右缘留 4px。行是 button，
-   伪元素在 .bh-root .bh-channel-row 下同样生效。 */
+/* 鍘熺敓 ui-workspace sessionRow 鐨勬嫋鎷芥彃鍏ョ嚎锛圓DR-0031锛夛細浼厓绱犵粷瀵瑰畾浣嶏紝
+   涓嶅崰甯冨眬锛涚澶?+ 2px 瑙勫垯绾匡紝璧风偣鍦ㄨ鍐?4px銆佸彸缂樼暀 4px銆傝鏄?button锛?
+   浼厓绱犲湪 .bh-root .bh-channel-row 涓嬪悓鏍风敓鏁堛€?*/
 .bh-channel-row.bh-drop-before,
 .bh-channel-row.bh-drop-after,
 .bh-contact.bh-drop-before,
@@ -1417,9 +1417,9 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   bottom: -7px;
 }
 
-/* 原生 .groupSection 的 workspace 拖动插入线：section 头的重排和 flat
-   gap 的松散落点把同一条渐变画在区块上下边界（-8px 落在 12px 间距带内）。
-   伪元素绝对定位，不占布局，拖拽中没有任何区块改变高度。 */
+/* 鍘熺敓 .groupSection 鐨?workspace 鎷栧姩鎻掑叆绾匡細section 澶寸殑閲嶆帓鍜?flat
+   gap 鐨勬澗鏁ｈ惤鐐规妸鍚屼竴鏉℃笎鍙樼敾鍦ㄥ尯鍧椾笂涓嬭竟鐣岋紙-8px 钀藉湪 12px 闂磋窛甯﹀唴锛夈€?
+   浼厓绱犵粷瀵瑰畾浣嶏紝涓嶅崰甯冨眬锛屾嫋鎷戒腑娌℃湁浠讳綍鍖哄潡鏀瑰彉楂樺害銆?*/
 .bh-section.bh-drop-before,
 .bh-section.bh-drop-after {
   position: relative;
@@ -1457,9 +1457,9 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   bottom: -8px;
 }
 
-/* Row-less section body 的投放线（空 / 折叠 / 过滤无行）：画在 body 顶部
-   下方——空 body 下即紧贴 header 的位置。伪元素绝对定位，不占布局；
-   取布局的旧空区方案已退役（它在 dragstart 内同步改变高度会掐断手势）。 */
+/* Row-less section body 鐨勬姇鏀剧嚎锛堢┖ / 鎶樺彔 / 杩囨护鏃犺锛夛細鐢诲湪 body 椤堕儴
+   涓嬫柟鈥斺€旂┖ body 涓嬪嵆绱ц创 header 鐨勪綅缃€備吉鍏冪礌缁濆瀹氫綅锛屼笉鍗犲竷灞€锛?
+   鍙栧竷灞€鐨勬棫绌哄尯鏂规宸查€€褰癸紙瀹冨湪 dragstart 鍐呭悓姝ユ敼鍙橀珮搴︿細鎺愭柇鎵嬪娍锛夈€?*/
 .bh-section.bh-drop-scope > .bh-list-area {
   position: relative;
 }
@@ -1490,12 +1490,12 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   pointer-events: none;
 }
 
-/* Section 头（Discord 式 PM 定稿）：24px 紧凑条、gap 6、padding 0 8px；
-   无背景 fill（与 channel 行悬停区分）；标签默认 tertiary、悬停提亮到
-   primary（原生 projectRow 悬停不提亮，此处按 PM 走 Discord 语言）；
-   右侧 chevron 随标签同色、150ms 旋转指示折叠；整行可点击折叠
-   （aria-expanded 留在行上）。未分组沿用同一标签色（无折叠态，不带
-   chevron、不跟随提亮）。 */
+/* Section 澶达紙Discord 寮?PM 瀹氱锛夛細24px 绱у噾鏉°€乬ap 6銆乸adding 0 8px锛?
+   鏃犺儗鏅?fill锛堜笌 channel 琛屾偓鍋滃尯鍒嗭級锛涙爣绛鹃粯璁?tertiary銆佹偓鍋滄彁浜埌
+   primary锛堝師鐢?projectRow 鎮仠涓嶆彁浜紝姝ゅ鎸?PM 璧?Discord 璇█锛夛紱
+   鍙充晶 chevron 闅忔爣绛惧悓鑹层€?50ms 鏃嬭浆鎸囩ず鎶樺彔锛涙暣琛屽彲鐐瑰嚮鎶樺彔
+   锛坅ria-expanded 鐣欏湪琛屼笂锛夈€傛湭鍒嗙粍娌跨敤鍚屼竴鏍囩鑹诧紙鏃犳姌鍙犳€侊紝涓嶅甫
+   chevron銆佷笉璺熼殢鎻愪寒锛夈€?*/
 .bh-section-head {
   height: 24px;
   gap: 6px;
@@ -1531,8 +1531,8 @@ html[data-botharness-activity='stale'] .bh-avatar-indicator {
   line-height: ${text.bodyLine};
 }
 
-/* 原生 .rowActions：16px 字形、gap 12、仅悬停显示（菜单打开时的常显由
-   row 组件的 menu-open 变体在交互接线时补上）。 */
+/* 鍘熺敓 .rowActions锛?6px 瀛楀舰銆乬ap 12銆佷粎鎮仠鏄剧ず锛堣彍鍗曟墦寮€鏃剁殑甯告樉鐢?
+   row 缁勪欢鐨?menu-open 鍙樹綋鍦ㄤ氦浜掓帴绾挎椂琛ヤ笂锛夈€?*/
 .bh-row-actions {
   flex: none;
   display: none;
@@ -1572,8 +1572,8 @@ html[data-botharness-motion='reduce'] .bh-section-chevron {
   transition: none;
 }
 
-/* 子菜单当前 scope 的尾部对勾：primitives 的 Menu 只为主行渲染 check，
-   子菜单的选中标记因此放在 label 内（菜单 portal 到 body，类不依赖 .bh-root）。 */
+/* 瀛愯彍鍗曞綋鍓?scope 鐨勫熬閮ㄥ鍕撅細primitives 鐨?Menu 鍙负涓昏娓叉煋 check锛?
+   瀛愯彍鍗曠殑閫変腑鏍囪鍥犳鏀惧湪 label 鍐咃紙鑿滃崟 portal 鍒?body锛岀被涓嶄緷璧?.bh-root锛夈€?*/
 .bh-move-checked {
   display: flex;
   align-items: center;
@@ -1589,10 +1589,10 @@ html[data-botharness-motion='reduce'] .bh-section-chevron {
 }
 
 
-/* 原生 WorkspaceBrowser 的 .renameInput（shipped dialog 用的是 feature-local
-   普通 input，不是 primitives Input）：类自身拥有完整盒模型，Modal 在 body
-   下也不依赖 .bh-root 前缀。几何逐项对齐原生：高 44、内衬 7/14、圆角 22、
-   border-l4、透明底、14/22 label-primary、outline none。 */
+/* 鍘熺敓 WorkspaceBrowser 鐨?.renameInput锛坰hipped dialog 鐢ㄧ殑鏄?feature-local
+   鏅€?input锛屼笉鏄?primitives Input锛夛細绫昏嚜韬嫢鏈夊畬鏁寸洅妯″瀷锛孧odal 鍦?body
+   涓嬩篃涓嶄緷璧?.bh-root 鍓嶇紑銆傚嚑浣曢€愰」瀵归綈鍘熺敓锛氶珮 44銆佸唴琛?7/14銆佸渾瑙?22銆?
+   border-l4銆侀€忔槑搴曘€?4/22 label-primary銆乷utline none銆?*/
 .bh-name-input {
   box-sizing: border-box;
   width: 100%;
@@ -3428,6 +3428,13 @@ html[data-botharness-motion='reduce'] .bh-chat-body { transition: none; }
   color: var(--dsw-alias-label-tertiary);
   font-size: ${text.metaSize};
 }
+/* Same centered width as the shell's conversation column. */
+.bh-message-block {
+  width: 100%;
+  max-width: 920px;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
 .bh-message-group {
   display: flex;
   flex-direction: column;
@@ -3677,13 +3684,29 @@ html[data-botharness-motion='reduce'] .bh-message-group-enter .bh-message-group-
   padding: 0;
   background: transparent;
   border-radius: 0;
+  font-size: ${text.titleSize};
+  line-height: ${text.titleLine};
+}
+/* A Bot DM reads like the shell's conversation: the Bot's author header is
+   redundant next to the DM header, and the Human's own message is the shared
+   shell bubble. */
+.bh-message-group[data-dm]:not(.bh-message-group-me) .bh-message-identity {
+  display: none;
+}
+.bh-message-group-me .bh-bubble:has(.bh-bubble-content .bh-bubble-body) {
+  background: var(--dsw-specific-bubble);
+  border-radius: ${radius.lg};
+  padding: ${space.x3} ${space.x5};
+  font-size: ${text.titleSize};
+  line-height: ${text.titleLine};
+  color: var(--dsw-alias-label-primary);
 }
 /* Flat replies have no bubble edge to separate them, so consecutive ones in the
    same group take a paragraph gap instead of the bubble stack's hairline. */
 .bh-message-group:not(.bh-message-group-me)
   .bh-bubble-wrap:has(.bh-bubble-content .bh-bubble-body)
   + .bh-bubble-wrap:has(.bh-bubble-content .bh-bubble-body) {
-  margin-top: ${space.x4};
+  margin-top: ${space.x5};
 }
 .bh-bubble {
   --bh-bubble-radius: ${radius.lg};
@@ -4424,6 +4447,8 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
   flex-direction: column;
   align-items: stretch;
   gap: ${space.x2};
+  width: min(952px, calc(100% - ${space.x4} * 2));
+  align-self: center;
   margin: 0 ${space.x4} calc(${space.x4} + env(safe-area-inset-bottom, 0px));
   flex: 0 0 auto;
 }
@@ -5527,7 +5552,7 @@ html[data-botharness-motion='reduce'] .bh-release-note-head::before {
   object-fit: contain;
 }
 
-/* Bot icon chooser: what you see is what you pick — one card per mark. */
+/* Bot icon chooser: what you see is what you pick 鈥?one card per mark. */
 
 
 
@@ -6104,12 +6129,12 @@ html[data-botharness-motion='full'] .bh-motion-preview-sample i:nth-child(3) {
 .bh-memory-version-row:hover { background: var(--bh-hover, var(--bh-selected)); }
 .bh-memory-version-row[data-expanded='true'] { border-bottom-left-radius: 0; border-bottom-right-radius: 0; background: var(--bh-selected); }
 .bh-memory-version-name { font-weight: ${text.strong}; font-size: ${text.bodySize}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bh-memory-version-name:not([data-branch])::before { content: '★ '; color: var(--dsw-alias-state-success-primary); }
+.bh-memory-version-name:not([data-branch])::before { content: '鈽?'; color: var(--dsw-alias-state-success-primary); }
 .bh-memory-version-subject { overflow: hidden; color: var(--dsw-alias-label-secondary); font-size: ${text.metaSize}; text-overflow: ellipsis; white-space: nowrap; }
 .bh-memory-version-panel { margin-top: -${space.x1}; padding: 0 ${space.x3} ${space.x3}; border-radius: 0 0 ${radius.sm} ${radius.sm}; background: var(--bh-selected); }
 .bh-memory-restore-actions { display: flex; flex-wrap: wrap; gap: ${space.x2}; flex-basis: 100%; }
 .bh-memory-version { flex: none; max-width: 40%; overflow: hidden; padding: 0 ${space.x2}; border-radius: 999px; background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 12%, transparent); color: var(--dsw-alias-state-success-primary); font-size: ${text.metaSize}; line-height: ${text.metaLine}; text-overflow: ellipsis; white-space: nowrap; }
-.bh-memory-version::before { content: '★ '; }
+.bh-memory-version::before { content: '鈽?'; }
 .bh-memory-version-chip { display: inline-flex; align-items: center; gap: ${space.x1}; max-width: 100%; padding: 0 ${space.x1} 0 ${space.x3}; border-radius: 999px; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); font-size: ${text.metaSize}; line-height: ${text.bodyLine}; }
 .bh-memory-version-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bh-memory-version-chip > button { border: 0; background: transparent; color: var(--dsw-alias-label-secondary); cursor: pointer; font-size: ${text.titleSize}; line-height: 1; padding: 0 ${space.x2}; }
