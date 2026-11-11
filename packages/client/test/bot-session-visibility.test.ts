@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   botSessionVisibilityCss,
   createBotSessionVisibility,
+  isBotWorkspacePath,
   type SessionListSnapshot,
   type WorkspaceListSnapshot,
 } from '../src/client/bot-session-visibility.js';
@@ -61,6 +62,58 @@ describe('Bot Session visibility', () => {
     prefs.set({ showBotSessions: true, showApprovalReviewSessions: false });
     expect(visibility.hidden()).toEqual({ sessionIds: [], groupKeys: [] });
     visibility.dispose();
+  });
+
+  it("hides DeepSeekBot's own Workspaces and their Sessions even while Bot Sessions show", () => {
+    const sessions = observable(list({ user: {}, blank: {}, orch: {} }));
+    const workspaces = observable<WorkspaceListSnapshot | undefined>({
+      items: [
+        { workspaceId: 'project', sessionIds: ['user'], path: 'D:\\work\\project' },
+        {
+          workspaceId: 'assistant',
+          sessionIds: ['blank'],
+          path: 'C:\\Users\\me\\.dsh\\botharness\\tob-workspaces\\bot-1',
+        },
+      ],
+    });
+    const visibility = createBotSessionVisibility({
+      sessions,
+      workspaces,
+      prefs: observable({ showBotSessions: true, showApprovalReviewSessions: true }),
+      loadBotSessionIds: async () => ['orch'],
+    });
+
+    expect(visibility.hidden()).toEqual({ sessionIds: ['blank'], groupKeys: ['assistant'] });
+    visibility.dispose();
+  });
+
+  it('hides an empty DeepSeekBot Workspace row', () => {
+    const visibility = createBotSessionVisibility({
+      sessions: observable(list({ user: {} })),
+      workspaces: observable<WorkspaceListSnapshot | undefined>({
+        items: [
+          { workspaceId: 'project', sessionIds: ['user'], path: 'D:\\work\\project' },
+          {
+            workspaceId: 'assistant',
+            sessionIds: [],
+            path: 'C:\\Users\\me\\.dsh\\botharness\\tob-workspaces\\bot-1',
+          },
+        ],
+      }),
+      prefs: observable({ showBotSessions: false, showApprovalReviewSessions: false }),
+      loadBotSessionIds: async () => [],
+    });
+
+    expect(visibility.hidden()).toEqual({ sessionIds: [], groupKeys: ['assistant'] });
+    visibility.dispose();
+  });
+
+  it('recognizes only the folders DeepSeekBot owns inside the DSH home', () => {
+    expect(isBotWorkspacePath('C:\\Users\\me\\.dsh\\botharness\\tob-workspaces\\bot-1')).toBe(true);
+    expect(isBotWorkspacePath('/home/me/.dsh/botharness/approval-reviews')).toBe(true);
+    expect(isBotWorkspacePath('C:\\Users\\me\\.dsh\\botharness\\bots\\bot-1\\memory')).toBe(true);
+    expect(isBotWorkspacePath('D:\\work\\botharness\\docs')).toBe(false);
+    expect(isBotWorkspacePath('D:\\work\\sdkwork-botharness\\tob-workspaces')).toBe(false);
   });
 
   it('hides Approval Review Sessions on their own switch, even while Bot Sessions show', async () => {

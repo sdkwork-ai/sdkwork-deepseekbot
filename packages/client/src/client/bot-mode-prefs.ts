@@ -471,7 +471,7 @@ export class BotModePrefs {
         draft.autoCollapseMessages = section.autoCollapseMessages === true;
         draft.showDeliveryReceipts = section.showDeliveryReceipts === true;
         draft.streamReplies = section.streamReplies === true;
-        draft.showBotSessions = section.showBotSessions !== false;
+        draft.showBotSessions = section.showBotSessions === true;
         draft.showApprovalReviewSessions = section.showApprovalReviewSessions === true;
         draft.autoAcceptGroupInvites = section.autoAcceptGroupInvites !== false;
       }

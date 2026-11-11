@@ -127,7 +127,7 @@ describe('BOT-mode policy store', () => {
       assignmentConcurrencyLimit: 8,
       botHopLimit: 128,
       developerMode: false,
-      showBotSessions: true,
+      showBotSessions: false,
       showApprovalReviewSessions: false,
       effectiveMotion: 'full',
       sortMode: 'updated',
@@ -153,20 +153,20 @@ describe('BOT-mode policy store', () => {
     expect(reloaded.source.getSnapshot().autoCollapseMessages).toBe(false);
   });
 
-  it('shows Bot Sessions unless the Host holds an explicit choice to hide them', () => {
+  it('keeps Bot Sessions hidden unless the Host holds an explicit choice to show them', () => {
     const { showBotSessions: _omitted, ...withoutChoice } = fakeHost().host.getSnapshot().value!;
     const unset = new BotModePrefs();
     unset.attach(fakeHost({ value: withoutChoice as never }).host);
-    expect(unset.source.getSnapshot().showBotSessions).toBe(true);
+    expect(unset.source.getSnapshot().showBotSessions).toBe(false);
 
-    const hidden = new BotModePrefs();
-    hidden.attach(
+    const shown = new BotModePrefs();
+    shown.attach(
       fakeHost({
-        value: { ...withoutChoice, showBotSessions: false } as never,
-        user: { showBotSessions: false },
+        value: { ...withoutChoice, showBotSessions: true } as never,
+        user: { showBotSessions: true },
       }).host,
     );
-    expect(hidden.source.getSnapshot().showBotSessions).toBe(false);
+    expect(shown.source.getSnapshot().showBotSessions).toBe(true);
   });
 
   it('adopts the accepted Host global and per-section values on every accepted change', () => {

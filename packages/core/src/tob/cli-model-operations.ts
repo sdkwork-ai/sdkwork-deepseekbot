@@ -115,7 +115,7 @@ export function createTobModelOperations(deps: TobModelOperationDependencies) {
     );
     if (ns === 'botharness-client') {
       value.assignmentConcurrencyLimit ??= 8;
-      for (const key of runtimeFields.slice(1)) value[key] ??= key === 'showBotSessions';
+      for (const key of runtimeFields.slice(1)) value[key] ??= false;
     } else {
       if (isModelRoute(value) && deps.defaultModel)
         same(value, deps.defaultModel.currentSelection());

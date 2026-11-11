@@ -12,11 +12,30 @@ export interface SessionListSnapshot {
 }
 
 export interface WorkspaceListSnapshot {
-  items: readonly { workspaceId: string; sessionIds: readonly string[] }[];
+  items: readonly {
+    workspaceId: string;
+    sessionIds: readonly string[];
+    /** Host directory the Workspace points at; absent on older catalog snapshots. */
+    path?: string;
+  }[];
   archivedSessionIds?: readonly string[];
 }
 
 export const APPROVAL_REVIEW_SESSION_PREFIX = 'approval-review-';
+
+/**
+ * Folders DeepSeekBot owns inside DSH's home: the scratch Workspace registered
+ * for an Assistant, the Approval Review working copy, and each Bot's memory
+ * repository. Registering them as Workspaces is how folder access is granted,
+ * but they are implementation detail rather than one of the Human's projects,
+ * so the native Workspace list must never list them or their Sessions.
+ */
+const BOT_WORKSPACE_PATH =
+  /(?:^|[\\/])botharness[\\/](?:tob-workspaces|approval-reviews|bots[\\/][^\\/]+[\\/]memory)(?:[\\/]|$)/iu;
+
+export function isBotWorkspacePath(path: string): boolean {
+  return BOT_WORKSPACE_PATH.test(path);
+}
 
 interface Observable<T> {
   subscribe(listener: () => void): () => void;
@@ -101,18 +120,26 @@ export function createBotSessionVisibility(
     },
     hidden() {
       const { showBotSessions, showApprovalReviewSessions } = prefs.getSnapshot();
-      if (showBotSessions && showApprovalReviewSessions) return { sessionIds: [], groupKeys: [] };
       const list = sessions.getSnapshot();
-      const hiddenIds = new Set(
-        list.ids.filter(
-          (id) =>
+      const workspace = workspaces.getSnapshot();
+      const botWorkspaces = (workspace?.items ?? []).filter(
+        (item) => item.path !== undefined && isBotWorkspacePath(item.path),
+      );
+      const hiddenIds = new Set<string>();
+      if (!showBotSessions || !showApprovalReviewSessions) {
+        for (const id of list.ids) {
+          if (
             ((!showBotSessions && botIds.has(id)) ||
               (!showApprovalReviewSessions && id.startsWith(APPROVAL_REVIEW_SESSION_PREFIX))) &&
-            (list.byId[id]?.retainedBy?.['mainView'] ?? 0) === 0,
-        ),
-      );
-      if (hiddenIds.size === 0) return { sessionIds: [], groupKeys: [] };
-      const workspace = workspaces.getSnapshot();
+            (list.byId[id]?.retainedBy?.['mainView'] ?? 0) === 0
+          ) {
+            hiddenIds.add(id);
+          }
+        }
+      }
+      for (const item of botWorkspaces) for (const id of item.sessionIds) hiddenIds.add(id);
+      if (hiddenIds.size === 0 && botWorkspaces.length === 0)
+        return { sessionIds: [], groupKeys: [] };
       const archived = new Set(workspace?.archivedSessionIds ?? []);
       const listed = (id: string): boolean => {
         const row = list.byId[id];
@@ -134,6 +161,9 @@ export function createBotSessionVisibility(
           return shown.length > 0 && shown.every((id) => hiddenIds.has(id));
         })
         .map(([key]) => key);
+      for (const item of botWorkspaces) {
+        if (!groupKeys.includes(item.workspaceId)) groupKeys.push(item.workspaceId);
+      }
       return { sessionIds: [...hiddenIds], groupKeys };
     },
     subscribe(listener) {
