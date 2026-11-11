@@ -3668,10 +3668,10 @@ html[data-botharness-motion='reduce'] .bh-message-group-enter .bh-message-group-
 .bh-message-group:not(.bh-message-group-me) .bh-bubble-wrap:has(.bh-bubble-content .bh-bubble-body) {
   width: 100%;
 }
-.bh-message-group:not(.bh-message-group-me) .bh-bubble-surface:has(> .bh-bubble > .bh-bubble-content .bh-bubble-body) {
+.bh-message-group:not(.bh-message-group-me) .bh-bubble-surface:has(.bh-bubble-content .bh-bubble-body) {
   width: 100%;
 }
-.bh-message-group:not(.bh-message-group-me) .bh-bubble:has(> .bh-bubble-content .bh-bubble-body) {
+.bh-message-group:not(.bh-message-group-me) .bh-bubble:has(.bh-bubble-content .bh-bubble-body) {
   width: 100%;
   padding: 0;
   background: transparent;

@@ -46,7 +46,7 @@ describe('client styles', () => {
   });
   it('renders a Bot reply as flat text on the full width instead of an inset bubble', () => {
     expect(source).toMatch(
-      /\.bh-message-group:not\(\.bh-message-group-me\) \.bh-bubble:has\(> \.bh-bubble-content \.bh-bubble-body\) \{[^}]*width: 100%;[^}]*background: transparent/,
+      /\.bh-message-group:not\(\.bh-message-group-me\) \.bh-bubble:has\(\.bh-bubble-content \.bh-bubble-body\) \{[^}]*width: 100%;[^}]*background: transparent/,
     );
     expect(source).toMatch(/\.bh-bubble-me \{\s*background: var\(--bh-bubble-me-fill\)/);
   });
