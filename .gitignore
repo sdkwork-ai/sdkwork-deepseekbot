@@ -107,3 +107,15 @@ apps/docs/src/content/docs-zh/docs/mobile-pairing.mdx
 packages/deepseekbot/desktop-theme/
 packages/deepseekbot/desktop-theme-0.2.2-rc.1/
 apps/mobile/modules/**/android/build/
+
+# ---- auto-audited: local artifacts that must never be committed ----
+*.p12
+*.pfx
+*.keystore
+temp/
+*.tmp
+*.temp
+.turbo/
+.next/
+build/
+target/

@@ -3936,9 +3936,17 @@ function botCreateSource(id: string): 'empty' | 'git' | 'zip' | undefined {
   return undefined;
 }
 
+/**
+ * Roster + menu entries that stay implemented but are not offered: channel
+ * sections, the Bot marketplace and remote Hosts. Section creation is still
+ * reachable from a channel's move menu and the marketplace from the Control
+ * Rail; Add remote has no other entry point.
+ */
+const HIDDEN_CREATE_ITEMS: ReadonlySet<string> = new Set(['section', 'marketplace', 'remote']);
+
 function menuItems(t: BotHarnessTranslate, gitAvailable: boolean, remotes: boolean): MenuEntry[] {
   const disabled = !gitAvailable;
-  return [
+  const items: MenuEntry[] = [
     {
       id: 'bot',
       label: t('roster.menu.createBot'),
@@ -3974,10 +3982,9 @@ function menuItems(t: BotHarnessTranslate, gitAvailable: boolean, remotes: boole
         ]
       : []),
   ];
+  return items.filter((item) => !HIDDEN_CREATE_ITEMS.has(item.id));
 }
 
 function sectionCreateMenuItems(t: BotHarnessTranslate, gitAvailable: boolean): MenuEntry[] {
-  return menuItems(t, gitAvailable, false).filter(
-    (item) => item.id === 'bot' || item.id === 'channel',
-  );
+  return menuItems(t, gitAvailable, false);
 }

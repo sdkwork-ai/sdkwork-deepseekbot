@@ -10,7 +10,7 @@
 
 ## How to get to it (user POV)
 
-On the remote Host create a protected `device-offer --out` file using the authenticated Owner CLI. Transfer it to the computer through the established SSH connection. On that computer run `ssh-tunnel <alias> --remote-port <existing-host-port> --local-port <free-fixed-port> --pairing-file <private-input> --out <new-private-output>`. Keep it running. In the local Host browser open Messages → Add remote, paste the output file's link and compare the Host fingerprint. On the remote Host approve the pending exact device key using its offer receipt. Open a remote conversation. Use Ctrl+C to close the tunnel, and the same port to reconnect.
+On the remote Host create a protected `device-offer --out` file using the authenticated Owner CLI. Transfer it to the computer through the established SSH connection. On that computer run `ssh-tunnel <alias> --remote-port <existing-host-port> --local-port <free-fixed-port> --pairing-file <private-input> --out <new-private-output>`. Keep it running. In the local Host browser open Messages → Add remote (the sidebar **+** menu currently hides this entry), paste the output file's link and compare the Host fingerprint. On the remote Host approve the pending exact device key using its offer receipt. Open a remote conversation. Use Ctrl+C to close the tunnel, and the same port to reconnect.
 
 ## Driving it with verify-app
 

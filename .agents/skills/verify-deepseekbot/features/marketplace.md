@@ -12,7 +12,7 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode, dismiss the first-run welcome, and choose **Bot Marketplace / Bot 市场** in the Control Rail. The fallback sidebar's New menu also opens the shared Marketplace modal.
+Enter Bot mode, dismiss the first-run welcome, and choose **Bot Marketplace / Bot 市场** in the Control Rail. The roster **+** menu offers assistant and channel creation only, so the Control Rail is the only entry point right now.
 
 ## Driving it with verify-app
 

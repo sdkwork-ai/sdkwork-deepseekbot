@@ -1066,7 +1066,7 @@ describe('bot sidebar rows', () => {
         menu.items.some((item) => item['id'] === 'channel') &&
         !menu.items.some((item) => item['id'] === 'section'),
     );
-    expect(createMenu?.items.map((item) => item['label'])).toEqual(['创建 Bot', '创建频道']);
+    expect(createMenu?.items.map((item) => item['label'])).toEqual(['创建助理', '创建频道']);
   });
 
   it('renders Group conversations with the same two-line anatomy as DMs', () => {
@@ -1451,12 +1451,7 @@ describe('bot sidebar rows', () => {
     const markup = renderSidebar();
     const menu = menuWithItem('bot');
 
-    expect(menu.items.map((item) => item['label'])).toEqual([
-      '创建 Bot',
-      '创建频道',
-      '创建频道分组',
-      'Bot 市场',
-    ]);
+    expect(menu.items.map((item) => item['label'])).toEqual(['创建助理', '创建频道']);
     expect(menu.items[0]?.['disabled']).toBeUndefined();
     expect(
       (menu.items[0]?.['submenu'] as Array<Record<string, unknown>>).map((item) => [

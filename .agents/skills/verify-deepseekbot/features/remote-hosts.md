@@ -26,7 +26,7 @@ The browser pairs a Remote Host as a Paired Device and reads its Host Feed throu
 
 ## How to get to it (user POV)
 
-Enter Bot mode, then Messages. Open the channel header's add menu and choose Add remote. Paste a link from the other Host's Settings → Devices → Pair a phone. Choose All or the Remote Host icon, then a Bot or group row. Right-click the Host icon and choose Remove to remove it. A remote Bot DM with Browser or Computer access shows the corresponding header button. Open its viewer, choose Pause Bot and take control, interact with the screen or send text, then Resume Bot or Close viewer. Groups have no viewer entry.
+Enter Bot mode, then Messages. The channel header's add menu currently hides Add remote, so a new Remote Host cannot be paired from the browser; already paired Hosts keep their icon strip and their rows still open. When the entry is offered, choose it and paste a link from the other Host's Settings → Devices → Pair a phone. Choose All or the Remote Host icon, then a Bot or group row. Right-click the Host icon and choose Remove to remove it. A remote Bot DM with Browser or Computer access shows the corresponding header button. Open its viewer, choose Pause Bot and take control, interact with the screen or send text, then Resume Bot or Close viewer. Groups have no viewer entry.
 
 ## Driving it with verify-app
 
