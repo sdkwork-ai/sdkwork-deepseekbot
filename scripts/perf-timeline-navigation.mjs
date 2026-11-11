@@ -30,7 +30,7 @@ export async function revealEarlierTimelineMessage(page, selector) {
 
 export async function openTimelineConversation(page, channelId, dismissOverlays) {
   const shell = '.bh-root.bh-main, [data-workspace-dock]';
-  if (!(await page.$(shell))) await page.locator('::-p-aria(Bot mode)').click();
+  if (!(await page.$(shell))) await page.locator('::-p-aria(Assistant mode)').click();
   await page.waitForSelector(shell);
   await dismissOverlays();
   const workspace = await page.$('[data-workspace-dock]');

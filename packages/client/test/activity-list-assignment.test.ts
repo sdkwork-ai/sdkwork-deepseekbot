@@ -126,7 +126,7 @@ describe('Human Inbox Assignment reply', () => {
         body: 'Use canary',
         assignmentReply: { sessionId: 'session', sourceEventId: 'report' },
       });
-      expect(container.textContent).toContain('已发送给 Bot');
+      expect(container.textContent).toContain('已发送给助理');
       expect(store.getSnapshot().selection).toEqual({ kind: 'inbox' });
       await act(async () => button('打开 Assignment Session').click());
       expect(openSession).toHaveBeenCalledWith('session');

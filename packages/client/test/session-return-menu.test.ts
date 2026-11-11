@@ -35,7 +35,7 @@ import {
 
 const OWNER: SessionBotOwner = {
   botSlug: 'qa-bot',
-  displayName: 'QA Bot',
+  displayName: 'QA Assistant',
   role: 'assignment',
 };
 
@@ -89,7 +89,7 @@ describe('native Session menu return to PersonaBot', () => {
     try {
       await view.render();
       const button = view.host.querySelector('button');
-      expect(button?.textContent).toContain('返回 Bot 私聊');
+      expect(button?.textContent).toContain('返回助理私聊');
       expect(button?.querySelector('[data-icon="bot"]')).not.toBeNull();
       await act(async () => button?.click());
       expect(resolver).toHaveBeenCalledWith('assignment-1', expect.any(AbortSignal));
@@ -154,7 +154,7 @@ describe('native Session menu return to PersonaBot', () => {
       );
       expect(view.host.querySelector<HTMLButtonElement>('button')?.disabled).toBe(false);
       await act(async () => rejectPrevious?.(new Error('old Session failed')));
-      expect(view.host.querySelector('button')?.textContent).toContain('返回 Bot 私聊');
+      expect(view.host.querySelector('button')?.textContent).toContain('返回助理私聊');
       expect(view.setMenuOpen).not.toHaveBeenCalled();
     } finally {
       await view.dispose();
@@ -188,7 +188,7 @@ describe('native Session menu return to PersonaBot', () => {
       await view.render();
       expect(view.host.querySelector<HTMLButtonElement>('button')?.disabled).toBe(false);
       await act(async () => rejectPrevious?.(new Error('old Session failed')));
-      expect(view.host.querySelector('button')?.textContent).toContain('返回 Bot 私聊');
+      expect(view.host.querySelector('button')?.textContent).toContain('返回助理私聊');
       expect(view.setMenuOpen).not.toHaveBeenCalled();
     } finally {
       await view.dispose();
@@ -235,7 +235,7 @@ describe('native Session row PersonaBot avatar', () => {
       );
       const avatar = host.querySelector('.bh-native-session-owner');
       expect(avatar?.getAttribute('role')).toBe('img');
-      expect(avatar?.getAttribute('aria-label')).toContain('QA Bot');
+      expect(avatar?.getAttribute('aria-label')).toContain('QA Assistant');
       expect(avatar?.getAttribute('data-state')).toBe('idle');
       await act(async () =>
         root.render(

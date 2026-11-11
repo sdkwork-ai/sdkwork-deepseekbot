@@ -118,7 +118,7 @@ it('does not classify malformed persisted DMs as Bot DMs', () => {
       items: malformed.map((channel) => ({ channel })),
     }),
   );
-  expect(markup).not.toContain('Bot 私聊 · 只读');
+  expect(markup).not.toContain('助理私聊 · 只读');
   expect(captured.buttons.filter((button) => button['children'] === '查看')).toHaveLength(0);
   expect(captured.buttons.filter((button) => button['children'] === '恢复')).toHaveLength(3);
 });
@@ -200,7 +200,7 @@ describe('hidden Channels modal', () => {
         ],
       }),
     );
-    expect(markup).toContain('Bot 私聊 · 只读');
+    expect(markup).toContain('助理私聊 · 只读');
     const view = captured.buttons.find((button) => button['children'] === '查看');
     (view?.['onClick'] as (() => void) | undefined)?.();
     expect(onOpen).toHaveBeenCalledWith('dm-bots-ada-bea');
@@ -254,7 +254,7 @@ describe('hidden Channels modal', () => {
     );
 
     expect(markup).toContain('没有隐藏的频道');
-    expect(markup).toContain('只读查看 Bot 之间的私聊');
+    expect(markup).toContain('只读查看助理之间的私聊');
   });
 });
 
@@ -298,7 +298,7 @@ it('lists a deleted Bot DM as read-only history instead of a restorable Channel'
       items: [{ channel: dm('gone'), bot: gone }],
     }),
   );
-  expect(markup).toContain('已删除的 Bot');
+  expect(markup).toContain('已删除的助理');
   expect(captured.buttons.filter((button) => button['children'] === '恢复')).toHaveLength(0);
   const view = captured.buttons.find((button) => button['children'] === '查看');
   (view!['onClick'] as () => void)();

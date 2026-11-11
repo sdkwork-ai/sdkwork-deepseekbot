@@ -102,7 +102,7 @@ try {
   await page.setViewport({ width: 1440, height: 900 });
   await page.goto(instance.url, { waitUntil: 'domcontentloaded' });
   for (let attempt = 0; attempt < 40 && !(await page.$('.bh-root.bh-main')); attempt++) {
-    for (const name of ['Continue', '继续', 'Bot mode', 'Bot 模式']) {
+    for (const name of ['Continue', '继续', 'Assistant mode', '助理模式']) {
       const control = await visible(aria(name));
       if (control) await control.click().catch(() => null);
     }

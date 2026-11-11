@@ -91,7 +91,7 @@ it.each([
   { deleted: false, paused: true, offered: false },
   { deleted: true, paused: true, offered: false },
 ])(
-  'offers only bindable Bots when creating an IM app; deleted=$deleted paused=$paused',
+  'offers only bindable Assistants when creating an IM app; deleted=$deleted paused=$paused',
   async ({ deleted, paused, offered }) => {
     const clientStore = store();
     clientStore.setRoster(
@@ -116,14 +116,14 @@ it.each([
         }),
         appSetup: new ProviderAppSetup({
           call: async () => {
-            throw new Error('Unexpected app setup RPC before choosing a Bot');
+            throw new Error('Unexpected app setup RPC before choosing an Assistant');
           },
         }),
       },
       clientStore,
     );
     await act(async () => button('创建应用').click());
-    await openCombobox('Bot', dialog());
+    await openCombobox('助理', dialog());
 
     expect(comboboxOption('bo') !== undefined).toBe(offered);
     expect(comboboxOption('ada')?.textContent).toContain('Ada');
@@ -137,9 +137,9 @@ it('removes a Bot deleted while the IM bind picker is open', async () => {
     clientStore,
   );
   await act(async () => button('绑定 Lark Sales').click());
-  await chooseOption('Bot', 'bo', dialog());
+  await chooseOption('助理', 'bo', dialog());
   expect(button('绑定', dialog()).disabled).toBe(false);
-  await openCombobox('Bot', dialog());
+  await openCombobox('助理', dialog());
   expect(comboboxOption('bo')).toBeDefined();
 
   await act(async () => {
@@ -174,7 +174,7 @@ it('binds an unbound App to a chosen PersonaBot and reloads the list', async () 
   const dialog = document.querySelector('[role="dialog"]') as HTMLElement;
   expect(dialog.getAttribute('aria-label')).toBe('绑定 Lark Sales');
   expect(button('绑定', dialog).disabled).toBe(true);
-  await openCombobox('Bot', dialog);
+  await openCombobox('助理', dialog);
   await act(async () => {
     comboboxOption('bo')?.click();
   });
@@ -252,7 +252,7 @@ it('submits the bind dialog with Enter and closes it with Cancel without binding
   });
   await act(async () => dialog().querySelector('form')!.requestSubmit());
   expect(bind).not.toHaveBeenCalled();
-  await chooseOption('Bot', 'ada', dialog());
+  await chooseOption('助理', 'ada', dialog());
   await act(async () => dialog().querySelector('form')!.requestSubmit());
   expect(bind).toHaveBeenCalledWith(expect.objectContaining({ ref: 'a' }), 'ada');
 });
@@ -279,7 +279,7 @@ it('walks Create app from choosing a PersonaBot to the setup form and back', asy
   expect(dialog().getAttribute('aria-label')).toBe('创建应用');
   expect(dialog().textContent).toContain(zhTranslate('imApps.createHint'));
   expect(button(zhTranslate('imApps.next'), dialog()).disabled).toBe(true);
-  await chooseOption('Bot', 'bo', dialog());
+  await chooseOption('助理', 'bo', dialog());
   await act(async () => {
     button(zhTranslate('imApps.next'), dialog()).click();
   });

@@ -217,7 +217,7 @@ try {
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
   await page.setViewport({ width: 1440, height: 1100 });
   await page.goto(instance.url, { waitUntil: 'networkidle2', timeout: 30_000 });
-  await page.waitForSelector('button[aria-label="Bot mode"]', { timeout: 30_000 });
+  await page.waitForSelector('button[aria-label="Assistant mode"]', { timeout: 30_000 });
   for (let round = 0; round < 6; round++) {
     for (const label of ['Continue', 'Configure later', 'Skip tutorial']) {
       const handle = await page.$(`::-p-aria([name=${JSON.stringify(label)}][role="button"])`);
@@ -226,7 +226,7 @@ try {
     await new Promise((done) => setTimeout(done, 250));
   }
   stage = 'enter-Bot-mode';
-  await click('Bot mode');
+  await click('Assistant mode');
   await page.waitForSelector('.bh-mode-sidebar', { visible: true, timeout: 30_000 });
   await page.keyboard.press('Escape');
   stage = 'open-Activity-Center';
@@ -236,7 +236,7 @@ try {
   if (await page.$eval(card, (element) => element.getAttribute('aria-pressed') !== 'true'))
     await click(label);
   await page.waitForSelector('.bh-overview', { visible: true, timeout: 20_000 });
-  for (const title of ['Close Sessions', 'Close Bot Inbox']) {
+  for (const title of ['Close Sessions', 'Close Assistant Inbox']) {
     const button = await page.$(`::-p-aria([name=${JSON.stringify(title)}][role="button"])`);
     if (button && (await button.isVisible())) await click(title);
   }

@@ -404,7 +404,7 @@ describe('Home command opens the Tob DM', () => {
     });
     expect(command.defaults['web:windows']?.code).toBe('KeyH');
     expect(command.defaults['desktop:linux']?.code).toBe('KeyO');
-    expect(command.label()).toBe(zhTranslate('workspace.openTob', { name: '助理' }));
+    expect(command.label()).toBe(zhTranslate('workspace.openTob', { name: '总管' }));
     const custom = { code: 'KeyJ', modifiers: ['meta', 'alt', 'shift'] as const };
     const resolved = effectiveShortcuts(
       [...commands.values()],

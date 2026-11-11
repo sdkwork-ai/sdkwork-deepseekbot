@@ -10,7 +10,7 @@ profile reset/isolation, takeover/resume and alternate Computer targets remain s
 
 ## How to get to it (user POV)
 
-Bot mode → select the newly created **AX Browser …** Bot → close Sessions/Bot Inbox
+Assistant mode → select the newly created **AX Browser …** Bot → close Sessions/Assistant Inbox
 panels to give Browser room → **Browser**.
 With Browser Access off, the panel shows its access description and **Enable Browser Access**.
 The existing direct open tool must refuse without starting it. Only the enabled, stopped

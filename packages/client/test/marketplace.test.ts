@@ -257,7 +257,7 @@ describe('Bot Marketplace modal', () => {
           ? { bots: [entry('first')], nextCursor: 'page-2' }
           : { bots: [entry('second', { descriptionGenerated: true })] },
       async ({ host, list }) => {
-        expect(host.textContent).toContain('Bot 市场');
+        expect(host.textContent).toContain('助理市场');
         expect(host.textContent).toContain('first description');
         expect(host.querySelector('.bh-market-generated')).toBeNull();
         expect(host.textContent).toContain('★ 7');
@@ -316,7 +316,7 @@ describe('Bot Marketplace modal', () => {
     await withMarketplace(
       async () => ({ bots: [] }),
       async ({ host, submit }) => {
-        expect(host.textContent).toContain('还没有收录的 Bot');
+        expect(host.textContent).toContain('还没有收录的助理');
 
         await typeUrl(host, ' https://github.com/alice/pasted ');
         await click(host, '收录');
@@ -434,7 +434,7 @@ describe('Bot Marketplace modal', () => {
         return { bots: [entry('back')] };
       },
       async ({ host }) => {
-        expect(host.textContent).toContain('Bot 市场暂时无法访问');
+        expect(host.textContent).toContain('助理市场暂时无法访问');
 
         await click(host, '重试');
 
@@ -453,7 +453,7 @@ describe('Bot Marketplace modal', () => {
         expect(host.querySelector('[data-market-commit]')?.textContent).toBe(
           '0123456 · 2026-09-30',
         );
-        expect(host.textContent).toContain('助理没发现风险');
+        expect(host.textContent).toContain('总管没发现风险');
         expect(createBot).not.toHaveBeenCalled();
 
         await click(host, '确认安装');
@@ -561,7 +561,7 @@ describe('Bot Marketplace modal', () => {
 
         expect(list).toHaveBeenLastCalledWith({ sort: 'stars', lang: 'zh', topic: 'research' });
         expect(chip.getAttribute('aria-pressed')).toBe('true');
-        expect(host.textContent).toContain('没有符合条件的 Bot');
+        expect(host.textContent).toContain('没有符合条件的助理');
 
         await click(host, '全部');
 
@@ -674,7 +674,7 @@ describe('Bot Marketplace modal', () => {
           host.querySelector<HTMLButtonElement>('[aria-label="查看 alice/helper 详情"]')!.click(),
         );
         expect(host.querySelector('[role="alert"]')?.textContent).toContain(
-          'README 加载失败：Bot 市场暂时无法访问',
+          'README 加载失败：助理市场暂时无法访问',
         );
 
         await click(host, '重试');

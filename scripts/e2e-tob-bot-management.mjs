@@ -114,7 +114,7 @@ const click = async (name, scope = '') => {
   const names = {
     'Configure model': ['配置模型，开始与 Tob 对话', 'Configure a model to talk to Tob'],
     Close: ['关闭', 'Close'],
-    'Bot mode': ['Bot 模式', 'Bot mode'],
+    'Assistant mode': ['助理模式', 'Assistant mode'],
     'Bot settings': ['Bot 设置', 'Bot settings'],
     Advanced: ['高级', 'Advanced'],
     'Task model settings': ['任务模型设置…', 'Task model settings…'],
@@ -561,18 +561,18 @@ try {
     () =>
       !!document.querySelector('.bh-workspace-rail') ||
       [...document.querySelectorAll('button')].some((n) =>
-        ['Bot mode', 'Bot 模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
+        ['Assistant mode', '助理模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
       ),
   );
   if (!(await page.$('.bh-workspace-rail'))) {
     const name = await page.evaluate(() =>
       [...document.querySelectorAll('button')]
         .find((n) =>
-          ['Bot mode', 'Bot 模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
+          ['Assistant mode', '助理模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
         )
         ?.getAttribute('aria-label'),
     );
-    await click(name || 'Bot mode');
+    await click(name || 'Assistant mode');
   }
   await page.waitForSelector('.bh-workspace-rail', { visible: true });
   mark('entry-home');

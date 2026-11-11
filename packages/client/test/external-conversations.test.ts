@@ -44,7 +44,7 @@ const identity = {
   platform: 'feishu',
   accountRef: 'app',
   fingerprint: 'a'.repeat(64),
-  name: 'QA Bot',
+  name: 'QA Assistant',
   enabled: true,
   revision: 2,
   createdAt: '2026-10-07T00:00:00Z',
@@ -265,7 +265,7 @@ it('lets an owning QQ group choose Channel sync and stop it while retaining Inbo
   );
   expect(syncButton).toBeDefined();
   await act(async () => syncButton!.click());
-  expect(container.textContent).toContain('仅 Bot Inbox');
+  expect(container.textContent).toContain('仅助理收件箱');
   const toggle = container.querySelector<HTMLButtonElement>('button[aria-label="同步到 Channel"]')!;
   await act(async () => toggle.click());
   const option =
@@ -329,7 +329,7 @@ it('lets an owning QQ group choose Channel sync and stop it while retaining Inbo
       ),
     }),
   );
-  expect(container.textContent).toContain('仅 Bot Inbox');
+  expect(container.textContent).toContain('仅助理收件箱');
   expect(container.textContent).not.toContain('已同步到 QQ QA room');
   await act(async () => root.unmount());
   container.remove();
@@ -352,7 +352,7 @@ it('shows scoped reception boundaries and explains that a gap has no known misse
               providerId: 'dsh-im/qq',
               fingerprint: identity.fingerprint,
               scope: 'connection',
-              name: 'QA Bot',
+              name: 'QA Assistant',
               reason: 'provider-unavailable',
               boundary: 'observed',
               startedAt: '2026-10-08T01:00:00Z',

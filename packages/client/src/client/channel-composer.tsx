@@ -1044,7 +1044,7 @@ export function ChannelComposer({
         </div>
       )}
       {mentionQuery !== undefined && candidates.length > 0 ? (
-        <div className="bh-mention-picker" role="listbox" aria-label="Mention a PersonaBot">
+        <div className="bh-mention-picker" role="listbox" aria-label="Mention an Assistant">
           {candidates.map((candidate, index) =>
             'preview' in candidate ? (
               <button

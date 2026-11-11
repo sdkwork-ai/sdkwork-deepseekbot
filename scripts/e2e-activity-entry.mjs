@@ -159,7 +159,7 @@ const login = async (client) => {
   await client.waitForSelector('.bh-activity-list-entry', { timeout: 5000 }).catch(async () => {
     await client.evaluate(() =>
       [...document.querySelectorAll('button')]
-        .find((n) => n.textContent?.includes('Bot 模式'))
+        .find((n) => n.textContent?.includes('助理模式'))
         ?.click(),
     );
     await client.waitForSelector('.bh-activity-list-entry');

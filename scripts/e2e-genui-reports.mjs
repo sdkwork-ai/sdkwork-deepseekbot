@@ -135,10 +135,10 @@ async function openClient(targetPage, botName) {
   await targetPage.goto(instance.url, { waitUntil: 'networkidle2' });
   await targetPage.waitForFunction(
     () =>
-      document.body.innerText.includes('Bot mode') || document.querySelector('.bh-root.bh-main'),
+      document.body.innerText.includes('Assistant mode') || document.querySelector('.bh-root.bh-main'),
   );
   await dismiss(targetPage);
-  if (!(await targetPage.$('.bh-root.bh-main'))) await targetPage.locator(aria('Bot mode')).click();
+  if (!(await targetPage.$('.bh-root.bh-main'))) await targetPage.locator(aria('Assistant mode')).click();
   await targetPage.waitForSelector('.bh-root.bh-main');
   await dismiss(targetPage);
   await targetPage.waitForFunction(

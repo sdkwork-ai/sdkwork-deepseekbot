@@ -89,7 +89,7 @@ try {
     );
     await wait(200);
   }
-  if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Bot mode)').click();
+  if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Assistant mode)').click();
   await page.waitForSelector('.bh-workspace-rail');
   await page.evaluate(() =>
     [...document.querySelectorAll('button')]
@@ -187,7 +187,7 @@ try {
       assignment.sessionId,
       'bot',
     );
-    await page.locator('::-p-aria(Bot mode)').click();
+    await page.locator('::-p-aria(Assistant mode)').click();
     await page.waitForSelector(scope);
   }
   await page.reload({ waitUntil: 'networkidle2' });

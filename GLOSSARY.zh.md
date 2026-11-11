@@ -31,7 +31,7 @@ _避免使用_：已安装发布版、latest 版本、0.0.0 发布版
 _避免使用_：全局 Orchestrator、Home 面板、Dashboard
 
 **Tob**：
-为 Human 提供的内置本地总管 Bot，拥有独立于普通 DeepSeek Bot 的持久身份。产品术语仍为 Tob（Bot 的倒写，也寓意 Thousands of Bot），界面文案称它为「助理」。Tob 不可删除或归档，但其 Soul 与 Memory 可以编辑和迁移，且不携带本地管理权限。管理操作通过原生 Shell 调用 DeepSeekBot CLI；Host 只为当前已准入的 Human DM 执行授予明确支持的操作，保留身份、审批和 revision 校验。总管身份不等于无限制 CLI 或管理员权限。
+为 Human 提供的内置本地总管 Bot，拥有独立于普通 DeepSeek Bot 的持久身份。产品术语仍为 Tob（Bot 的倒写，也寓意 Thousands of Bot），界面文案称它为「总管」。Tob 不可删除或归档，但其 Soul 与 Memory 可以编辑和迁移，且不携带本地管理权限。管理操作通过原生 Shell 调用 DeepSeekBot CLI；Host 只为当前已准入的 Human DM 执行授予明确支持的操作，保留身份、审批和 revision 校验。总管身份不等于无限制 CLI 或管理员权限。
 _避免使用_：Home 面板、全局 Orchestrator、界面文案中的「Tob」
 
 **Tob Mode**：
@@ -44,7 +44,8 @@ _避免使用_：分发、路由、Assignment（Assignment 是 Bot 自己的 Ses
 
 **PersonaBot**：
 由 Host 拥有的一等 bot 实体：一种带 Git-backed Memory Repository、跨越 Session、Chat 与 Workspace，并可同时持有多个 Session 的持久身份。它的 Soul 是 Memory 中的 optional 内容，而不是身份本身。
-_避免使用_：bot（单独使用）、agent、assistant、robot
+界面文案称它为「助理」；见[界面文案](docs/agents/ui-copy.md)。
+_避免使用_：bot（单独使用）、agent、robot
 
 **Archived PersonaBot**：
 一种 PersonaBot 状态：禁止新的 admission、wake、Session execution 和 external action，同时保留其身份、所有权、历史记录与审计归属。归档时先关闭这些入口，再停止其 Orchestrator、Assignment Session 以及所拥有的 Subagent；只有整个执行树都进入静止状态，归档才算完成。重新激活绝不会自动恢复旧执行。

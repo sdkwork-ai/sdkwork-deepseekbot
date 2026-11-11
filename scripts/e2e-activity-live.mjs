@@ -98,10 +98,10 @@ try {
   await page.setViewport({ width: 1440, height: 1000 });
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
   await page.goto(instance.url, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button[aria-label="Bot 模式"]');
+  await page.waitForSelector('button[aria-label="助理模式"]');
   await sleep(500);
   await dismiss();
-  await click('Bot 模式');
+  await click('助理模式');
   await sleep(1000);
   await dismiss();
   const label = await page.evaluate(() =>

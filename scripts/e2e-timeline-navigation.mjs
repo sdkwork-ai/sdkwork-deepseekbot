@@ -157,7 +157,7 @@ try {
     const button = await page.$(`::-p-aria(${label})`);
     if (button && (await button.isVisible())) await button.click();
   }
-  if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Bot mode)').click();
+  if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Assistant mode)').click();
   await page.waitForSelector('.bh-workspace-rail');
   const skip = await page
     .waitForSelector('::-p-aria(Skip)', { visible: true, timeout: 5000 })
@@ -336,7 +336,7 @@ try {
     assert.equal(read.position.messageId, lastLiveId, 'read position reaches the newest message');
     await page.reload({ waitUntil: 'networkidle2' });
     await page.setViewport({ width: 1440, height: 900 });
-    if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Bot mode)').click();
+    if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Assistant mode)').click();
     const skipAgain = await page
       .waitForSelector('::-p-aria(Skip)', { visible: true, timeout: 2000 })
       .catch(() => null);
@@ -364,7 +364,7 @@ try {
     }
     await rpc('channelMarkRead', { channelId: paged.id, messageId: pagedIds[9] });
     await page.reload({ waitUntil: 'networkidle2' });
-    if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Bot mode)').click();
+    if (!(await page.$('.bh-workspace-rail'))) await page.locator('::-p-aria(Assistant mode)').click();
     await page
       .locator(`[data-dock-panel="bh:channels"] button[data-channel-id="${paged.id}"]`)
       .click();

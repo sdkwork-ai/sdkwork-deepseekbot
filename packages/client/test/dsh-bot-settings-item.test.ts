@@ -59,8 +59,8 @@ it('offers a button when DSH settings is still showing the item after the redire
     vi.advanceTimersByTime(DSH_BOT_SETTINGS_FALLBACK_MS);
   });
   const button = host.querySelector('button');
-  expect(button?.textContent).toBe('打开助理设置');
-  expect(host.textContent).toContain('助理设置已移到独立窗口');
+  expect(button?.textContent).toBe('打开总管设置');
+  expect(host.textContent).toContain('总管设置已移到独立窗口');
 
   act(() => {
     button?.click();

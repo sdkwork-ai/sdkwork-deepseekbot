@@ -94,7 +94,7 @@ export function apply(ctx, { testConfigPath } = {}) {
         providerReceipt: Boolean(source.providerMessageId),
       })),
       limitations: [
-        'No PersonaBot Inbox/Orchestrator or Outbox integration is claimed.',
+        'No PersonaAssistant Inbox/Orchestrator or Outbox integration is claimed.',
         'Provider receipt means accepted, not delivered/read.',
         'No durable replay cursor, cross-brand permissions or multi-Bot support is claimed.',
       ],

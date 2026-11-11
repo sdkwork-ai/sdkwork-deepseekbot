@@ -10,7 +10,7 @@ The Host activity readers remain available independently of the retired Overview
 
 - Behavior ID: `desktop.activity-center.idle-personabot`.
 - Platform: desktop Web Client (1440 × 1100, English, dark) plus the existing live CLI.
-- Scope: create one isolated PersonaBot, open Activity Center from desktop Bot mode,
+- Scope: create one isolated PersonaBot, open Activity Center from desktop Assistant mode,
   choose **Show idle Bots**, and confirm its **Idle** card against `bot-activity`,
   `bot-attention` and `activity-overview` for the same PersonaBot ID.
 - Normal no activity means the card says **Idle**, with no sessions or actions, and
@@ -21,9 +21,9 @@ The Host activity readers remain available independently of the retired Overview
 
 ## How to get to it (user POV)
 
-Enter **Bot mode** from the native sidebar. Open the **Activity Center** pinned card
+Enter **Assistant mode** from the native sidebar. Open the **Activity Center** pinned card
 (its accessible name can include an unread count), then **Show idle Bots** in Overview.
-Close Sessions and Bot Inbox panels if needed to give Activity Center room.
+Close Sessions and Assistant Inbox panels if needed to give Activity Center room.
 Find the `AX idle <timestamp>` PersonaBot. Its name and **Idle** label must be visible;
 its existing `data-bot-id` must match the ID returned by the public create command and
 both authoritative CLI readers. Global unread messages are separate from pending Bot work.
@@ -85,7 +85,7 @@ A newer pass never overwrites an earlier failure. Preserve all attempt directori
 packet, including failed/blocked attempts and their partial evidence.
 
 For Human QA, run the same commands in a local clean checkout. Open the launcher's local
-login URL privately, enter Bot mode → Activity Center → Show idle Bots, and inspect the
+login URL privately, enter Assistant mode → Activity Center → Show idle Bots, and inspect the
 named Bot from `run.json`. Review the generated row and evidence names. Record feedback
 on behavior and format on [#1972](https://github.com/BotHarness/DeepSeekBot/issues/1972);
 Human QA stays **not-run** until actual feedback is recorded and corrections handled.

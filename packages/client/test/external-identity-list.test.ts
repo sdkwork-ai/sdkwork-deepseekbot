@@ -205,7 +205,7 @@ it('failed Switch writes retain the committed preference; stale Modal edits reta
     platform: 'feishu',
     accountRef: 'app',
     fingerprint: 'a'.repeat(64),
-    name: 'QA Bot',
+    name: 'QA Assistant',
     enabled: true,
     revision: 7,
     createdAt: '2026-10-02T00:00:00Z',
@@ -246,10 +246,10 @@ it('failed Switch writes retain the committed preference; stale Modal edits reta
       kind: 'update',
       id: 'binding',
       expectedRevision: 7,
-      name: 'QA Bot',
+      name: 'QA Assistant',
       enabled: false,
     });
-    const edit = container.querySelector<HTMLButtonElement>('[title="编辑身份：QA Bot"]')!;
+    const edit = container.querySelector<HTMLButtonElement>('[title="编辑身份：QA Assistant"]')!;
     await act(async () => edit.click());
     const input = container.querySelector<HTMLInputElement>('input')!;
     await act(async () => {
@@ -502,7 +502,7 @@ it('Bind app leaves out this Bot’s own apps, disables the ones another Bot use
     expect(options.map((o) => [o.dataset.value, o.disabled, o.textContent])).toEqual([
       ['dsh-im/feishu:free', false, expect.stringContaining('App free')],
       ['dsh-im/feishu:old', true, expect.stringContaining('需要更新 IM 插件')],
-      ['dsh-im/feishu:theirs', true, expect.stringContaining('已绑定其他 Bot：Bea')],
+      ['dsh-im/feishu:theirs', true, expect.stringContaining('已绑定其他助理：Bea')],
       [expect.any(String), false, '添加新应用'],
     ]);
   } finally {
@@ -816,7 +816,7 @@ it('saves the edit dialog with Enter and moves Reconnect and Unbind into their o
     platform: 'feishu',
     accountRef: 'app',
     fingerprint: 'a'.repeat(64),
-    name: 'QA Bot',
+    name: 'QA Assistant',
     enabled: true,
     revision: 4,
     createdAt: '2026-10-02T00:00:00Z',
@@ -831,7 +831,7 @@ it('saves the edit dialog with Enter and moves Reconnect and Unbind into their o
   const root = createRoot(container);
   const edit = () =>
     act(async () =>
-      container.querySelector<HTMLButtonElement>('[title="编辑身份：QA Bot"]')!.click(),
+      container.querySelector<HTMLButtonElement>('[title="编辑身份：QA Assistant"]')!.click(),
     );
   try {
     await act(async () =>
@@ -858,7 +858,7 @@ it('saves the edit dialog with Enter and moves Reconnect and Unbind into their o
     expect(container.querySelector('[role="dialog"]')).toBeNull();
 
     await edit();
-    await act(async () => buttonNamed('重新连接身份：QA Bot', dialog()).click());
+    await act(async () => buttonNamed('重新连接身份：QA Assistant', dialog()).click());
     expect(dialog().getAttribute('aria-label')).toBe(zhTranslate('identity.reconnect'));
     expect(dialog().textContent).toContain(zhTranslate('identity.reconnectHint'));
     await act(async () => buttonNamed(zhTranslate('identity.reconnect'), dialog()).click());
@@ -870,7 +870,7 @@ it('saves the edit dialog with Enter and moves Reconnect and Unbind into their o
     expect(container.querySelector('[role="dialog"]')).toBeNull();
 
     await edit();
-    await act(async () => buttonNamed('解绑身份：QA Bot', dialog()).click());
+    await act(async () => buttonNamed('解绑身份：QA Assistant', dialog()).click());
     expect(dialog().getAttribute('aria-label')).toBe(zhTranslate('identity.unbind'));
     expect(dialog().textContent).toContain(zhTranslate('identity.impact', { count: 2 }));
     expect(dialog().textContent).toContain('QA group');
@@ -879,7 +879,7 @@ it('saves the edit dialog with Enter and moves Reconnect and Unbind into their o
     expect(mutate).toHaveBeenCalledTimes(2);
 
     await edit();
-    await act(async () => buttonNamed('解绑身份：QA Bot', dialog()).click());
+    await act(async () => buttonNamed('解绑身份：QA Assistant', dialog()).click());
     await act(async () => buttonNamed(zhTranslate('identity.confirmUnbind'), dialog()).click());
     expect(mutate).toHaveBeenLastCalledWith({ kind: 'unbind', id: 'binding', expectedRevision: 4 });
   } finally {

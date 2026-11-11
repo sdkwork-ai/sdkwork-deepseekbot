@@ -57,24 +57,24 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "DeepSeekBot uses the camera to scan the pairing code shown on your computer, to take photos you send to a Bot, and to show a Bot what you see on a call.",
-          "microphonePermission": "DeepSeekBot uses the microphone to turn what you say into a message you can edit before sending to a Bot, and to talk with a Bot on a call.",
+          "cameraPermission": "DeepSeekBot uses the camera to scan the pairing code shown on your computer, to take photos you send to an Assistant, and to show an Assistant what you see on a call.",
+          "microphonePermission": "DeepSeekBot uses the microphone to turn what you say into a message you can edit before sending to an Assistant, and to talk with an Assistant on a call.",
           "recordAudioAndroid": false
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "DeepSeekBot opens your photos so you can send them to a Bot.",
-          "cameraPermission": "DeepSeekBot uses the camera to scan the pairing code shown on your computer, to take photos you send to a Bot, and to show a Bot what you see on a call.",
-          "microphonePermission": "DeepSeekBot uses the microphone to turn what you say into a message you can edit before sending to a Bot, and to talk with a Bot on a call."
+          "photosPermission": "DeepSeekBot opens your photos so you can send them to an Assistant.",
+          "cameraPermission": "DeepSeekBot uses the camera to scan the pairing code shown on your computer, to take photos you send to an Assistant, and to show an Assistant what you see on a call.",
+          "microphonePermission": "DeepSeekBot uses the microphone to turn what you say into a message you can edit before sending to an Assistant, and to talk with an Assistant on a call."
         }
       ],
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "DeepSeekBot uses the microphone to turn what you say into a message you can edit before sending to a Bot, and to talk with a Bot on a call.",
-          "speechRecognitionPermission": "DeepSeekBot turns what you say into text so you can send it to a Bot. You see and edit the text before it is sent."
+          "microphonePermission": "DeepSeekBot uses the microphone to turn what you say into a message you can edit before sending to an Assistant, and to talk with an Assistant on a call.",
+          "speechRecognitionPermission": "DeepSeekBot turns what you say into text so you can send it to an Assistant. You see and edit the text before it is sent."
         }
       ],
       [

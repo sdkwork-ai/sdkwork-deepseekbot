@@ -150,7 +150,7 @@ try {
   await page.goto(instance.url, { waitUntil: 'domcontentloaded' });
   await page.goto(instance.url, { waitUntil: 'networkidle2' });
   await dismiss();
-  await click('Bot mode');
+  await click('Assistant mode');
   await page.waitForSelector('.bh-root.bh-main');
   await pause(1500);
   await dismiss();

@@ -50,7 +50,7 @@ export function assertPendingReportRestart({
   );
   assert.equal(
     events.filter(
-      (e) => e.type === 'user/message' && JSON.stringify(e.data).includes('[Bot Inbox]'),
+      (e) => e.type === 'user/message' && JSON.stringify(e.data).includes('[Assistant Inbox]'),
     ).length,
     0,
     'no replay delivery',
@@ -81,7 +81,7 @@ export function assertRestartHarvest({ reports, before, sessionId, events }) {
   assert.equal(events.filter((e) => e.type === 'turn/start').length, 2);
   assert.equal(events.filter((e) => e.type === 'turn/end').length, 2);
   const delivered = events.filter(
-    (e) => e.type === 'user/message' && JSON.stringify(e.data).includes('[Bot Inbox]'),
+    (e) => e.type === 'user/message' && JSON.stringify(e.data).includes('[Assistant Inbox]'),
   );
   assert.equal(delivered.length, 1, 'one harvest delivery');
   assert.ok(

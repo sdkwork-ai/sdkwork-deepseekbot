@@ -717,11 +717,11 @@ describe('Channel message body', () => {
       'qq',
       '<@APP_MEMBER>',
       '<@APP_MEMBER> next <@APP_MEMBER> <@UNKNOWN>',
-      '@QA <Bot> next @QA <Bot> <@UNKNOWN>',
+      '@QA <Assistant> next @QA <Assistant> <@UNKNOWN>',
     ],
-    ['discord', '<@123>', '<@123>next <@123> <@999>', '@QA <Bot>next @QA <Bot> <@999>'],
-    ['feishu', '@_user_1', '@_user_1 @_user_10 @_user_1', '@QA <Bot> @_user_10 @QA <Bot>'],
-    ['slack', '<@U123>', '<@U123> next <@U123>', '@QA <Bot> next @QA <Bot>'],
+    ['discord', '<@123>', '<@123>next <@123> <@999>', '@QA <Assistant>next @QA <Assistant> <@999>'],
+    ['feishu', '@_user_1', '@_user_1 @_user_10 @_user_1', '@QA <Assistant> @_user_10 @QA <Assistant>'],
+    ['slack', '<@U123>', '<@U123> next <@U123>', '@QA <Assistant> next @QA <Assistant>'],
   ])(
     'renders checked %s native mentions as inert chips with literal unknown text',
     (platform, key, body, expected) => {
@@ -732,7 +732,7 @@ describe('Channel message body', () => {
         conversationName: 'QA',
         messageId: 'native-message',
         senderId: 'sender',
-        mentions: [{ id: 'native-id', key, name: 'QA <Bot>' }],
+        mentions: [{ id: 'native-id', key, name: 'QA <Assistant>' }],
       };
       const html = render({ kind: 'bridged', source: 'Sender' }, body, {
         format: 'text',
@@ -746,7 +746,7 @@ describe('Channel message body', () => {
         'native-id',
       );
       expect(container.querySelector('button, script, [data-bot-id], [data-human-id]')).toBeNull();
-      expect(body).not.toContain('@QA <Bot>');
+      expect(body).not.toContain('@QA <Assistant>');
       expect(render({ kind: 'human' }, body, { format: 'text', bridgeOrigin })).not.toContain(
         'bh-external-mention',
       );
@@ -1104,7 +1104,7 @@ describe('Channel message body', () => {
 
   it('shows why the Host refused a Turn and the fix instead of a generic failure', () => {
     const detail =
-      "The Host refused this turn: Orchestrator Session requires its Memory working directory. Start a new Session; it opens in this Bot's Memory directory.";
+      "The Host refused this turn: Orchestrator Session requires its Memory working directory. Start a new Session; it opens in this Assistant's Memory directory.";
     const markup = render({ kind: 'bot', slug: 'ada' }, 'Session failed', {
       sessionFailure: {
         role: 'orchestrator',
@@ -1113,7 +1113,7 @@ describe('Channel message body', () => {
         detail,
       },
     });
-    expect(markup).toContain('会话的工作目录不是这个 Bot 的 Memory 目录');
+    expect(markup).toContain('会话的工作目录不是这个助理的 Memory 目录');
     expect(markup).toContain('开启新会话即可，新会话会在 Memory 目录中打开。');
     expect(markup).not.toContain('请查看错误详情');
     expect(markup).toContain('MEMORY_CWD_MISMATCH');

@@ -107,10 +107,10 @@ page.on('request', async (request) => {
 try {
   await page.setViewport({ width: 1440, height: 1000 });
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button[aria-label="Bot 模式"]');
+  await page.waitForSelector('button[aria-label="助理模式"]');
   const notice = await page.$('::-p-aria(继续)');
   if (notice && (await notice.isVisible())) await notice.click();
-  await click('Bot 模式');
+  await click('助理模式');
   await page.waitForSelector('.bh-mode-sidebar');
   await activity();
   await page.waitForSelector(card(scenes[0]) + ' .bh-tool-approval-actions');

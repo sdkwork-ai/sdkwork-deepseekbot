@@ -188,8 +188,8 @@ describe('Bot mode setting rows', () => {
   it('renders the row copy and the selected mode from the shared store', () => {
     const markup = renderSection(snapshot({ sortMode: 'manual' }));
 
-    expect(markup).toContain('Bot 列表排序');
-    expect(markup).toContain('设置 Bot 模式列表的默认排序方式');
+    expect(markup).toContain('助理列表排序');
+    expect(markup).toContain('设置助理模式列表的默认排序方式');
     expect(markup).toContain('手动排序');
     expect(markup).toContain('aria-haspopup="menu"');
     expect(lastMenu()['selectedId']).toBe('manual');
@@ -240,7 +240,7 @@ describe('Bot mode setting rows', () => {
     const markup = renderSection(snapshot({ status: 'unavailable', mode: 'memory' }));
 
     expect(markup).toContain('仅当前会话生效，不会保存');
-    expect(markup).not.toContain('设置 Bot 模式列表的默认排序方式');
+    expect(markup).not.toContain('设置助理模式列表的默认排序方式');
   });
   it('selects a mark when its card is activated', () => {
     const setBotIcon = vi.fn();
@@ -257,9 +257,9 @@ describe('Bot mode setting rows', () => {
   it('renders one card per Bot mark and writes the picked one', () => {
     const setBotIcon = vi.fn();
     const markup = renderSection(snapshot({ botIcon: 'blob' }), undefined, undefined, setBotIcon);
-    expect(markup).toContain('Bot 图标');
+    expect(markup).toContain('助理图标');
     expect(markup).toContain('生成形象');
-    expect(markup).toContain('role="radiogroup" aria-label="Bot 图标"');
+    expect(markup).toContain('role="radiogroup" aria-label="助理图标"');
     const cards = [...markup.matchAll(/<button[^>]*role="radio"[^>]*>/g)].map((m) => m[0]);
     expect(cards).toHaveLength(4);
     expect(cards.filter((card) => card.includes('aria-checked="true"'))).toHaveLength(1);

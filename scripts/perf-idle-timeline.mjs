@@ -17,7 +17,7 @@ import {
 
 export const usage = `Usage: node scripts/perf-idle-timeline.mjs [options]
 
-Measures how much main-thread work an open, idle Bot mode Group conversation costs,
+Measures how much main-thread work an open, idle Assistant mode Group conversation costs,
 and how fast typing in its composer is. Targets a task-owned Host:
 BH_E2E_INSTANCE=.humanlayer/verify/<name>/instance.json (from verify-app launch).
 

@@ -59,7 +59,7 @@ node scripts/verify-app.mjs shot <label> --name <n> --bot-mode \
 ## Measure performance
 
 For a change that touches the timeline, the composer or message rendering, or a report that
-Bot mode is slow, hot or laggy, measure before and after. Native iOS follows
+Assistant mode is slow, hot or laggy, measure before and after. Native iOS follows
 [iOS performance verification](../../../docs/agents/ios-performance.md); the Web path uses
 `scripts/perf-idle-timeline.mjs`.
 It seeds a long Group without a model, mounts the whole history, and reports idle main-thread

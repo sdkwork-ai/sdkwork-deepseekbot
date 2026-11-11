@@ -97,7 +97,7 @@ try {
     await new Promise((r) => setTimeout(r, 400));
   }
   if (!(await page.$(parent))) {
-    await page.locator('::-p-aria(Bot 模式)').click();
+    await page.locator('::-p-aria(助理模式)').click();
   }
   await page.waitForSelector(parent);
   await select('Sessions QA Ada');

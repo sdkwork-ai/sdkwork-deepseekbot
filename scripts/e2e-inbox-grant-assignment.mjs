@@ -99,12 +99,12 @@ const login = async (client) => {
   await client.waitForSelector('.bh-activity-list-entry', { timeout: 5000 }).catch(async () => {
     await client.waitForFunction(() =>
       [...document.querySelectorAll('button')].some((node) =>
-        node.textContent?.includes('Bot 模式'),
+        node.textContent?.includes('助理模式'),
       ),
     );
     await client.evaluate(() =>
       [...document.querySelectorAll('button')]
-        .find((n) => n.textContent?.includes('Bot 模式'))
+        .find((n) => n.textContent?.includes('助理模式'))
         ?.click(),
     );
     await client.waitForSelector('.bh-activity-list-entry');
@@ -370,7 +370,7 @@ try {
     await shot('assignment-native-session');
     await page.evaluate(() =>
       [...document.querySelectorAll('button')]
-        .find((node) => node.textContent?.includes('Bot 模式'))
+        .find((node) => node.textContent?.includes('助理模式'))
         ?.click(),
     );
     await page.waitForSelector('.bh-activity-list-entry');
@@ -385,7 +385,7 @@ try {
     const other = await secondContext.newPage();
     await other.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
     await login(other);
-    console.log('Second window entered Bot mode.');
+    console.log('Second window entered Assistant mode.');
     await review(blocked, '回应事项', other);
     await other.waitForSelector('.bh-activity-list-reply textarea');
     await other.type('.bh-activity-list-reply textarea', 'Use stable for this Assignment.');

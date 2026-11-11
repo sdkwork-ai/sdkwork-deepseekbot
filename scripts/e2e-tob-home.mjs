@@ -103,7 +103,7 @@ const click = async (name) => {
     'Bot settings': ['Bot 设置', 'Bot settings'],
     Models: ['模型与运行', 'Models & execution'],
     Close: ['关闭', 'Close'],
-    'Bot mode': ['Bot 模式', 'Bot mode'],
+    'Assistant mode': ['助理模式', 'Assistant mode'],
     'Approve once': ['仅批准这一次', 'Allow once'],
     Deny: ['拒绝', 'Deny'],
     'Review CLI change': ['使用 deepseekbot settings-set', 'Use deepseekbot settings-set'],
@@ -393,11 +393,11 @@ try {
     const name = await page.evaluate(() =>
       [...document.querySelectorAll('button')]
         .find((n) =>
-          ['Bot mode', 'Bot 模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
+          ['Assistant mode', '助理模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
         )
         ?.getAttribute('aria-label'),
     );
-    await click(name || 'Bot mode');
+    await click(name || 'Assistant mode');
   }
   await page.waitForSelector('.bh-workspace-rail');
   await showTobDm(true);

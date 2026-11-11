@@ -253,7 +253,7 @@ describe('Bot Schedules sidebar entry', () => {
     expect(runNow?.getAttribute('aria-label')).toBe('立即运行「每日早报」');
     await act(async () => runNow?.click());
     expect(actions.runBotScheduleNow).toHaveBeenCalledWith('ada', 'sch-1');
-    expect(host.textContent).toContain('已触发，Bot 马上处理');
+    expect(host.textContent).toContain('已触发，助理马上处理');
     await act(async () => root.unmount());
     host.remove();
   });
@@ -413,7 +413,7 @@ describe('Bot Schedule editor dialog', () => {
       expect(dialog().getAttribute('aria-label')).toBe('新建定时任务');
       expect(buttonNamed('创建').disabled).toBe(true);
       await typeInto(fieldNamed('名称'), '每日早报');
-      await typeArea('要 Bot 做什么', 'Summarise');
+      await typeArea('要助理做什么', 'Summarise');
       await act(async () => buttonNamed('每周').click());
       await typeInto(fieldNamed('时区'), 'Asia/Shanghai');
       expect(buttonNamed('周一').getAttribute('aria-pressed')).toBe('true');
@@ -448,7 +448,7 @@ describe('Bot Schedule editor dialog', () => {
     });
     try {
       await typeInto(fieldNamed('名称'), 'Ping');
-      await typeArea('要 Bot 做什么', 'Check');
+      await typeArea('要助理做什么', 'Check');
       await act(async () => buttonNamed('按分钟').click());
       await typeInto(fieldNamed('每隔几分钟'), '5');
       expect(document.querySelector('[role="note"]')?.textContent).toContain('15 分钟');

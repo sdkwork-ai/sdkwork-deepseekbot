@@ -354,7 +354,7 @@ it('returns from QR settings to the retained bind dialog with newly paired and o
   expect(host.textContent).toContain('添加新应用');
   await openCombobox('应用', host);
   expect(comboboxOption('dsh-im/weixin:new-wechat')?.disabled).toBe(false);
-  expect(comboboxOption('dsh-im/weixin:occupied')?.textContent).toContain('已绑定其他 Bot');
+  expect(comboboxOption('dsh-im/weixin:occupied')?.textContent).toContain('已绑定其他助理');
   expect(comboboxOption('dsh-im/weixin:occupied')?.disabled).toBe(true);
   await act(async () =>
     document.querySelector<HTMLButtonElement>('[role="option"][data-action]')!.click(),

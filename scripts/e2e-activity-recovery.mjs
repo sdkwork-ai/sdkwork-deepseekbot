@@ -132,7 +132,7 @@ try {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       await page.goto(origin, { waitUntil: 'domcontentloaded' });
-      await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+      await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page
         .waitForFunction(
           () =>
@@ -148,7 +148,7 @@ try {
           ?.click(),
       );
       if (!(await page.$('.bh-root')))
-        await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+        await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page.waitForFunction(
         () =>
           document.querySelector('.bh-root') ||
@@ -187,9 +187,9 @@ try {
     const reloads = [];
     for (let attempt = 0; attempt < 2; attempt++) {
       await page.reload({ waitUntil: 'domcontentloaded' });
-      await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+      await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       if (!(await page.$('.bh-root')))
-        await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+        await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page.waitForSelector(`.bh-root [data-channel-id="${channelId}"]`);
       await page.click(`.bh-root [data-channel-id="${channelId}"]`);
       await page.waitForSelector('.bh-composer-shell');
@@ -281,7 +281,7 @@ try {
     if (activeCaptured && !recoveryReady && activityFrames.some((f) => f.state === 'working')) {
       await screenshot('stream-restored.png');
       recoveryReady = true;
-      await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+      await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page.waitForFunction(() => !document.querySelector('.bh-root'));
       modeExited = true;
     }
@@ -328,7 +328,7 @@ try {
       list.some((m) => m.author.kind === 'bot' && m.body.includes('DM activity confirmed'))
     ) {
       const countBefore = activityFrames.length;
-      await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+      await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page.waitForFunction(() => document.querySelector('.bh-root'));
       await page.waitForFunction(
         (id) => {
@@ -343,7 +343,7 @@ try {
         await new Promise((done) => setTimeout(done, 100));
       assert.ok(
         activityFrames.length > countBefore,
-        'Re-entering Bot mode must get a fresh stream baseline',
+        'Re-entering Assistant mode must get a fresh stream baseline',
       );
       assert.equal(activityFrames.at(-1)?.state, 'idle');
       modeExited = false;

@@ -249,7 +249,7 @@ try {
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
   await page.setViewport({ width: 1440, height: 1100 });
   await page.goto(instance.url, { waitUntil: 'networkidle2', timeout: 30_000 });
-  await page.waitForSelector('button[aria-label="Bot mode"]', { timeout: 30_000 });
+  await page.waitForSelector('button[aria-label="Assistant mode"]', { timeout: 30_000 });
   const dismissOnboarding = async () => {
     for (let round = 0; round < 6; round++) {
       for (const label of ['Continue', 'Configure later', 'Skip tutorial']) {
@@ -261,7 +261,7 @@ try {
   };
   await dismissOnboarding();
   stage = 'enter-Bot-mode';
-  await click('Bot mode');
+  await click('Assistant mode');
   await page.waitForSelector('.bh-mode-sidebar', { visible: true, timeout: 30_000 });
   await page.keyboard.press('Escape');
   const botName = created.bot.name;
@@ -289,7 +289,7 @@ try {
     await dismissOnboarding();
   };
   await selectBot();
-  for (const label of ['Close Sessions', 'Close Bot Inbox']) {
+  for (const label of ['Close Sessions', 'Close Assistant Inbox']) {
     const handle = await page.$(`::-p-aria([name=${JSON.stringify(label)}][role="button"])`);
     if (handle && (await handle.isVisible())) await click(label);
   }

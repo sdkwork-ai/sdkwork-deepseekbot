@@ -196,7 +196,7 @@ function stubActions(): BridgeActions {
     deletionFolderApplications: vi.fn(),
     deletionFolderOpen: vi.fn(),
     allBotPreview: vi.fn(async () => {
-      throw new Error('unexpected All Bots preview');
+      throw new Error('unexpected All Assistants preview');
     }),
     overviewMemory: vi.fn(async () => {
       throw new Error('unexpected Overview Memory');
@@ -517,10 +517,10 @@ function stubActions(): BridgeActions {
     botSourcePolicies: vi.fn(async () => []),
     botSchedules: vi.fn(async () => []),
     createBotSchedule: vi.fn(async () => {
-      throw new Error('unexpected Bot Schedule create');
+      throw new Error('unexpected Assistant Schedule create');
     }),
     updateBotSchedule: vi.fn(async () => {
-      throw new Error('unexpected Bot Schedule update');
+      throw new Error('unexpected Assistant Schedule update');
     }),
     deleteBotSchedule: vi.fn(async () => undefined),
     botScheduleHistory: vi.fn(async () => []),
@@ -1463,10 +1463,10 @@ describe('bot sidebar rows', () => {
       ['bot:git', '从 GitHub 导入'],
       ['bot:zip', '从 zip 导入'],
     ]);
-    expect(markup).toContain('还没有 Bot');
-    expect(markup).toContain('创建第一个 Bot');
+    expect(markup).toContain('还没有助理');
+    expect(markup).toContain('创建第一个助理');
     expect(markup).toContain('散装渠道');
-    expect(markup).toContain('placeholder="搜索 Bot 或频道"');
+    expect(markup).toContain('placeholder="搜索助理或频道"');
   });
 
   it('blocks Bot creation and explains why while Host Git is unusable', () => {
@@ -1480,10 +1480,10 @@ describe('bot sidebar rows', () => {
     const submenu = menuWithItem('bot').items[0]?.['submenu'] as Array<Record<string, unknown>>;
 
     expect(markup).toContain('data-git-unavailable="too-old"');
-    expect(markup).toContain('需要 Git 才能创建 Bot');
+    expect(markup).toContain('需要 Git 才能创建助理');
     expect(markup).toContain('Git 2.20.1 版本太旧，需要 2.28 或更新版本。');
     expect(markup).toContain('href="https://botharness.ai/zh/docs/installation/#git"');
-    expect(markup).toMatch(/<button disabled="">创建第一个 Bot<\/button>/);
+    expect(markup).toMatch(/<button disabled="">创建第一个助理<\/button>/);
     expect(submenu.map((item) => [item['id'], item['disabled']])).toEqual([
       ['bot:empty', true],
       ['bot:git', true],
@@ -1631,7 +1631,7 @@ describe('bot sidebar rows', () => {
       '最近更新',
       '手动排序',
       '全部标为已读',
-      '隐藏的频道与 Bot 私聊',
+      '隐藏的频道与助理私聊',
       '已结束会话的历史',
     ]);
     expect(menu.selectedId).toBe('manual');
@@ -2186,7 +2186,7 @@ describe('bot sidebar rows', () => {
         companionAction: { label: '显示为窗口伙伴', run: companion },
         shareAction: { label: '分享', run: share },
         marketAction: market,
-        deleteAction: { label: '删除 Bot', run: remove },
+        deleteAction: { label: '删除助理', run: remove },
         onPick: vi.fn(),
         onClose: vi.fn(),
       }),

@@ -397,8 +397,8 @@ try {
       ?.click(),
   );
   for (let n = 0; n < 3 && !(await page.$('.bh-main')); n++) {
-    await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
-    await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+    await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
+    await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
     await page
       .waitForFunction(
         () =>

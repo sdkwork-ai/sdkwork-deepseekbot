@@ -9,7 +9,7 @@
 
 ## How to get to it (user POV)
 
-In desktop Bot mode, right-click the Messages or Activity Center Header → Appearance settings. The modal names the Panel and current light/dark mode. Adjust color, opacity and blur; use each Follow global button to remove just that override. Reset this panel removes only the current target and mode. Ordinary Header close/drag and content context menus retain their own actions. Nested Memory, Sessions, Browser and Computer Headers use the same menu. Memory file preview, commit detail and working changes share the Memory details target; child fields inherit global settings directly.
+In desktop Assistant mode, right-click the Messages or Activity Center Header → Appearance settings. The modal names the Panel and current light/dark mode. Adjust color, opacity and blur; use each Follow global button to remove just that override. Reset this panel removes only the current target and mode. Ordinary Header close/drag and content context menus retain their own actions. Nested Memory, Sessions, Browser and Computer Headers use the same menu. Memory file preview, commit detail and working changes share the Memory details target; child fields inherit global settings directly.
 
 ## Driving it with verify-app
 

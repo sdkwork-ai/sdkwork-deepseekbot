@@ -113,7 +113,7 @@ try {
       { timeout: 30_000 },
     );
     await dismissOverlays(page);
-    if ((await page.$('.bh-root.bh-main')) === null) await page.locator(aria('Bot mode')).click();
+    if ((await page.$('.bh-root.bh-main')) === null) await page.locator(aria('Assistant mode')).click();
     await page.waitForSelector('.bh-root.bh-main', { timeout: 30_000 });
     if (theme === 'dark')
       await page.evaluate(() => document.body.setAttribute('data-ds-dark-theme', ''));

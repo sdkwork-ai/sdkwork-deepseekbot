@@ -53,7 +53,7 @@ try {
   step('login');
   await page.goto(instance.url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.goto(instance.url, { waitUntil: 'domcontentloaded', timeout: 60_000 });
-  await page.waitForSelector('button[aria-label="Bot mode"], button[aria-label="Exit Bot mode"]', {
+  await page.waitForSelector('button[aria-label="Assistant mode"], button[aria-label="Exit Assistant mode"]', {
     timeout: 60_000,
   });
   for (let round = 0; round < 4; round++) {
@@ -70,8 +70,8 @@ try {
     if (!dismissed) break;
     await new Promise((done) => setTimeout(done, 400));
   }
-  if (await page.$('button[aria-label="Exit Bot mode"]'))
-    await page.click('button[aria-label="Exit Bot mode"]');
+  if (await page.$('button[aria-label="Exit Assistant mode"]'))
+    await page.click('button[aria-label="Exit Assistant mode"]');
   await page.evaluate(() => document.body.removeAttribute('data-ds-dark-theme'));
   step('group-visible');
   const rootFolder = '[data-bot-folder-root]';

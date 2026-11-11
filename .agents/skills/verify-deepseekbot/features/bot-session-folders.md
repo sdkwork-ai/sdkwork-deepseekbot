@@ -10,7 +10,7 @@
 
 ## How to get to it (user POV)
 
-Send a DM to a Bot and have it create an Assignment in a granted project. Exit Bot mode with the logo. The native Session tree contains an Assistants section, then one subgroup per Bot/persona. Expand both levels and choose a Session.
+Send a DM to a Bot and have it create an Assignment in a granted project. Exit Assistant mode with the logo. The native Session tree contains an Assistants section, then one subgroup per Bot/persona. Expand both levels and choose a Session.
 
 ## Driving it with verify-app
 
@@ -18,9 +18,9 @@ Use a task-owned isolated instance that passes doctor. A model is needed to crea
 
 - Send a real DM with shot and verify the committed Bot reply through channelMessages.
 - Register an isolated project through workspace/create, grant it through grantCreate, and ask the Bot in its DM to create an Assignment there. Read sessions to confirm two root roles and different cwdReference values.
-- Run shot with --bot-mode, --click "Exit Bot mode" and --wait Plugins. Inspect the folder and save the screenshot. Choose a Session and confirm its native header opens for the same id.
+- Run shot with --bot-mode, --click "Exit Assistant mode" and --wait Plugins. Inspect the folder and save the screenshot. Choose a Session and confirm its native header opens for the same id.
 - Fold a Bot subgroup, then the Assistants section. Refresh and unfold the section: the Bot subgroup stays folded. Unfold it and repeat after a Host restart with the same isolated home.
-- Open Settings, then Assistant settings, and change Bot icon. Confirm the outer Assistants header follows the selected mark, survives reload and still folds when clicked. Restore the previous icon after the check.
+- Open Settings, then Steward settings, and change Bot icon. Confirm the outer Assistants header follows the selected mark, survives reload and still folds when clicked. Restore the previous icon after the check.
 - Confirm each Bot subgroup has its own avatar, with no disclosure chevron. Clicking the avatar or header still folds the subgroup. An avatar update follows the live roster without a second settings store.
 - Read botSessionIds for explicit group membership. Check the native Workspace snapshot before and after: display grouping does not attach or detach Sessions.
 - Run BH_E2E_INSTANCE=.humanlayer/verify/your-name/instance.json node scripts/e2e-bot-session-folders.mjs against the prepared instance. It checks the two roles, groups the visible roots, opens the Assignment and saves light/dark screenshots, collapse and canonical cwd evidence. BH_E2E_RESTART=1 also restarts only that recorded task-owned Host and checks the same browser's saved collapse state.

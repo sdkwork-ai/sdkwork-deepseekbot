@@ -243,7 +243,7 @@ describe('Bot main Sessions pane', () => {
   it.each(['bot', 'channel'] as const)('omits tags from the %s DM header chip', (selectionKind) => {
     const bot = {
       slug: 'chip-bot',
-      displayName: 'Chip Bot',
+      displayName: 'Chip Assistant',
       roles: ['GEO', 'SEO'],
       aggregateState: 'idle' as const,
       workspaces: [],
@@ -252,7 +252,7 @@ describe('Bot main Sessions pane', () => {
     const channel = {
       id: 'chip-dm',
       type: 'dm' as const,
-      name: 'Chip Bot',
+      name: 'Chip Assistant',
       members: [bot.slug],
       botSlug: bot.slug,
       createdAt: bot.createdAt,
@@ -273,7 +273,7 @@ describe('Bot main Sessions pane', () => {
       }),
     );
     const chip = container.querySelector('.bh-channel-island')!;
-    expect(chip.querySelector('[data-conversation-title]')?.textContent).toBe('Chip Bot');
+    expect(chip.querySelector('[data-conversation-title]')?.textContent).toBe('Chip Assistant');
     expect(chip.querySelector('.bh-role-badges')).toBeNull();
     expect(chip.textContent).not.toContain('GEO');
     expect(chip.textContent).not.toContain('SEO');
@@ -811,10 +811,10 @@ describe('Bot main Sessions pane', () => {
       expect(live).not.toContain('bh-bot-dm-readonly');
       expect(live).toContain('<button type="button" class="bh-bubble-failed-action"');
       const markup = render(true);
-      expect(markup).toContain('已删除的 Bot · 仅供查看');
+      expect(markup).toContain('已删除的助理 · 仅供查看');
       expect(markup).toContain('发送失败');
       expect(markup).not.toContain('<button type="button" class="bh-bubble-failed-action"');
-      expect(markup).not.toContain('Bot 之间的私聊 · 仅供查看');
+      expect(markup).not.toContain('助理之间的私聊 · 仅供查看');
     } finally {
       store.setRoster(previous.bots, previous.channels);
       store.select(previous.selection);

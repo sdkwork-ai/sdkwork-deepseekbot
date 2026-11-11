@@ -143,11 +143,11 @@ describe('Bot mode sidebar', () => {
 
     expect(calls.refreshActivityListStatus).toHaveBeenCalledTimes(1);
     expect(node.querySelector('[data-roster]')?.getAttribute('data-roster')).toBe('wide');
-    expect(node.querySelector('.bh-mode-sidebar-brand')?.textContent).toBe('Assistant');
+    expect(node.querySelector('.bh-mode-sidebar-brand')?.textContent).toBe('Steward');
     expect(node.textContent).not.toContain('Tobs');
-    expect(node.textContent).not.toContain('Bot mode');
-    expect(node.querySelectorAll('button[aria-label="Exit Bot mode"]')).toHaveLength(1);
-    const logo = button('Exit Bot mode');
+    expect(node.textContent).not.toContain('Assistant mode');
+    expect(node.querySelectorAll('button[aria-label="Exit Assistant mode"]')).toHaveLength(1);
+    const logo = button('Exit Assistant mode');
     expect(logo.classList.contains('bh-mode-sidebar-logo')).toBe(true);
     expect(logo.getAttribute('data-bh-tour')).toBe('bot-mode');
     expect(logo.hasAttribute('data-exit')).toBe(false);
@@ -156,9 +156,9 @@ describe('Bot mode sidebar', () => {
     act(() => logo.dispatchEvent(new MouseEvent('pointerout', { bubbles: true })));
     expect(logo.hasAttribute('data-exit')).toBe(false);
 
-    act(() => button('Exit Bot mode').click());
+    act(() => button('Exit Assistant mode').click());
     act(() => button('Collapse sidebar').click());
-    act(() => button('Assistant settings').click());
+    act(() => button('Steward settings').click());
     act(() => button('Activity').click());
 
     expect(calls.exitBotMode).toHaveBeenCalledTimes(1);
@@ -173,7 +173,7 @@ describe('Bot mode sidebar', () => {
     expect(node.querySelector('.bh-mode-sidebar')?.getAttribute('data-collapsed')).toBe('true');
     expect(node.querySelector('[data-roster]')?.getAttribute('data-roster')).toBe('rail');
     expect(button('Open sidebar')).toBeTruthy();
-    expect(button('Exit Bot mode').classList.contains('bh-mode-sidebar-logo')).toBe(true);
+    expect(button('Exit Assistant mode').classList.contains('bh-mode-sidebar-logo')).toBe(true);
     expect(node.querySelector('.bh-mode-sidebar-brand')).toBeNull();
     expect(node.textContent).not.toContain('Tobs');
   });

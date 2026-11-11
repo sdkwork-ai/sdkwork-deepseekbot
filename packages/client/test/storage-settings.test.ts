@@ -230,7 +230,7 @@ describe('StorageSettings', () => {
       );
 
       expect(view.host.textContent).toContain('会从 2 条消息里删除 3 个文件，释放约 4.0 MB。');
-      expect(view.host.textContent).toContain('1 个文件 Bot 还在处理，这次先保留。');
+      expect(view.host.textContent).toContain('1 个文件助理还在处理，这次先保留。');
       expect(view.host.textContent).toContain('部分文件在别处仍在使用');
       const confirm = view.host.querySelector<HTMLButtonElement>('[data-storage-confirm]')!;
       expect(confirm.disabled).toBe(true);
@@ -326,8 +326,8 @@ describe('StorageSettings', () => {
 
       expect(view.host.textContent).toContain('会删除 1 个聊天里的 12 条消息，约 4.0 KB。');
       expect(view.host.textContent).toContain('其中的 2 个文件也会一起删除。');
-      expect(view.host.textContent).toContain('有 3 处 Bot 记忆提到了这些消息');
-      expect(view.host.textContent).toContain('1 条消息 Bot 还在处理，这次先保留。');
+      expect(view.host.textContent).toContain('有 3 处助理记忆提到了这些消息');
+      expect(view.host.textContent).toContain('1 条消息助理还在处理，这次先保留。');
       expect(view.host.textContent).toContain('还有更多旧消息');
       await act(async () => view.checkbox('我了解这些消息会被永久删除').click());
       await view.press(view.host.querySelector<HTMLButtonElement>('[data-storage-confirm]')!);

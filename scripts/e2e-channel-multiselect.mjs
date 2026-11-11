@@ -62,7 +62,7 @@ try {
       .find((button) => button.textContent?.trim() === 'Configure later')
       ?.click();
     document.querySelector('button[aria-label="Open sidebar"]')?.click();
-    document.querySelector('button[aria-label="Bot mode"], button[aria-label="BOT 模式"]')?.click();
+    document.querySelector('button[aria-label="Assistant mode"], button[aria-label="BOT 模式"]')?.click();
   });
   await page.waitForSelector('button[aria-label="新建"], button[aria-label="New"]', {
     timeout: 15000,
@@ -94,7 +94,7 @@ try {
       ?.click();
     if (document.querySelector('.bh-root') !== null) return;
     document.querySelector('button[aria-label="Open sidebar"]')?.click();
-    document.querySelector('button[aria-label="Bot mode"], button[aria-label="BOT 模式"]')?.click();
+    document.querySelector('button[aria-label="Assistant mode"], button[aria-label="BOT 模式"]')?.click();
   });
   const selector = (id) => `button[data-channel-id="${id}"]`;
   await page.waitForSelector(selector(first), { timeout: 15000 });
@@ -258,7 +258,7 @@ try {
   await page.evaluate(() => {
     if (document.querySelector('.bh-root') !== null) return;
     document.querySelector('button[aria-label="Open sidebar"]')?.click();
-    document.querySelector('button[aria-label="Bot mode"], button[aria-label="BOT 模式"]')?.click();
+    document.querySelector('button[aria-label="Assistant mode"], button[aria-label="BOT 模式"]')?.click();
   });
   await page.waitForSelector(selector(first), { timeout: 15000 });
   const selectPair = async () => {

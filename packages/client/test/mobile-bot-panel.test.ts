@@ -173,9 +173,9 @@ describe('Mobile Bot navigation', () => {
     expect(container.querySelector<HTMLElement>('.bh-mobile-content')?.hidden).toBe(false);
     click('Conversations');
     expect(container.querySelector('.bh-mobile-shell')?.getAttribute('data-page')).toBe('list');
-    click('Assistant settings');
+    click('Steward settings');
     expect(openBotSettings).toHaveBeenCalledOnce();
-    click('Exit Bot mode');
+    click('Exit Assistant mode');
     expect(exitBotMode).toHaveBeenCalledOnce();
     act(() => {
       mobile = false;
@@ -207,7 +207,7 @@ describe('Mobile Bot navigation', () => {
 
   it('provides translated touch and keyboard button names', () => {
     renderPanel(zhTranslate);
-    expect(container.querySelector('nav')?.getAttribute('aria-label')).toBe('Bot 模式导航');
+    expect(container.querySelector('nav')?.getAttribute('aria-label')).toBe('助理模式导航');
     click('Alpha');
     click('返回会话列表');
     expect(container.querySelectorAll('.bh-mobile-nav button')).toHaveLength(3);
@@ -221,7 +221,7 @@ describe('Mobile Bot navigation', () => {
     expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
       'Conversations',
       'Activity',
-      'Assistant settings',
+      'Steward settings',
     ]);
     for (const button of buttons) {
       expect(button.textContent).toBe('');
@@ -240,18 +240,18 @@ describe('Mobile Bot navigation', () => {
       [...container.querySelectorAll<HTMLElement>(role)].find(
         (item) => item.getAttribute('aria-label') === name || item.textContent === name,
       );
-    const navigation = byRole('nav', 'Bot mode navigation')!;
+    const navigation = byRole('nav', 'Assistant mode navigation')!;
     expect(navigation.className).toMatch(/^bh-mobile-nav bhx/);
-    for (const name of ['Conversations', 'Activity', 'Assistant settings'])
+    for (const name of ['Conversations', 'Activity', 'Steward settings'])
       expect(byRole('button', name)?.className, name).toMatch(/^bhx/);
-    const exit = byRole('button', 'Exit Bot mode')!;
+    const exit = byRole('button', 'Exit Assistant mode')!;
     expect(exit.className).toMatch(/^bh-mobile-exit bhx/);
     const current = byRole('button', 'Conversations')!;
     expect(current.getAttribute('aria-current')).toBe('page');
-    expect(current.className).not.toBe(byRole('button', 'Assistant settings')!.className);
+    expect(current.className).not.toBe(byRole('button', 'Steward settings')!.className);
     click('Activity');
     expect(byRole('button', 'Back to conversations')?.className).toMatch(/^bhx/);
-    expect(byRole('button', 'Exit Bot mode')?.className).not.toBe(exit.className);
+    expect(byRole('button', 'Exit Assistant mode')?.className).not.toBe(exit.className);
     click('Back to conversations');
     click('Alpha');
     const heading = byRole('h1', 'Alpha')!;
@@ -303,9 +303,9 @@ describe('Mobile Bot navigation', () => {
         .querySelector('[aria-controls="bh-channel-sidebar"]')
         ?.getAttribute('aria-expanded'),
     ).toBe('true');
-    click('Bot Inbox');
+    click('Assistant Inbox');
     expect(onInbox).toHaveBeenCalledOnce();
-    expect(container.querySelector('[aria-label="Bot Inbox"]')?.getAttribute('aria-expanded')).toBe(
+    expect(container.querySelector('[aria-label="Assistant Inbox"]')?.getAttribute('aria-expanded')).toBe(
       'true',
     );
     click('Channel files');
@@ -355,7 +355,7 @@ describe('Mobile Bot navigation', () => {
   });
 
   it.each(['mascot', 'simple', 'blob', 'bot'] as const)(
-    'reuses the selected %s Bot-mode identity for Exit',
+    'reuses the selected %s Assistant-mode identity for Exit',
     (icon) => {
       renderPanel(enTranslate, icon);
       expect(

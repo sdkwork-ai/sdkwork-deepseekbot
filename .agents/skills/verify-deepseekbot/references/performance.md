@@ -1,7 +1,7 @@
 # Measuring timeline performance
 
 Use this when a change touches the conversation timeline, the composer, message rendering, or
-anything that re-renders while a Channel is open, and when a report says Bot mode is slow, hot
+anything that re-renders while a Channel is open, and when a report says Assistant mode is slow, hot
 or laggy. A unit test cannot show that a render is cheap; measure the real Client on a real Host
 and keep the numbers.
 
@@ -19,7 +19,7 @@ code blocks, tables, links and CJK text. The Group id and message ids land in
 `.humanlayer/perf/idle-timeline/fixture.json`; pass `--fixture <file>` to reuse it, which keeps
 an A/B pair on identical data and skips the slow seeding.
 
-The script then opens the Group in Bot mode, scrolls to the top until the whole history is
+The script then opens the Group in Assistant mode, scrolls to the top until the whole history is
 mounted (`--no-load-all` keeps only the opening window), waits three seconds and measures:
 
 | Field | Meaning |

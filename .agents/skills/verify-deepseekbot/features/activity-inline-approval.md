@@ -13,9 +13,9 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode and open Activity Center from the workspace control rail on desktop.
+Enter Assistant mode and open Activity Center from the workspace control rail on desktop.
 This opens Dock even without a selected Channel. The narrow Web shell exposes Activity
-Center in its Bot mode navigation and opens the full page. Wait for responsive navigation
+Center in its Assistant mode navigation and opens the full page. Wait for responsive navigation
 to finish mounting after resizing. Toggle the other panels off from the rail for a wide
 list; verify both a narrow allocated Panel and a width greater than the former 760px cap.
 Expand **View context** below an approval, then collapse it and choose **Allow once** or

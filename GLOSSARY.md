@@ -31,7 +31,7 @@ A persistent local PersonaBot with its own Memory and read access to the Human's
 _Avoid_: global Orchestrator, Home panel, dashboard
 
 **Tob**:
-The built-in local Steward Bot, with a persistent identity distinct from any ordinary DeepSeek Bot. The product term remains Tob, a reversal of “Bot” that also stands for “Thousands of Bot,” while visible UI text calls it **your assistant**. Tob cannot be deleted or archived, while its Soul and Memory remain editable and portable without transferring its local management authority. Management uses the DeepSeekBot CLI through native Shell; the Host grants only explicitly supported operations for the current accepted Human DM execution and retains ownership, approval and revision checks. This role is not unrestricted CLI or administrator access.
+The built-in local Steward Bot, with a persistent identity distinct from any ordinary DeepSeek Bot. The product term remains Tob, a reversal of “Bot” that also stands for “Thousands of Bot,” while visible UI text calls it **your steward**. Tob cannot be deleted or archived, while its Soul and Memory remain editable and portable without transferring its local management authority. Management uses the DeepSeekBot CLI through native Shell; the Host grants only explicitly supported operations for the current accepted Human DM execution and retains ownership, approval and revision checks. This role is not unrestricted CLI or administrator access.
 _Avoid_: Home panel, global Orchestrator, Tob (in UI copy)
 
 **Tob Mode**:
@@ -44,8 +44,8 @@ _Avoid_: dispatch, routing, Assignment (an Assignment is a Bot's own Session, no
 
 **PersonaBot**:
 A first-class bot entity owned by the Host: a durable identity with a Git-backed Memory Repository that spans Sessions, Chats, and Workspaces and can hold several Sessions at once. Its Soul is optional content within Memory, not the identity itself.
-Visible UI text calls it **Bot**; see [UI copy](docs/agents/ui-copy.md).
-_Avoid_: bot (bare), agent, assistant, robot
+Visible UI text calls it **Assistant**; see [UI copy](docs/agents/ui-copy.md).
+_Avoid_: bot (bare), agent, robot
 
 **Archived PersonaBot**:
 A PersonaBot whose new admissions, wakes, Session execution, and external actions are disabled while its identity, ownership, history, and audit attribution remain intact. Archiving first closes those gates, then stops its Orchestrator, Assignment Sessions, and owned Subagents; it completes only when that execution tree is quiescent. Reactivation never resumes old execution automatically.

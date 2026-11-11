@@ -179,7 +179,7 @@ describe('DM Bot Inbox sidebar entry', () => {
         ),
       );
       expect(container.querySelector('[data-panel-empty]')?.textContent).toContain(
-        '此 Bot 还没有收件记录',
+        '此助理还没有收件记录',
       );
       await act(async () => store.setBotInbox({ status: 'error', error: 'offline' }));
       expect(container.querySelector('[role="alert"]')?.textContent).toContain('offline');
@@ -434,7 +434,7 @@ it('clears previous source content and ignores older requests after reopening', 
         sourceKind: 'bridge-message',
         externalOrigin: {
           platform: 'lark',
-          accountName: 'Bot',
+          accountName: 'Assistant',
           conversationName: 'Team',
           conversationId: 'group',
           senderId: 'human',
@@ -454,7 +454,7 @@ it('clears previous source content and ignores older requests after reopening', 
     id: 'source-1',
     body: 'CURRENT SOURCE',
     platform: 'lark',
-    accountName: 'Bot',
+    accountName: 'Assistant',
     conversationName: 'Team',
     at: '2026-10-01T00:00:00Z',
     grantId: 'grant',
@@ -476,7 +476,7 @@ it('clears previous source content and ignores older requests after reopening', 
         messageId: 'remote-one',
         senderId: 'external-human',
         senderName: 'Alex',
-        mentions: [{ id: 'bot-one', key: '@_user_1', name: 'QA Bot' }],
+        mentions: [{ id: 'bot-one', key: '@_user_1', name: 'QA Assistant' }],
         at: '2026-10-01T00:00:00Z',
         text: 'ONLY RETURNED CONTEXT @_user_1 and @_user_10 <script>plain</script>',
       },
@@ -533,7 +533,7 @@ it('clears previous source content and ignores older requests after reopening', 
     expect(context.querySelector('strong')?.textContent).toBe('Alex');
     expect(context.querySelector('time')?.getAttribute('datetime')).toBe('2026-10-01T00:00:00Z');
     expect(context.querySelector('.bh-external-message-text')?.textContent).toBe(
-      'ONLY RETURNED CONTEXT @QA Bot and @_user_10 <script>plain</script>',
+      'ONLY RETURNED CONTEXT @QA Assistant and @_user_10 <script>plain</script>',
     );
     expect(context.querySelector('script')).toBeNull();
     const details = context.querySelector('details')!;
@@ -546,7 +546,7 @@ it('clears previous source content and ignores older requests after reopening', 
     expect(container.textContent).toContain('context-one');
     expect(container.textContent).toContain('Alex (external-human)');
     expect(container.textContent).toContain('消息 remote-one [事件 context-one]');
-    expect(container.textContent).toContain('@_user_1 → QA Bot (bot-one)');
+    expect(container.textContent).toContain('@_user_1 → QA Assistant (bot-one)');
     expect(container.textContent).toContain('消息 om [事件 source-1]');
     expect(container.querySelector('[role="alert"]')).toBeNull();
     await close();
@@ -576,7 +576,7 @@ it('loads checked images into their message bubble on open, retries refusals and
         sourceKind: 'bridge-message',
         externalOrigin: {
           platform: 'weixin',
-          accountName: 'WeChat Bot',
+          accountName: 'WeChat Assistant',
           conversationName: 'Owner',
           conversationId: 'owner',
           senderId: 'owner',
@@ -588,7 +588,7 @@ it('loads checked images into their message bubble on open, retries refusals and
     id: item.id,
     body: '[Image]',
     platform: 'weixin',
-    accountName: 'WeChat Bot',
+    accountName: 'WeChat Assistant',
     conversationName: 'Owner',
     at: item.createdAt,
     grantId: 'grant',
@@ -871,7 +871,7 @@ it('loads checked video into its bubble without autoplay, retries refusals and p
         sourceKind: 'bridge-message',
         externalOrigin: {
           platform: 'weixin',
-          accountName: 'WeChat Bot',
+          accountName: 'WeChat Assistant',
           conversationName: 'Owner',
           conversationId: 'owner',
           senderId: 'owner',
@@ -883,7 +883,7 @@ it('loads checked video into its bubble without autoplay, retries refusals and p
     id: item.id,
     body: '[Video]',
     platform: 'weixin',
-    accountName: 'WeChat Bot',
+    accountName: 'WeChat Assistant',
     conversationName: 'Owner',
     at: item.createdAt,
     grantId: 'grant',

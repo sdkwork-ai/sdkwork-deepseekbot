@@ -168,7 +168,7 @@ describe('localization coverage', () => {
       }),
     );
     expect(markup).toContain('role="status"');
-    expect(markup).toContain('No Bots yet');
+    expect(markup).toContain('No Assistants yet');
     expect(markup).not.toContain('main.welcome.empty');
   });
 });

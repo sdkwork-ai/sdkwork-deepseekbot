@@ -38,7 +38,7 @@ const actions = createActions(async () => ({ ok: true, value: { items: [] } }), 
 const source: ActivityListSource = {
   commands: actions,
   detail: () => createElement('div'),
-  botName: () => 'Remote Bot',
+  botName: () => 'Remote Assistant',
   isDirect: () => false,
   open: async () => {},
   sourceButton: (_item, onClick) => createElement('button', { onClick }, '#'),

@@ -194,7 +194,7 @@ try {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
       await page.goto(origin, { waitUntil: 'domcontentloaded' });
-      await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+      await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page
         .waitForFunction(
           () =>
@@ -210,7 +210,7 @@ try {
           ?.click(),
       );
       if (!(await page.$('.bh-composer-shell, .bh-main')))
-        await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+        await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page.waitForFunction(
         () =>
           document.querySelector('.bh-main') ||

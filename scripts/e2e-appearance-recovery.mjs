@@ -262,7 +262,7 @@ try {
     );
     await pause();
   }
-  if (!(await page.$('.bh-workspace-rail'))) await click('Bot mode');
+  if (!(await page.$('.bh-workspace-rail'))) await click('Assistant mode');
 
   const nativeBefore = await page.evaluate(() => ({
     dark: document.body.hasAttribute('data-ds-dark-theme'),
@@ -496,12 +496,12 @@ try {
     );
     await page.evaluate(() =>
       [...document.querySelectorAll('button')]
-        .find((n) => n.getAttribute('aria-label') === 'Exit Bot mode')
+        .find((n) => n.getAttribute('aria-label') === 'Exit Assistant mode')
         .click(),
     );
     await pause();
     assert.equal(await page.$('[data-bh-wallpaper]'), null);
-    await click('Bot mode');
+    await click('Assistant mode');
     await defaults();
     assert.deepEqual(errors, []);
     writeFileSync(

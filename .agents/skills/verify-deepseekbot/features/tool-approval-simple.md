@@ -13,7 +13,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → the synthetic **2080 审批体验** Channel → Messages → a native PowerShell approval card. Read the disclosed current-tool scope, then choose **Always allow**. A later changed-input call of that tool completes without a new card. Revoke the saved rule in the folder/access panel, or through the online CLI, and another request asks again.
+Assistant mode → the synthetic **2080 审批体验** Channel → Messages → a native PowerShell approval card. Read the disclosed current-tool scope, then choose **Always allow**. A later changed-input call of that tool completes without a new card. Revoke the saved rule in the folder/access panel, or through the online CLI, and another request asks again.
 
 Enable Full Access for only that QA Bot through its existing confirmation. Ordinary marker output runs directly. A recognized permission-management command still produces a card; Always allow is enabled. Save it, verify a later matching call reaches execution without a new card, revoke the rule and verify prompting returns. Reject it and verify no authorization was changed.
 

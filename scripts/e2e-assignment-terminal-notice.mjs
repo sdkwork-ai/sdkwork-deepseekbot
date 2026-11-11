@@ -77,7 +77,7 @@ if (phase === 'prepare') {
     await rpc('create', {
       displayName: 'Terminal notice QA ' + stamp,
       persona:
-        'Follow the Human exactly. Use only one requested Assignment. Never use Shell in the Orchestrator, approve tools, modify files or create subagents. After creation send only TERMINAL_CREATED via bot_send_message and end. When the completed Assignment Report arrives send only TERMINAL_REPORT_SEEN via bot_send_message and end. A Report is the Assignment semantic outcome; do not claim its native Turn already finished. On Human request REVIEW_NATIVE_COMPLETION inspect Bot Inbox and send only NATIVE_COMPLETION_REVIEWED via bot_send_message, then end. Never create more Assignments or repeat the completed work.',
+        'Follow the Human exactly. Use only one requested Assignment. Never use Shell in the Orchestrator, approve tools, modify files or create subagents. After creation send only TERMINAL_CREATED via bot_send_message and end. When the completed Assignment Report arrives send only TERMINAL_REPORT_SEEN via bot_send_message and end. A Report is the Assignment semantic outcome; do not claim its native Turn already finished. On Human request REVIEW_NATIVE_COMPLETION inspect Assistant Inbox and send only NATIVE_COMPLETION_REVIEWED via bot_send_message, then end. Never create more Assignments or repeat the completed work.',
     })
   ).bot;
   await rpc('modelPresetApply', { slug: bot.slug, presetId: preset.id });
@@ -207,7 +207,7 @@ if (['complete', 'after-restart', 'review'].includes(phase)) {
 if (phase === 'review') {
   await rpc('channelSend', {
     channelId: scene.dm,
-    body: 'REVIEW_NATIVE_COMPLETION: Inspect the pending Host completion notice in Bot Inbox. Send only NATIVE_COMPLETION_REVIEWED via bot_send_message and end. Do not create or resume any Assignment.',
+    body: 'REVIEW_NATIVE_COMPLETION: Inspect the pending Host completion notice in Assistant Inbox. Send only NATIVE_COMPLETION_REVIEWED via bot_send_message and end. Do not create or resume any Assignment.',
   });
   await waitFor(
     async () => (await nativeEvents()).filter((e) => e.type === 'turn/end').length === 3,

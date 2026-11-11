@@ -170,7 +170,7 @@ try {
     writeFileSync(imageSource, Buffer.from(data, 'base64'));
     const { channel } = await rpc('channelCreate', { name: 'Image File Actions QA', members: [] });
     await page.reload({ waitUntil: 'networkidle2' });
-    await page.click('button[aria-label="Bot 模式"],button[aria-label="Bot mode"]');
+    await page.click('button[aria-label="助理模式"],button[aria-label="Assistant mode"]');
     await clickText('.bh-root button', 'Image File Actions QA');
     await page.waitForSelector('input.bh-composer-file-input');
     await page.waitForNetworkIdle({ idleTime: 500 });
@@ -241,7 +241,7 @@ try {
     });
     fixture = { channelId: channel.id, source };
     await page.reload({ waitUntil: 'networkidle2' });
-    await page.click('button[aria-label="Bot 模式"],button[aria-label="Bot mode"]');
+    await page.click('button[aria-label="助理模式"],button[aria-label="Assistant mode"]');
     await clickText('.bh-root button', 'Real Attachment Files QA');
     await page.waitForSelector('input.bh-composer-file-input');
     await page.waitForNetworkIdle({ idleTime: 500 });
@@ -343,7 +343,7 @@ try {
   } else {
     fixture = JSON.parse(readFileSync(fixturePath, 'utf8'));
     if (phase === 'open-editor') {
-      await page.click('button[aria-label="Bot 模式"],button[aria-label="Bot mode"]');
+      await page.click('button[aria-label="助理模式"],button[aria-label="Assistant mode"]');
       await clickText('.bh-root button', 'Real Attachment Files QA');
       await page.waitForNetworkIdle({ idleTime: 500 });
       await page.click('button.bh-message-file');
@@ -355,7 +355,7 @@ try {
       await page.waitForNetworkIdle({ idleTime: 500 });
       console.log('PASS waited for complete native editor handoff; ready for external save.');
     } else if (phase === 'reveal') {
-      await page.click('button[aria-label="Bot 模式"],button[aria-label="Bot mode"]');
+      await page.click('button[aria-label="助理模式"],button[aria-label="Assistant mode"]');
       await clickText('.bh-root button', 'Real Attachment Files QA');
       await page.waitForNetworkIdle({ idleTime: 500 });
       await page.click('button.bh-message-file');
@@ -434,7 +434,7 @@ try {
       const finalAuthority = snapshot();
       await bytes(url(fixture));
       assert.deepEqual(snapshot(), finalAuthority);
-      await page.click('button[aria-label="Bot 模式"],button[aria-label="Bot mode"]');
+      await page.click('button[aria-label="助理模式"],button[aria-label="Assistant mode"]');
       await clickText('.bh-root button', 'Real Attachment Files QA');
       await page.waitForNetworkIdle({ idleTime: 500 });
       await page.screenshot({ path: join(out, 'saved-current-message.png') });

@@ -180,7 +180,7 @@ try {
     relativePath: '',
     kind: 'directory',
   });
-  await page.locator('button[aria-label="Bot 模式"],button[aria-label="Bot mode"]').click();
+  await page.locator('button[aria-label="助理模式"],button[aria-label="Assistant mode"]').click();
   await clickLabel(fixture.displayName ?? 'Workspace Open QA', '.bh-root button');
   await page.waitForSelector('[data-panel-head]');
   await page.evaluate(() => {

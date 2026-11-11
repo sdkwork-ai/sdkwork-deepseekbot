@@ -42,5 +42,5 @@ local runtime, native device, Human QA and deployment results separate.
 
 The shell observer recognizes either the native Bot-mode navigation entry or a visible
 `.bh-root.bh-main`. The Window Companion's `.bh-root` alone does not qualify. Before #1947,
-entering desktop Bot mode removed the navigation entry and falsely recorded `shell-lost`;
+entering desktop Assistant mode removed the navigation entry and falsely recorded `shell-lost`;
 the repaired observer keeps that ordinary transition ready and still records actual loss.

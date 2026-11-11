@@ -13,7 +13,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → the test PersonaBot DM → **Workspace Grants · <Bot name> · 0 workspaces**
+Assistant mode → the test PersonaBot DM → **Workspace Grants · <Bot name> · 0 workspaces**
 under the composer → **Advanced: enter Host path** → enter the dedicated fixture path →
 **Authorize workspace** → inspect the Bot/path confirmation → **Authorize workspace**.
 The folder appears in the Workspace Grants dialog. Select the test Bot explicitly and

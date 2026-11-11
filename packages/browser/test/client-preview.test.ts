@@ -190,8 +190,8 @@ describe('Browser current work versus Human preview', () => {
       );
       const buttons = [...host.querySelectorAll('button')];
       expect(buttons.find((b) => b.textContent === 'Stop')?.disabled).toBe(false);
-      expect(buttons.find((b) => b.textContent === 'Open Bot Browser')?.disabled).toBe(true);
-      expect(buttons.find((b) => b.textContent === 'Pause Bot')?.disabled).toBe(true);
+      expect(buttons.find((b) => b.textContent === 'Open Assistant Browser')?.disabled).toBe(true);
+      expect(buttons.find((b) => b.textContent === 'Pause Assistant')?.disabled).toBe(true);
       await act(async () => buttons.find((b) => b.textContent === 'Stop')!.click());
       expect(host.querySelector('[role="alert"]')?.textContent).toBe(
         'Browser cleanup failed. Click Stop to retry.',
@@ -487,7 +487,7 @@ describe('Container Human viewer', () => {
     expect(fetch.mock.calls.length).toBe(count);
     await act(async () =>
       [...host.querySelectorAll('button')]
-        .find((b) => b.textContent === 'Open Bot Browser')!
+        .find((b) => b.textContent === 'Open Assistant Browser')!
         .click(),
     );
     expect(fetch.mock.calls.at(-1)?.[0]).toBe('./api/browser/open');

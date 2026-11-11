@@ -424,18 +424,18 @@ describe('mounted Channel composer', () => {
       editor.dispatchEvent(new InputEvent('input', { bubbles: true }));
     });
     const option = [...host.querySelectorAll<HTMLButtonElement>('[role=option]')].find((button) =>
-      button.textContent?.includes('所有 Bot'),
+      button.textContent?.includes('所有助理'),
     );
     expect(option?.textContent).toContain('1');
     await act(async () => option?.click());
     expect(onChange).toHaveBeenLastCalledWith(
-      '@所有 Bot ',
+      '@所有助理 ',
       [
         {
           kind: 'all-bots',
-          label: '所有 Bot',
+          label: '所有助理',
           start: 0,
-          end: 7,
+          end: 5,
           preview: { revision: 'preview', recipients: [{ botSlug: 'ada', label: 'Ada' }] },
         },
       ],

@@ -10,7 +10,7 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode, open a Group, open Subpanel column if its Members panel is hidden, then choose Invite member. Search or select a Bot and confirm. Assistant remains available through its private conversation.
+Enter Assistant mode, open a Group, open Subpanel column if its Members panel is hidden, then choose Invite member. Search or select a Bot and confirm. Assistant remains available through its private conversation.
 
 ## Driving it with verify-app
 

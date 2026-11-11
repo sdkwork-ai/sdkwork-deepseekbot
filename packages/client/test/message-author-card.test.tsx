@@ -251,9 +251,9 @@ it.each([
   ['available', 'Available'],
   ['unavailable', 'Unreachable'],
   ['withdrawn', 'Outside collaboration network'],
-  ['bot-unavailable', 'Bot unavailable'],
+  ['bot-unavailable', 'Assistant unavailable'],
 ] as const)(
-  'shows the remote contact state %s without implying a local Bot was deleted',
+  'shows the remote contact state %s without implying a local Assistant was deleted',
   (availability, label) => {
     const html = renderToStaticMarkup(
       createElement(MessageAuthorCardContent, {

@@ -11,7 +11,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → select the newly created **AX Memory …** PersonaBot → **Memory files** toolbar button →
+Assistant mode → select the newly created **AX Memory …** PersonaBot → **Memory files** toolbar button →
 Memory file list → **AX-1975.md**. Version two is visible. Open the **Memory evolution** toolbar button, then
 select version one's commit (its accessible listitem name is the full SHA); the historical diff shows version one.
 The existing `memory-restore-commit` CLI then restores version one through the same

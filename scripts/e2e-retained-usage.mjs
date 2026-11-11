@@ -96,14 +96,14 @@ try {
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }]);
   await page.setExtraHTTPHeaders({ cookie });
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button[aria-label="Bot mode"], button[aria-label="Bot 模式"]');
+  await page.waitForSelector('button[aria-label="Assistant mode"], button[aria-label="助理模式"]');
   await page.evaluate(() =>
     [...document.querySelectorAll('button')]
       .find((button) => ['Continue', '继续'].includes(button.textContent?.trim() ?? ''))
       ?.click(),
   );
   if (!(await page.$('.bh-root')))
-    await page.click('button[aria-label="Bot mode"], button[aria-label="Bot 模式"]');
+    await page.click('button[aria-label="Assistant mode"], button[aria-label="助理模式"]');
   await page.waitForFunction(
     () =>
       document.querySelector('.bh-root') ||

@@ -212,7 +212,7 @@ try {
   await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'light' }]);
   await page.goto(instance.url, { waitUntil: 'networkidle2', timeout: 30000 });
   await dismiss();
-  await click('Bot mode');
+  await click('Assistant mode');
   await page.waitForSelector('.bh-root.bh-main', { visible: true });
   await dismiss();
   await click('Markdown Preview QA: Idle Markdown Preview QA No messages yet');

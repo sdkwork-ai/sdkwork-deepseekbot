@@ -640,7 +640,7 @@ it('enables Group playback from the native menu and explains why a Bot-only sour
       node.querySelector<HTMLButtonElement>('.bh-companion-bubble header > button')!.click(),
     );
     expect(node.querySelector('.bh-companion-bubble')).toBeNull();
-    await menu('Bot 加入的所有会话');
+    await menu('助理加入的所有会话');
     expect(new URL(paths.at(-1)!, 'http://localhost').searchParams.get('visibility')).toBe(
       'all-bot',
     );
@@ -653,7 +653,7 @@ it('enables Group playback from the native menu and explains why a Bot-only sour
             messageId: 'bots',
             channelId: 'bot-dm',
             channelName: 'Ada and Grace',
-            body: 'Bot reply',
+            body: 'Assistant reply',
             source: 'bot-dm',
             participants: ['Ada', 'Grace'],
             canOpen: true,
@@ -679,8 +679,8 @@ it('enables Group playback from the native menu and explains why a Bot-only sour
             botId: 'ada',
             messageId: 'private-group',
             channelId: 'private-group',
-            channelName: 'Bot workroom',
-            body: 'Bot-only Group reply',
+            channelName: 'Assistant workroom',
+            body: 'Assistant-only Group reply',
             source: 'bot-group',
             canOpen: false,
           }),
@@ -693,7 +693,7 @@ it('enables Group playback from the native menu and explains why a Bot-only sour
     await menu('播放私聊消息');
     expect(companion.getSnapshot().cards.map((card) => card.messageId)).toEqual(['private-group']);
     const privateSource = [...node.querySelectorAll<HTMLButtonElement>('button')].find(
-      (item) => item.textContent === '群聊 · Bot workroom',
+      (item) => item.textContent === '群聊 · Assistant workroom',
     )!;
     expect(privateSource.disabled).toBe(true);
     expect(node.textContent).toContain('当前无法读取原会话，仍可查看消息来源。');

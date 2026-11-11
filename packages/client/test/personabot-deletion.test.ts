@@ -109,7 +109,7 @@ describe('PersonaBot deletion Memory consent', () => {
   it('leads with what stops and lists each notice as its own card', async () => {
     const f = await fixture();
     try {
-      expect(dialog().getAttribute('aria-label')).toBe('删除 Bot');
+      expect(dialog().getAttribute('aria-label')).toBe('删除助理');
       expect(f.host.textContent).toContain('删除后，Ada 会永久停止运行，无法撤销。');
       const notices = f.host.querySelector('section[aria-label="删除前请确认"]');
       expect(notices?.querySelector('h3')?.textContent).toBe('删除前请确认');
@@ -144,13 +144,13 @@ describe('PersonaBot deletion Memory consent', () => {
     const f = await fixture();
     try {
       await act(async () => f.checkbox().click());
-      await f.click('删除 Bot 和记忆文件');
+      await f.click('删除助理和记忆文件');
       expect(f.actions.deletionConfirm).toHaveBeenCalledWith('ada', 'reviewed', true);
       expect(f.checkbox().checked).toBe(false);
       expect(f.host.querySelector('[role="alert"]')?.textContent).toBe(
         'Scope changed; review again',
       );
-      await f.click('删除 Bot，保留记忆');
+      await f.click('删除助理，保留记忆');
       expect(f.actions.deletionConfirm).toHaveBeenLastCalledWith('ada', 'reviewed', false);
     } finally {
       await f.dispose();
@@ -176,7 +176,7 @@ describe('PersonaBot deletion dialog actions', () => {
     );
     try {
       expect(host.textContent).toContain('正在读取删除范围…');
-      expect(buttonNamed('删除 Bot，保留记忆', host).disabled).toBe(true);
+      expect(buttonNamed('删除助理，保留记忆', host).disabled).toBe(true);
       await act(async () => buttonNamed('取消', host).click());
       expect(onClose).toHaveBeenCalledTimes(1);
     } finally {

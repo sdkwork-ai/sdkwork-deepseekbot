@@ -298,7 +298,7 @@ describe('Phone actions for Inbox items', () => {
     expect(page.textContent).toContain('Which region should I deploy to?');
     await press(button(page, t.details));
     expect(page.textContent).toContain('Deploy the launch site');
-    const input = page.querySelector<HTMLTextAreaElement>('[aria-label="Reply to the Bot"]')!;
+    const input = page.querySelector<HTMLTextAreaElement>('[aria-label="Reply to the Assistant"]')!;
     expect(input.closest('[data-keyboard-form]')).not.toBeNull();
     expect(button(page, t.assignmentSend).closest('[data-keyboard-form]')).not.toBeNull();
     expect(
@@ -321,7 +321,7 @@ describe('Phone actions for Inbox items', () => {
     });
     expect(String(args?.['messageId'])).toMatch(/^human-/u);
     expect(page.textContent).toContain(t.assignmentSent);
-    expect(page.querySelector('[aria-label="Reply to the Bot"]')).toBeNull();
+    expect(page.querySelector('[aria-label="Reply to the Assistant"]')).toBeNull();
   });
 
   it('refuses an Assignment reply the computer stored without its target', async () => {

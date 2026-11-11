@@ -10,7 +10,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → Channels → the dedicated QA PersonaBot DM → **Messages** in the control rail if it is hidden → its workspace request card → **Allow folder read/write** → navigate the Host directory browser to the synthetic folder → **Authorize workspace**. The card resolves and the original task continues without another Human message. Inspect the two generated files and the Bot's committed completion reply.
+Assistant mode → Channels → the dedicated QA PersonaBot DM → **Messages** in the control rail if it is hidden → its workspace request card → **Allow folder read/write** → navigate the Host directory browser to the synthetic folder → **Authorize workspace**. The card resolves and the original task continues without another Human message. Inspect the two generated files and the Bot's committed completion reply.
 
 For CLI, read the request id from `inbox --category action --bot <id>`, the registered target from `workspace-options`, then run `grant-request-approve <id> --channel <channel> --request <message> --workspace <workspace> --confirm`. The result must include a writable Grant and the canonical request resolution. `bot-tool <id> request_workspace_grant --args-stdin` with a reason and explicit `channel_id` exercises the same request code without the model.
 
@@ -34,7 +34,7 @@ The runner saves screenshots, ARIA, console, Client diagnostics, canonical reque
 
 ## Gotchas
 
-- The current desktop uses `.bh-workspace-rail`; older `.bh-mode-sidebar` journeys time out despite a rendered Bot mode. Read the real ARIA/console before attributing that to permissions.
+- The current desktop uses `.bh-workspace-rail`; older `.bh-mode-sidebar` journeys time out despite a rendered Assistant mode. Read the real ARIA/console before attributing that to permissions.
 - Windows loopback Hosts normally use the OS directory chooser. A headless browser needs the supported DSH browse composition. This task qualified a loopback-only Host with an exact reserved `.invalid` trusted authority; no public listener or shared Profile was changed. Preserve any native chooser wait as a precondition failure.
 - The temporary folder name sorts before bulk `.tmp*` directories so DSH’s bounded directory listing can show it. Directory navigation uses exact visible names, since `Temp` also matches `SquirrelTemp`.
 - A stale machine-local AX model selection can be absent from the pinned catalog. Keep that failed launch; select a supported model for only this launch with `BOTHARNESS_AX_MODEL`, then prove a real reply.

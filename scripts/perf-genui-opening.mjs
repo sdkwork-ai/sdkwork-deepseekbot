@@ -194,7 +194,7 @@ async function measure(target, parking) {
     save();
     await page.waitForFunction(
       () =>
-        document.body.innerText.includes('Bot mode') ||
+        document.body.innerText.includes('Assistant mode') ||
         document.querySelector('.bh-root.bh-main, [data-workspace-dock]'),
     );
     await page.bringToFront();

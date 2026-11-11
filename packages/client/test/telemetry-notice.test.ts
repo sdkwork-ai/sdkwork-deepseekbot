@@ -166,11 +166,11 @@ describe('TelemetryNotice', () => {
     const controller = new TelemetryNoticeController(bridge(true), storage, openSettings);
     const view = await render(createElement(TelemetryNotice, { controller, t }));
     const optOut = view.host.querySelector('[data-telemetry-row="opt-out"] dd');
-    expect(optOut?.textContent?.startsWith('在「助理设置 → 匿名使用统计」中随时关闭')).toBe(true);
+    expect(optOut?.textContent?.startsWith('在「总管设置 → 匿名使用统计」中随时关闭')).toBe(true);
     expect(optOut?.textContent).toContain('telemetry: false');
     await act(async () => {
       [...view.host.querySelectorAll('button')]
-        .find((button) => button.textContent === '打开助理设置')
+        .find((button) => button.textContent === '打开总管设置')
         ?.click();
     });
     expect(openSettings).toHaveBeenCalledOnce();

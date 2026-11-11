@@ -178,7 +178,7 @@ try {
   const page = await browser.newPage();
   await page.setViewport({ width: 1500, height: 1050 });
   await page.setExtraHTTPHeaders({ cookie });
-  const mode = 'button[aria-label="Bot mode"], button[aria-label="Bot 模式"]';
+  const mode = 'button[aria-label="Assistant mode"], button[aria-label="助理模式"]';
   for (let attempt = 0; attempt < 3; attempt += 1) {
     await page.goto(origin, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector(mode, { timeout: 30000 });

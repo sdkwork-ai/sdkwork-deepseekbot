@@ -8,7 +8,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → the Bot's chat menu → Channel settings → External connectors → the paired owner's connector. WeChat is the first qualified platform. Receiving into Inbox alone remains the default.
+Assistant mode → the Bot's chat menu → Channel settings → External connectors → the paired owner's connector. WeChat is the first qualified platform. Receiving into Inbox alone remains the default.
 
 ## Driving it with verify-app
 
@@ -22,7 +22,7 @@ Preconditions: an isolated Host passes `doctor`, with a qualified WeChat identit
 
 ## Gotchas
 
-- For Chinese `--locale zh`, use `--click 'Bot 模式'` instead of `--bot-mode`, whose current selector is English.
+- For Chinese `--locale zh`, use `--click '助理模式'` instead of `--bot-mode`, whose current selector is English.
 - Each `shot` opens a fresh browser; repeat the complete settings navigation. Use the actual connector row name from the last ARIA file.
 - Off/on starts a new opt-in period; it does not backfill history. Turning off does not recall already sent IM messages or erase existing local history. Content purge is a separate operation.
 - Keep Profile credentials and login URLs out of published evidence. Simulated QA is not real WeChat or Human QA.

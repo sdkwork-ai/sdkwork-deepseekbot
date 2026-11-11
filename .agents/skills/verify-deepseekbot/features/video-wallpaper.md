@@ -9,7 +9,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → Assistant settings → Appearance → Upload image or video. Preview motion, drag/zoom, choose Use. The Wallpaper section shows video status and any fallback reason.
+Assistant mode → Steward settings → Appearance → Upload image or video. Preview motion, drag/zoom, choose Use. The Wallpaper section shows video status and any fallback reason.
 
 ## Driving it with verify-app
 

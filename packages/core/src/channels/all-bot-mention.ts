@@ -41,7 +41,7 @@ export function parseAllBotMention(value: unknown, body: string): AllBotMention 
     start < 0 ||
     end <= start ||
     typeof label !== 'string' ||
-    !['所有 Bot', 'All Bots'].includes(label) ||
+    !['所有助理', 'All Assistants'].includes(label) ||
     body.slice(start, end) !== '@' + label ||
     typeof preview !== 'object' ||
     preview === null ||

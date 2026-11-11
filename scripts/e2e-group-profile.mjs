@@ -93,7 +93,7 @@ try {
   await page.setViewport({ width: 1440, height: 960 });
   await page.setExtraHTTPHeaders({ cookie });
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  const botButton = 'button[aria-label="Bot mode"], button[aria-label="Bot 模式"]';
+  const botButton = 'button[aria-label="Assistant mode"], button[aria-label="助理模式"]';
   await page.waitForSelector(botButton);
   for (let attempt = 0; attempt < 3 && !(await page.$('.bh-root')); attempt += 1) {
     await page.evaluate(() =>
@@ -112,7 +112,7 @@ try {
         await page.evaluate(() => ({
           text: document.body.textContent?.slice(0, 600),
           botButton: document.querySelector(
-            'button[aria-label="Bot mode"], button[aria-label="Bot 模式"]',
+            'button[aria-label="Assistant mode"], button[aria-label="助理模式"]',
           )?.outerHTML,
         })),
       ),

@@ -142,8 +142,8 @@ describe('Tool approval card layout', () => {
       defaultLocation: false,
     };
     const card = await render(value);
-    expect(card.querySelector('.bh-request-category')?.textContent).toBe('新 Bot');
-    expect(card.querySelector('.bh-tool-approval-sentence')?.textContent).toBe('创建 Bot「Tim」');
+    expect(card.querySelector('.bh-request-category')?.textContent).toBe('新助理');
+    expect(card.querySelector('.bh-tool-approval-sentence')?.textContent).toBe('创建助理「Tim」');
     const preview = card.querySelector('.bh-bot-create-preview')!;
     expect(preview.querySelector('.bh-bot-create-name')?.textContent).toBe('Tim');
     expect(preview.querySelector('.bh-bot-create-bio')?.textContent).toBe('翻译发布说明');

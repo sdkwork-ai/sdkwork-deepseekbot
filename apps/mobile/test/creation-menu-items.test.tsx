@@ -59,13 +59,13 @@ it('uses the approved top-level labels and order in both languages', () => {
       creationMenuItems({ scope: 'all', targets: [], nativeChannelForm: true }).map(
         (item) => item.label,
       ),
-    ).toEqual(['Create Bot', 'Import Bot', 'Create Channel', 'Bot Marketplace']);
+    ).toEqual(['Create Assistant', 'Import Assistant', 'Create Channel', 'Assistant Marketplace']);
     interfacePreferences.setLanguage('zh');
     expect(
       creationMenuItems({ scope: 'all', targets: [], nativeChannelForm: true }).map(
         (item) => item.label,
       ),
-    ).toEqual(['创建 Bot', '导入 Bot', '创建频道', 'Bot市场']);
+    ).toEqual(['创建助理', '导入助理', '创建频道', '助理市场']);
   } finally {
     interfacePreferences.setLanguage(original);
   }

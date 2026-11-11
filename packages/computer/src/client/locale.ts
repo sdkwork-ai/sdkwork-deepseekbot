@@ -19,7 +19,7 @@ export const zh = {
     '允许运行 DSH 的应用访问这些权限，然后完全退出并重新打开该应用，再检查一次。',
 
   'rows.target.title': '操作目标',
-  'rows.target.description': '本 Profile 的所有 Bot 共用一个目标；切换后需要重新授权操作。',
+  'rows.target.description': '本 Profile 的所有助理共用一个目标；切换后需要重新授权操作。',
   'rows.target.local': '本机 Computer',
   'rows.target.container': 'Docker Computer',
   'local.title': '本机 Computer',
@@ -50,7 +50,7 @@ export const zh = {
   'entry.access.on': 'Computer Access 已开启',
   'entry.access.enable': '启用 Computer Access',
   'entry.access.disable': '停用 Computer Access',
-  'entry.access.description': '开启后，该 Bot 的会话可以操作这台电脑',
+  'entry.access.description': '开启后，该助理的会话可以操作这台电脑',
   'entry.access.failed': '切换 Computer Access 失败',
   'entry.access.failureHint': '授权失败',
   'entry.start': '启动',
@@ -159,7 +159,7 @@ export const en: Record<keyof typeof zh, string> = {
 
   'rows.target.title': 'Computer Target',
   'rows.target.description':
-    'All Bots in this Profile share one target. Switching requires new action authorization.',
+    'All Assistants in this Profile share one target. Switching requires new action authorization.',
   'rows.target.local': 'Local Computer',
   'rows.target.container': 'Docker Computer',
   'local.title': 'Local Computer',

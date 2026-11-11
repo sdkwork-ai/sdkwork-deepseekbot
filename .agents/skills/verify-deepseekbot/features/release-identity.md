@@ -9,12 +9,12 @@ Candidate journey for #1980; packaged/restart qualification is still pending.
 
 ## How to get to it (user POV)
 
-Enter Bot mode, choose Assistant settings, then About.
+Enter Assistant mode, choose Steward settings, then About.
 
 ## Driving it with verify-app
 
 1. Launch an isolated Host with `verify-app launch --name <name>` and run `doctor`.
-2. Enter Bot mode, dismiss the tutorial, choose Assistant settings, then About.
+2. Enter Assistant mode, dismiss the tutorial, choose Steward settings, then About.
 3. On a source checkout, verify that DeepSeekBot version says development source build with the built Git revision and dirty state, not a `0.0.0` release. The update check is disabled.
 4. Read `botharness/releaseInfo` through `verify-app rpc` and `deepseekbot release-info` through the authenticated CLI. Their identity must agree with About. Keep the token in an environment variable or private file, never in output.
 5. On an independently installed exact product artifact set, repeat the path and record artifact checksums and actual loaded component paths. A matching directory of package manifests is not proof of the loaded process.
@@ -36,6 +36,6 @@ Enter Bot mode, choose Assistant settings, then About.
 
 ## Proactive update notice (#2173)
 
-Use an isolated macOS Desktop Profile for native acceptance when requested; do not substitute browser automation. Enter Bot mode with a qualified packed candidate below the registry target. Wait for onboarding and installed notes to finish: the upgrade modal must show running DSB, actual native DSH and exact eligible target. Dismiss, re-enter and restart: the same target stays dismissed while About still exposes it. Change only the registry transport fixture to a newer target to verify a fresh notice. Record fixture provenance; an unpublished 1.4.0 is never evidence of a live published release.
+Use an isolated macOS Desktop Profile for native acceptance when requested; do not substitute browser automation. Enter Assistant mode with a qualified packed candidate below the registry target. Wait for onboarding and installed notes to finish: the upgrade modal must show running DSB, actual native DSH and exact eligible target. Dismiss, re-enter and restart: the same target stays dismissed while About still exposes it. Change only the registry transport fixture to a newer target to verify a fresh notice. Record fixture provenance; an unpublished 1.4.0 is never evidence of a live published release.
 
 Use `release-check --force` for cache recovery and canonical compatibility readback. Unknown runtime/metadata cannot offer an install. An incompatible latest may select a lower compatible version, without following a preview tag for a stable install. An explicit install revalidates metadata and uses the native Plugin Manager; preserve native failures and staged/running identity. Published 1.3.1 Clients do not retroactively gain the proactive entry point when 1.4.0 is published.

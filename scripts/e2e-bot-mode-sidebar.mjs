@@ -53,7 +53,7 @@ try {
   await page.setExtraHTTPHeaders({ 'accept-language': 'en-US' });
   await page.setViewport({ width: 1440, height: 900 });
   await page.goto(instance.url, { waitUntil: 'networkidle2' });
-  await page.waitForSelector('button[aria-label="Bot mode"], .bh-mode-sidebar', {
+  await page.waitForSelector('button[aria-label="Assistant mode"], .bh-mode-sidebar', {
     timeout: 30_000,
   });
   for (let round = 0; round < 6; round += 1) {
@@ -67,7 +67,7 @@ try {
 
   await observeShell('before-bot-mode');
   if ((await page.$('.bh-mode-sidebar')) === null)
-    await page.click('button[aria-label="Bot mode"]');
+    await page.click('button[aria-label="Assistant mode"]');
   await page.waitForSelector('.bh-mode-sidebar', { timeout: 30_000 });
   await page.keyboard.press('Escape');
   await page.waitForSelector('.bh-root.bh-main [data-message-id]', {
@@ -76,11 +76,11 @@ try {
   });
   const column = await page.evaluate(() => ({
     width: document.querySelector('.bh-mode-sidebar')?.getBoundingClientRect().width ?? 0,
-    nativeRows: document.querySelectorAll('button[aria-label="Bot mode"]').length,
-    exit: document.querySelector('button[aria-label="Exit Bot mode"]') !== null,
+    nativeRows: document.querySelectorAll('button[aria-label="Assistant mode"]').length,
+    exit: document.querySelector('button[aria-label="Exit Assistant mode"]') !== null,
   }));
   if (column.width < 263 || column.nativeRows !== 0 || !column.exit)
-    throw new Error(`Bot mode sidebar did not take over the column: ${JSON.stringify(column)}`);
+    throw new Error(`Assistant mode sidebar did not take over the column: ${JSON.stringify(column)}`);
   await observeShell('bot-mode');
   await page.screenshot({ waitForFonts: false, path: resolve(shots, '01-bot-mode-sidebar.png') });
 
@@ -148,12 +148,12 @@ try {
     { timeout: 10_000 },
   );
 
-  await page.click('button[aria-label="Exit Bot mode"]');
+  await page.click('button[aria-label="Exit Assistant mode"]');
   await page.waitForFunction(
     () =>
       document.querySelector('.bh-mode-sidebar') === null &&
       document.querySelector('.bh-root.bh-main') === null &&
-      document.querySelector('button[aria-label="Bot mode"]') !== null,
+      document.querySelector('button[aria-label="Assistant mode"]') !== null,
     { timeout: 20_000 },
   );
   const native = await page.evaluate(() =>

@@ -30,8 +30,8 @@ const errors = [],
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 let chinese = false;
 const labels = {
-  'Bot mode': 'Bot 模式',
-  'Exit Bot mode': '退出 Bot 模式',
+  'Assistant mode': '助理模式',
+  'Exit Assistant mode': '退出助理模式',
   'Move control rail': '移动控制列',
   'Move to right edge': '移至最右',
   'Move before column 3': '移至第 3 列前',
@@ -42,7 +42,7 @@ const labels = {
 };
 const labelFor = (label) => (chinese ? (labels[label] ?? label) : label);
 const click = (label) =>
-  label === 'Exit Bot mode'
+  label === 'Exit Assistant mode'
     ? page.click(`.bh-workspace-rail button[aria-label="${labelFor(label)}"]`)
     : page.locator(`::-p-aria(${labelFor(label)})`).click();
 const storage = () =>
@@ -146,8 +146,8 @@ try {
   }
   chinese = await page.evaluate(
     () =>
-      document.body.innerText.includes('Bot 模式') ||
-      !!document.querySelector('button[aria-label="退出 Bot 模式"]'),
+      document.body.innerText.includes('助理模式') ||
+      !!document.querySelector('button[aria-label="退出助理模式"]'),
   );
   for (let i = 0; i < 6; i++) {
     await page.evaluate(() =>
@@ -168,12 +168,12 @@ try {
     await sleep(300);
   }
   await page.evaluate(() => localStorage.removeItem('botharness.bot-mode-layout'));
-  if (await page.$(rail)) await click('Exit Bot mode');
+  if (await page.$(rail)) await click('Exit Assistant mode');
   const before = await page.$eval(
     '[data-slot="sidebar"]',
     (node) => node.getBoundingClientRect().width,
   );
-  await click('Bot mode');
+  await click('Assistant mode');
   await page.waitForSelector(rail, { timeout: 20000 });
   await page.waitForSelector(`${channels} [data-channel-id]`, { timeout: 20000 });
   await page.keyboard.press('Escape');
@@ -782,7 +782,7 @@ try {
     await page.waitForSelector(rail);
     await proof('09-wide-again');
   }
-  await click('Exit Bot mode');
+  await click('Exit Assistant mode');
   await page.waitForSelector('[data-bh-workspace-frame]', { hidden: true });
   await proof('10-exit');
   const after = await page.$eval(

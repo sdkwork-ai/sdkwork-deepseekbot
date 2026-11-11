@@ -113,9 +113,9 @@ const open = async (role) => {
   await page.goto(instance.url, { waitUntil: 'domcontentloaded' });
   await page.waitForFunction(
     () =>
-      document.querySelector('[aria-label="Bot 模式布局"]') ||
+      document.querySelector('[aria-label="助理模式布局"]') ||
       [...document.querySelectorAll('button')].some(
-        (b) => (b.getAttribute('aria-label') ?? b.textContent.trim()) === 'Bot 模式',
+        (b) => (b.getAttribute('aria-label') ?? b.textContent.trim()) === '助理模式',
       ),
   );
   const dismiss = async () => {
@@ -140,12 +140,12 @@ const open = async (role) => {
   await dismiss();
   if (
     !(await page.evaluate(() =>
-      document.querySelector('[aria-label="Bot 模式布局"]')?.checkVisibility(),
+      document.querySelector('[aria-label="助理模式布局"]')?.checkVisibility(),
     ))
   )
-    await click(page, 'Bot 模式');
+    await click(page, '助理模式');
   await page.waitForFunction(() =>
-    document.querySelector('[aria-label="Bot 模式布局"]')?.checkVisibility(),
+    document.querySelector('[aria-label="助理模式布局"]')?.checkVisibility(),
   );
   await dismiss();
   const messages = await page.evaluate(() =>

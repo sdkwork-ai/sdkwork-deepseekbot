@@ -55,7 +55,7 @@ try {
   await page.setViewport({ width: viewportWidth, height: 800 });
   await page.setExtraHTTPHeaders({ cookie });
   await page.goto(origin, { waitUntil: 'domcontentloaded', timeout: 60000 });
-  const botButton = 'button[aria-label="Bot mode"], button[aria-label="Bot 模式"]';
+  const botButton = 'button[aria-label="Assistant mode"], button[aria-label="助理模式"]';
   await page.waitForSelector(botButton);
   await page
     .waitForFunction(

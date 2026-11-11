@@ -90,9 +90,9 @@ describe('Group mention tracer', () => {
       if (!preview.ok) throw new Error('Expected preview');
       const request = {
         channelId: group.id,
-        body: '@All Bots check',
+        body: '@All Assistants check',
         messageId: 'human-6cca0c89-e0ec-4074-8fcd-5b6f016dcb11',
-        allBotMention: { start: 0, end: 9, label: 'All Bots', preview: preview.value },
+        allBotMention: { start: 0, end: 15, label: 'All Assistants', preview: preview.value },
       };
       const sent = await methods.channelSend(request);
       expect(sent).toMatchObject({ ok: true, value: { message: { body: '@ADA @BEA check' } } });

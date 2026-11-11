@@ -172,7 +172,7 @@ Animation is part of the product's feel. Any new or changed animation on web, de
 
 ### UI copy
 
-Visible text on web, desktop and mobile follows [UI copy](docs/agents/ui-copy.md): call a PersonaBot "Bot" in the UI, and keep hints, captions and errors short and plain in both English and Chinese. `PersonaBot` stays the term in code and developer docs.
+Visible text on web, desktop and mobile follows [UI copy](docs/agents/ui-copy.md): call a PersonaBot an "Assistant" (助理 in Chinese) and the built-in steward "Steward" (总管 in Chinese), and keep hints, captions and errors short and plain in both English and Chinese. `PersonaBot` stays the term in code and developer docs.
 
 ### Verify behavior
 

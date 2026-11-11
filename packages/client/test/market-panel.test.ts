@@ -307,7 +307,7 @@ describe('Market panel', () => {
     const today = {
       day: '2026-10-28',
       lang: 'zh',
-      title: '今天值得一试的 Bot',
+      title: '今天值得一试的助理',
       lede: '一位写作伙伴。',
       picks: [],
       sections: [
@@ -325,7 +325,7 @@ describe('Market panel', () => {
       async () => ({ bots: [] }),
       async ({ host, actions }) => {
         const home = host.querySelector<HTMLElement>('.bh-market-page')!;
-        await click(host, '阅读每日精选：今天值得一试的 Bot');
+        await click(host, '阅读每日精选：今天值得一试的助理');
         expect(digest).toHaveBeenCalledWith('2026-10-28', 'zh');
         expect(home.hidden).toBe(true);
         expect(host.querySelector('[role="dialog"]')).toBeNull();
@@ -793,7 +793,7 @@ describe('Market panel', () => {
     const panel = createMarketPanel({} as BridgeActions, {} as DockPanelRegistry, zhTranslate);
     expect(panel).toMatchObject({
       id: MARKET_PANEL,
-      title: 'Bot 市场',
+      title: '助理市场',
       icon: 'store',
       scope: 'global',
     });
@@ -864,7 +864,7 @@ describe('Market panel', () => {
           {
             kind: 'exfiltration',
             path: 'SOUL.md',
-            note: '让 Bot 把 ~/.ssh 发到外部邮箱。',
+            note: '让助理把 ~/.ssh 发到外部邮箱。',
           },
           { kind: 'script', path: 'tools/run.sh' },
         ],
@@ -880,14 +880,14 @@ describe('Market panel', () => {
         await click(host, '导入');
         expect(host.querySelector('h1')?.textContent).toBe('安装 helper');
         expect(review).toHaveBeenCalledWith('R_helper', 'zh');
-        expect(host.textContent).toContain('助理发现 2 处需要留意');
+        expect(host.textContent).toContain('总管发现 2 处需要留意');
         const findings = [...host.querySelectorAll('[data-market-finding]')];
         expect(findings.map((item) => item.getAttribute('data-market-finding'))).toEqual([
           'exfiltration',
           'script',
         ]);
         expect(findings[0]!.textContent).toContain(
-          '外发数据SOUL.md让 Bot 把 ~/.ssh 发到外部邮箱。',
+          '外发数据SOUL.md让助理把 ~/.ssh 发到外部邮箱。',
         );
 
         await click(host, '仍然安装');
@@ -942,7 +942,7 @@ describe('Market panel', () => {
         expect(host.querySelector('[data-market-review]')?.getAttribute('data-market-review')).toBe(
           'unavailable',
         );
-        expect(host.textContent).toContain('助理没能检查这个 Bot');
+        expect(host.textContent).toContain('总管没能检查这个助理');
         await click(host, '不检查直接安装');
         expect(install).toHaveBeenCalledWith('R_helper', 'review-3', undefined, 'list');
       },
@@ -971,19 +971,19 @@ describe('Market panel', () => {
     await withPanel(
       async () => ({ bots: [] }),
       async ({ host, registry }) => {
-        await click(host, '上传 Bot');
-        await click(host, '分享 Bot');
+        await click(host, '上传助理');
+        await click(host, '分享助理');
         const choices = [...host.querySelectorAll('[role="listitem"] button')];
         expect(choices.map((choice) => choice.getAttribute('aria-label'))).toEqual(['Writer']);
         await click(host, 'Writer');
         expect(host.querySelector('[data-market-draft-meta]')?.textContent).toBe(
-          '助理会逐个文件问你，原文件不会改动。',
+          '总管会逐个文件问你，原文件不会改动。',
         );
-        await click(host, '让助理检查');
+        await click(host, '让总管检查');
         expect(start).toHaveBeenCalledWith('writer');
         expect(sendHome).toHaveBeenCalledWith(
           'tob-dm',
-          expect.stringContaining('（Bot ID：writer）'),
+          expect.stringContaining('（助理 ID：writer）'),
           expect.stringMatching(/^human-/u),
         );
         expect(registry.open).toHaveBeenCalledWith(CHANNEL_BODY_PANEL);
@@ -1033,8 +1033,8 @@ describe('Uploaded Bots in the Market panel', () => {
     await withPanel(
       async () => ({ bots: [] }),
       async ({ host }) => {
-        await click(host, '上传 Bot');
-        await click(host, '分享 Bot');
+        await click(host, '上传助理');
+        await click(host, '分享助理');
         await click(host, 'Writer');
         expect(host.querySelector('[data-market-draft-meta]')?.textContent).toBe(
           '保留 2 · 改写 1 · 删除 1',
@@ -1118,10 +1118,10 @@ describe('Uploaded Bots in the Market panel', () => {
       expect(host.querySelector('[aria-current="step"]')?.textContent).toBe('2检查');
       expect(get).toHaveBeenCalledWith('writer');
       expect(host.querySelector('[data-market-draft-meta]')?.textContent).toBe('已检查 3/4');
-      expect(button(host, '回到助理')).toBeDefined();
+      expect(button(host, '回到总管')).toBeDefined();
       await click(host, '返回');
       expect(host.querySelector('[data-market-direct]')).toBeNull();
-      expect(button(host, '分享 Bot')).toBeDefined();
+      expect(button(host, '分享助理')).toBeDefined();
     } finally {
       await act(async () => root.unmount());
       host.remove();
@@ -1157,7 +1157,7 @@ describe('Uploaded Bots in the Market panel', () => {
 
         await click(host, '更新 Helper');
         expect(document.body.textContent).toContain('更新 Helper');
-        expect(host.querySelector('[aria-current="step"]')?.textContent).toBe('1选择 Bot');
+        expect(host.querySelector('[aria-current="step"]')?.textContent).toBe('1选择助理');
         expect(host.querySelectorAll('[aria-label="上传步骤"] li')).toHaveLength(5);
         await click(host, 'Writer');
         expect(host.querySelector('[data-market-direct="draft"]')).not.toBeNull();
@@ -1294,13 +1294,13 @@ describe('Uploaded Bots in the Market panel', () => {
     await withPanel(
       async () => ({ bots: [] }),
       async ({ host }) => {
-        await click(host, '上传 Bot');
-        await click(host, '分享 Bot');
+        await click(host, '上传助理');
+        await click(host, '分享助理');
         await click(host, 'Writer');
         await click(host, '下一步');
         await click(host, '我的 GitHub');
         expect(host.querySelector('[aria-current="step"]')?.textContent).toBe('4GitHub');
-        await click(host, '让助理推送');
+        await click(host, '让总管推送');
         expect(exported).toHaveBeenCalledWith('writer');
         expect(sendHome).toHaveBeenCalledWith(
           'tob-dm',
@@ -1340,7 +1340,7 @@ describe('Uploaded Bots in the Market panel', () => {
         await click(host, '安装');
         expect(host.querySelector('[data-market-author]')?.textContent).toBe('Alice #k3x9q2');
         expect(host.querySelector('[data-market-author] img')).not.toBeNull();
-        expect(host.textContent).toContain('助理没发现风险');
+        expect(host.textContent).toContain('总管没发现风险');
         await click(host, '确认安装');
         expect(install).toHaveBeenCalledWith('U_helper', 'review-2', undefined, 'list');
         expect(actions['createBot']).not.toHaveBeenCalled();

@@ -12,7 +12,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → Assistant settings → Appearance → Wallpaper. Click or drop images up to 20 MB on **Add**; each appears as a tile and the newest is shown behind the workspace. Hover a tile for **Adjust crop** (drag, Zoom, Save) and **Delete this wallpaper**; **None** keeps the library but shows no wallpaper.
+Assistant mode → Steward settings → Appearance → Wallpaper. Click or drop images up to 20 MB on **Add**; each appears as a tile and the newest is shown behind the workspace. Hover a tile for **Adjust crop** (drag, Zoom, Save) and **Delete this wallpaper**; **None** keeps the library but shows no wallpaper.
 
 ## Driving it with verify-app
 
@@ -22,7 +22,7 @@ Launch and doctor a task-owned Host, then run:
 BH_E2E_INSTANCE=.humanlayer/verify/<name>/instance.json node scripts/e2e-image-wallpaper.mjs
 ```
 
-The journey uploads a generated PNG through the real file input, adjusts and cancels its crop, checks original IndexedDB bytes (`library` index plus `item:<id>` records), deletes the source, reloads, resizes, changes theme, injects a quota failure and tries corrupt media. It calls the built CLI to import/crop/remove, checks unrelated preferences, then exits Bot mode. Screenshots, ARIA and sanitized proof remain in its unique attempt directory. `--baseline` captures the previous settings/workspace on a separate base Host.
+The journey uploads a generated PNG through the real file input, adjusts and cancels its crop, checks original IndexedDB bytes (`library` index plus `item:<id>` records), deletes the source, reloads, resizes, changes theme, injects a quota failure and tries corrupt media. It calls the built CLI to import/crop/remove, checks unrelated preferences, then exits Assistant mode. Screenshots, ARIA and sanitized proof remain in its unique attempt directory. `--baseline` captures the previous settings/workspace on a separate base Host.
 
 Desktop qualification requires a task-owned official application and user-data directory. Verify native upload and recrop, restart that same application directory into a different isolated linked Host Profile, compare the saved original/crop and confirm Web storage remains independent. This is a native different-Host restart, not an interactive connection-switch test.
 

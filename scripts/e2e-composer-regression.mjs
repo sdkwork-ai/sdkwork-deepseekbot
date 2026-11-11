@@ -55,7 +55,7 @@ try {
       .find((button) => ['Continue', '继续'].includes(button.textContent?.trim() ?? ''))
       ?.click();
   });
-  const botButton = 'button[aria-label="Bot mode"], button[aria-label="Bot 模式"]';
+  const botButton = 'button[aria-label="Assistant mode"], button[aria-label="助理模式"]';
   await page.waitForSelector(botButton);
   if (!(await page.$('.bh-root'))) await page.click(botButton);
   await page.waitForSelector('.bh-root');

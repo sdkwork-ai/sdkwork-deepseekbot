@@ -10,14 +10,14 @@
 | Native Subagent presets, live-parent CLI and background wake lifecycle | yes for child results | `verify-app` Bot DM and direct CLI | [subagent-presets.md](subagent-presets.md) |
 | Bot calls: iPhone, Android and Mac or Windows desktop | yes for replies | `scripts/e2e-call-media.mjs`; `scripts/e2e-desktop-call.mjs`; `deepseekbot call-simulate` | [bot-call.md](bot-call.md) |
 | Local Computer video: Windows to physical Android | no | Windows testing-center native journey | [local-computer-video.md](local-computer-video.md) |
-| Bot Marketplace cards, filters, remembered sorting, upload/import and Assistant's install review | yes | `verify-app` Bot mode path; `scripts/e2e-install-review.mjs` | [marketplace.md](marketplace.md) |
+| Assistant Marketplace cards, filters, remembered sorting, upload/import and Assistant's install review | yes | `verify-app` Assistant mode path; `scripts/e2e-install-review.mjs` | [marketplace.md](marketplace.md) |
 | Connect account recovery, encrypted pairing, resources and native private input | yes for DM/tool/private request; no for account recovery | `scripts/e2e-connect-account-recovery.mjs`; `verify-app` isolated Host and shared native QA | [connect-channel.md](connect-channel.md) |
 | SSH tunnel to an existing Linux Host | no | `verify-app` two-Host path and system SSH | [ssh-host.md](ssh-host.md) |
 | Browser Remote Host pairing, icon strip, local appearance/notifications and Host-level settings | only for a reply | `verify-app` two-Host path | [remote-hosts.md](remote-hosts.md) |
 
 | VRM companion Panel | yes for speaking | `scripts/e2e-vrm-companion.mjs` | [vrm-companion.md](vrm-companion.md) |
 | Desktop whole-window zoom (controlled S1 / Windows candidate) | no | `scripts/e2e-desktop-zoom-launch.mjs`, `scripts/e2e-desktop-zoom-windows.mjs`, `scripts/e2e-dock-zoom.mjs`, `scripts/e2e-workspace-chrome.mjs` | [desktop-window-zoom.md](desktop-window-zoom.md) |
-| Global search: Alt/Option+K, settings results and pinyin matching | no | `verify-app` Bot mode path | [global-search.md](global-search.md) |
+| Global search: Alt/Option+K, settings results and pinyin matching | no | `verify-app` Assistant mode path | [global-search.md](global-search.md) |
 | DeepSeekBot device-local appearance | no | `scripts/e2e-local-appearance.mjs` | [local-appearance.md](local-appearance.md) |
 | Functional Panel appearance | no | `scripts/e2e-panel-appearance.mjs`, `scripts/e2e-nested-appearance.mjs` | [panel-appearance.md](panel-appearance.md) |
 | Global panel materials | no | `scripts/e2e-global-materials.mjs` | [global-materials.md](global-materials.md) |
@@ -28,8 +28,8 @@ One file per user-facing feature. Each file has four sections: `Sub-features`, `
 
 | Feature                                                                                            | Needs a model              | Scripted journey                                                                                     | File                                                 |
 | -------------------------------------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| Bot mode entry and the default DeepSeek Bot                                                        | no                         | `scripts/e2e-bot-mode-sidebar.mjs`, `scripts/e2e-panel-workspace.mjs`, `scripts/e2e-bot-mode-exit.mjs`                                                                   | [bot-mode.md](bot-mode.md)                           |
-| Bot mode dock (desktop layout, unified Sessions, Channel header, Profile, settings, files and Inbox) | no | `scripts/e2e-panel-workspace.mjs`, `scripts/e2e-channel-sessions.mjs`, `scripts/e2e-bot-subpanels.mjs`, `scripts/e2e-browser-computer-subpanels.mjs`, `scripts/e2e-panel-size-persistence.mjs`, `scripts/e2e-panel-resize-stability.mjs`, `scripts/e2e-nested-channel-panels.mjs`, `scripts/e2e-channel-sessions-desktop.mjs`, `scripts/e2e-bot-mode-sidebar.mjs` | [bot-mode-dock.md](bot-mode-dock.md) |
+| Assistant mode entry and the default DeepSeek Bot                                                        | no                         | `scripts/e2e-bot-mode-sidebar.mjs`, `scripts/e2e-panel-workspace.mjs`, `scripts/e2e-bot-mode-exit.mjs`                                                                   | [bot-mode.md](bot-mode.md)                           |
+| Assistant mode dock (desktop layout, unified Sessions, Channel header, Profile, settings, files and Inbox) | no | `scripts/e2e-panel-workspace.mjs`, `scripts/e2e-channel-sessions.mjs`, `scripts/e2e-bot-subpanels.mjs`, `scripts/e2e-browser-computer-subpanels.mjs`, `scripts/e2e-panel-size-persistence.mjs`, `scripts/e2e-panel-resize-stability.mjs`, `scripts/e2e-nested-channel-panels.mjs`, `scripts/e2e-channel-sessions-desktop.mjs`, `scripts/e2e-bot-mode-sidebar.mjs` | [bot-mode-dock.md](bot-mode-dock.md) |
 | Composer main/task model settings, presets and Orchestrator shortcuts | yes, for reply evidence | none | [orchestrator-model-switch.md](orchestrator-model-switch.md) |
 | Native model settings handoff | no | `verify-app` settings path | [native-settings-handoff.md](native-settings-handoff.md) |
 | Live IM Bot pickers | no | `verify-app` settings path | [im-bot-pickers.md](im-bot-pickers.md) |

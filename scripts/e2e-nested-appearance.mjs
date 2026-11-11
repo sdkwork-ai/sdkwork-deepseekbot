@@ -177,7 +177,7 @@ try {
     );
     await pause();
   }
-  if (!(await page.$('.bh-workspace-rail'))) await click('Bot mode');
+  if (!(await page.$('.bh-workspace-rail'))) await click('Assistant mode');
   const native = await page.evaluate(() => ({
     mode: document.body.hasAttribute('data-ds-dark-theme'),
     style: document.body.getAttribute('style'),

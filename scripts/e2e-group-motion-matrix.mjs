@@ -241,7 +241,7 @@ cdp.on('Network.eventSourceMessageReceived', (e) => {
 const proof = { route: scene.route, cases: [], nativeTimer: undefined };
 async function boot() {
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+  await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
   await page
     .waitForFunction(
       () =>
@@ -258,7 +258,7 @@ async function boot() {
   );
   await delay(500);
   for (let n = 0; n < 3 && !(await page.$('.bh-main')); n++) {
-    await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+    await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
     await page.evaluate(() =>
       [...document.querySelectorAll('button')]
         .find((b) => ['Configure later', '稍后配置'].includes(b.textContent?.trim() ?? ''))

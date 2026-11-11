@@ -24,7 +24,7 @@ try {
       .find((button) => ['Continue', '继续'].includes(button.textContent?.trim() ?? ''))
       ?.click(),
   );
-  const botButton = 'button[aria-label="Bot mode"], button[aria-label="Bot 模式"]';
+  const botButton = 'button[aria-label="Assistant mode"], button[aria-label="助理模式"]';
   await page.waitForSelector(botButton);
   await page.evaluate(() => {
     localStorage.removeItem('botharness/last-view.v1');
@@ -33,7 +33,7 @@ try {
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector(botButton);
   await new Promise((wait) => setTimeout(wait, 600));
-  if (await page.$('.bh-root')) throw new Error('Old startup switch reopened Bot mode');
+  if (await page.$('.bh-root')) throw new Error('Old startup switch reopened Assistant mode');
   await page.screenshot({ path: resolve(shots, '01-native-first-visit.png') });
 
   await page.click(botButton);
@@ -70,7 +70,7 @@ try {
   }
   await page.screenshot({ path: resolve(shots, '03-restored-channel.png') });
   await page.click(
-    'button[aria-label="Exit Bot mode"], button[aria-label="退出 Bot 模式"], ' + botButton,
+    'button[aria-label="Exit Assistant mode"], button[aria-label="退出助理模式"], ' + botButton,
   );
   await page.waitForFunction(() => document.querySelector('.bh-root') === null);
   const nativeView = await page.evaluate(() => localStorage.getItem('botharness/last-view.v1'));
@@ -80,7 +80,7 @@ try {
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector(botButton);
   await new Promise((wait) => setTimeout(wait, 600));
-  if (await page.$('.bh-root')) throw new Error('Bot mode reopened after native exit');
+  if (await page.$('.bh-root')) throw new Error('Assistant mode reopened after native exit');
   await page.screenshot({ path: resolve(shots, '04-restored-native.png') });
   console.log('LAST MODE AND CHANNEL RESTORE PASS');
 } finally {

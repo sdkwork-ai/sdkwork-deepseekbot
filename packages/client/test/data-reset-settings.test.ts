@@ -89,7 +89,7 @@ describe('DataResetSettings', () => {
       expect(view.host.textContent).toContain('清除全部 BotHarness 数据');
       await view.click('清除…');
       expect(dialog().getAttribute('aria-label')).toBe('清除全部 BotHarness 数据');
-      expect(view.host.textContent).toContain('会删除这台 Host 上的 3 个 Bot');
+      expect(view.host.textContent).toContain('会删除这台 Host 上的 3 个助理');
       const removed = view.host.querySelector('section[aria-label="会删除"]')!;
       expect(
         Array.from(removed.querySelectorAll('strong')).map((node) => node.textContent),

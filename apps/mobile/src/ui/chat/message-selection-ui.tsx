@@ -115,7 +115,7 @@ export function SelectionScreenshot({
                   {message.author === 'bot'
                     ? message.bot
                       ? botName(message.bot)
-                      : 'Bot'
+                      : 'Assistant'
                     : message.author === 'human'
                       ? t.activityRow.human
                       : t.feedback.system}{' '}

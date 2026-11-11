@@ -8,7 +8,7 @@
 
 ## How to get to it (user POV)
 
-In the isolated desktop, enter Bot mode → Assistant settings → General → Window zoom.
+In the isolated desktop, enter Assistant mode → Steward settings → General → Window zoom.
 Set a default, press ordinary Cmd+= once, and press Cmd+0 to reset to the saved default. The sidebar,
 settings modal and content must change together while manual font sizes remain unchanged.
 Ordinary product install carries the pinned adapter but does not enable it. Use the explicit
@@ -35,7 +35,7 @@ must refuse enable but still allow disable of either recognized owned link.
 
 ## Settings button (enable after quit)
 
-On the native Desktop Profile, Assistant settings → General shows "Enable window zoom" (or "Turn off window zoom").
+On the native Desktop Profile, Steward settings → General shows "Enable window zoom" (or "Turn off window zoom").
 Clicking it schedules the helper and the row says to quit the app fully; Cancel withdraws it. Quit
 with Cmd+Q (Windows: exit fully): the app must reopen by itself with zoom rows present (or gone after
 turning off). `deepseekbot window-zoom-setup-status|enable|disable|cancel` drive the same Host route;
@@ -97,7 +97,7 @@ as well: the browser fixture does not render the operating system traffic lights
 
 ## S2 settings recovery
 
-Reuse the existing isolated Profile with the S1 composition. Open Assistant settings at level 0,
+Reuse the existing isolated Profile with the S1 composition. Open Steward settings at level 0,
 then raise to +8 while it stays open. Navigation must switch to the compact section picker
 using local layout width (body CSS pixels), not the unchanged viewport media query. Open the
 picker, select Interface, scroll the content, then return to General. The settings card and

@@ -196,7 +196,7 @@ try {
     for (const label of ['Continue', 'Configure later', 'Skip tutorial']) await maybe(label);
     await new Promise((r) => setTimeout(r, 150));
   }
-  await click('Bot mode');
+  await click('Assistant mode');
   await page.waitForSelector('.bh-root.bh-main');
   await click('Image Formats QA: Idle Image Formats QA No messages yet');
   if (await page.$('.bh-workspace-rail [data-pinned-panel="bh:channel-body"]'))

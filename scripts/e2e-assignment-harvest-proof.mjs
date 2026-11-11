@@ -8,7 +8,7 @@ export function assertAssignmentHarvest(events, reports, sessionId, progressIds)
   );
   assert.equal(events.filter((event) => event.type === 'turn/end').length, 2, 'both Turns settled');
   const inbox = events.filter(
-    (event) => event.type === 'user/message' && JSON.stringify(event.data).includes('[Bot Inbox]'),
+    (event) => event.type === 'user/message' && JSON.stringify(event.data).includes('[Assistant Inbox]'),
   );
   assert.equal(inbox.length, 1, 'exactly one model-visible Inbox delivery');
   const body = JSON.stringify(inbox[0].data);

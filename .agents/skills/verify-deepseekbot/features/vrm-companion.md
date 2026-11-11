@@ -25,7 +25,7 @@
 
 ## How to get to it (user POV)
 
-Install the local `@botharness/vrm-companion` Bundle into the task-owned Profile. Enter Bot mode, select a Bot, open Messages from the rail if closed, then choose VRM Companion in the Messages header. The header pin icon (**Pin character globally**) creates an explicitly fixed instance. **Delete instance** in the fixed instance's Scene menu removes metadata; a normal close retains it. Group headers omit the contextual entry while fixed global instances remain available.
+Install the local `@botharness/vrm-companion` Bundle into the task-owned Profile. Enter Assistant mode, select a Bot, open Messages from the rail if closed, then choose VRM Companion in the Messages header. The header pin icon (**Pin character globally**) creates an explicitly fixed instance. **Delete instance** in the fixed instance's Scene menu removes metadata; a normal close retains it. Group headers omit the contextual entry while fixed global instances remain available.
 
 ## Driving it with verify-app
 

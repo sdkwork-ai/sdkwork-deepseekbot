@@ -2,7 +2,7 @@
 
 ## Sub-features
 
-- Linked computers: Desktop/Web Assistant settings → Connections → Manage → Tobs Connect loads the account list on entry,
+- Linked computers: Desktop/Web Steward settings → Connections → Manage → Tobs Connect loads the account list on entry,
   not on the three-second snapshot poll. Confirm sign-out of another computer; the current row has
   no revoke action. CLI: `connect-account-hosts` and `connect-account-revoke <host-id> --confirm`.
   At the five-link limit the unlinked current computer is explained without inventing a current row.
@@ -88,6 +88,6 @@ This journey needs no model or production account. Build the selected revision a
 
 Run the real `connect-sign-in --wait` CLI against that Host: synthetic authorization and registration succeed, tunnel provisioning returns 503, and `connect-status` exposes `account.issue=relay-unavailable` with `recovery=automatic`. The error remains visible even with no Cloud connections. Change only the fixture JSON `mode` to `ownership-failure`, retain its counters/registration, and sign in again. The owner must retain only the registration reference, report `recovery=sign-in`, and never silently resume the old account.
 
-Open Assistant settings → Connections → Manage. The first state explains automatic retry; the second tells the Human to sign in again later. `scripts/e2e-connect-account-recovery.mjs --name <n> --label <label> --expected automatic|sign-in --theme light|dark --locale en|zh` drives that real surface, compares the canonical API state, and saves a cropped Connect screenshot, accessibility tree and console evidence. `--expected legacy` is only for the pre-fix screenshot, where the same blocked state falsely promises automatic retry. Inspect and publish only the crop: the surrounding connection list can contain machine-specific network information.
+Open Steward settings → Connections → Manage. The first state explains automatic retry; the second tells the Human to sign in again later. `scripts/e2e-connect-account-recovery.mjs --name <n> --label <label> --expected automatic|sign-in --theme light|dark --locale en|zh` drives that real surface, compares the canonical API state, and saves a cropped Connect screenshot, accessibility tree and console evidence. `--expected legacy` is only for the pre-fix screenshot, where the same blocked state falsely promises automatic retry. Inspect and publish only the crop: the surrounding connection list can contain machine-specific network information.
 
 For authorization recovery, reset fixture counters and set `mode=authorization-transient`, then sign in: the first device-token reply is HTTP 503 and the second succeeds; the original authorization flow stays active, no second device authorization is requested, and the subsequent synthetic tunnel failure has `recovery=automatic`. Unit regressions separately cover post-login register/tunnel retry without duplicate registration, explicit OAuth refusals, `slow_down`, timeout backoff and in-flight expiry/late-response rejection. These controlled failures do not identify the historical production incident or qualify real WorkOS/Cloudflare availability. Stop the task Host and its owned subprocesses using the cleanup runbook.

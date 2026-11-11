@@ -193,7 +193,7 @@ try {
     );
     await pause();
   }
-  if (!(await page.$('.bh-workspace-rail'))) await click('Bot mode');
+  if (!(await page.$('.bh-workspace-rail'))) await click('Assistant mode');
 
   await settings();
   await select('Theme', 'Light');
@@ -329,7 +329,7 @@ try {
     await screenshot('cli-imported');
     await page.evaluate(() => {
       const b = [...document.querySelectorAll('button')].find((n) =>
-        /Exit Bot mode|退出 Bot 模式/.test(n.getAttribute('aria-label') || ''),
+        /Exit Assistant mode|退出助理模式/.test(n.getAttribute('aria-label') || ''),
       );
       if (!b) throw Error('exit missing');
       b.click();

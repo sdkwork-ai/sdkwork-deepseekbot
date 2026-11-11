@@ -144,7 +144,7 @@ try {
     await rpc('grantCreate', { slug: bot.slug, workspaceId: workspace.workspace.workspaceId })
   ).grant;
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]', {
+  await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]', {
     timeout: 60000,
   });
   await page
@@ -162,7 +162,7 @@ try {
       ?.click(),
   );
   for (let n = 0; n < 3 && !(await page.$('[data-channel-id]')); n++) {
-    await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+    await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
     await page
       .waitForFunction(
         () =>

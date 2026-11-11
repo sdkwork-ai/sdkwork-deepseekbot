@@ -11,7 +11,7 @@
 
 ## How to get to it (user POV)
 
-Open a Bot DM in Bot mode. The footer sits below the message input. Right-click or long-press its blank area or a chip to open Footer settings. In a group, the same panel offers workspace and speed only. Type `/footer` and select the shortcut to recover a hidden footer.
+Open a Bot DM in Assistant mode. The footer sits below the message input. Right-click or long-press its blank area or a chip to open Footer settings. In a group, the same panel offers workspace and speed only. Type `/footer` and select the shortcut to recover a hidden footer.
 
 ## Driving it with verify-app
 

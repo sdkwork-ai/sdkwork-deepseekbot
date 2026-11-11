@@ -142,8 +142,8 @@ const open = async () => {
   }
   await page.goto(instance.url, { waitUntil: 'networkidle2' });
   await dismiss();
-  const mode = await page.$('button[aria-label="Bot mode"]');
-  if (mode && (await mode.isVisible())) await click('Bot mode');
+  const mode = await page.$('button[aria-label="Assistant mode"]');
+  if (mode && (await mode.isVisible())) await click('Assistant mode');
   await page.waitForSelector('.bh-workspace-rail', { visible: true });
   await dismiss();
   const find = (node) =>

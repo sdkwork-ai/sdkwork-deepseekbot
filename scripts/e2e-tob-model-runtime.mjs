@@ -114,7 +114,7 @@ const click = async (name, scope = '') => {
   const names = {
     'Configure model': ['配置模型，开始与 Tob 对话', 'Configure a model to talk to Tob'],
     Close: ['关闭', 'Close'],
-    'Bot mode': ['Bot 模式', 'Bot mode'],
+    'Assistant mode': ['助理模式', 'Assistant mode'],
     'Bot settings': ['Bot 设置', 'Bot settings'],
     Advanced: ['高级', 'Advanced'],
     'Task model settings': ['任务模型设置…', 'Task model settings…'],
@@ -274,7 +274,7 @@ async function modelUi(route) {
   await page.$eval('.bh-model-entry', (node) => node.scrollIntoView({ block: 'center' }));
   await shot('model-plan-setting');
   await click('Cancel', '[role="dialog"]');
-  steps.push('real Bot model settings UI shows the approved model route');
+  steps.push('real Assistant model settings UI shows the approved model route');
   mark('model-ui-verified');
 }
 
@@ -522,18 +522,18 @@ try {
     () =>
       !!document.querySelector('.bh-workspace-rail') ||
       [...document.querySelectorAll('button')].some((n) =>
-        ['Bot mode', 'Bot 模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
+        ['Assistant mode', '助理模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
       ),
   );
   if (!(await page.$('.bh-workspace-rail'))) {
     const name = await page.evaluate(() =>
       [...document.querySelectorAll('button')]
         .find((n) =>
-          ['Bot mode', 'Bot 模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
+          ['Assistant mode', '助理模式'].includes(n.getAttribute('aria-label') || n.textContent?.trim()),
         )
         ?.getAttribute('aria-label'),
     );
-    await click(name || 'Bot mode');
+    await click(name || 'Assistant mode');
   }
   await page.waitForSelector('.bh-workspace-rail', { visible: true });
   mark('entry-home');
@@ -613,7 +613,7 @@ try {
       ])
         direct[name] = await humanCli(name, args);
       writeFileSync(resolve(out, 'human-cli-discovery.json'), JSON.stringify(direct, null, 2));
-      prompt = `Use native bash and the scoped deepseekbot CLI only. Run separate short commands: deepseekbot capabilities; deepseekbot model-catalog; deepseekbot list; deepseekbot model-plan ${target}; deepseekbot settings botharness-client; deepseekbot model-presets; deepseekbot telemetry-status; deepseekbot git-status; deepseekbot release-info; deepseekbot release-check. Use one native Shell call per command so each result is visible. Report the available model route, this Bot model plan revision, developerMode, model presets, telemetry lock, Git availability and release status. Do not change anything, delegate, seek credentials, or inspect config files.`;
+      prompt = `Use native bash and the scoped deepseekbot CLI only. Run separate short commands: deepseekbot capabilities; deepseekbot model-catalog; deepseekbot list; deepseekbot model-plan ${target}; deepseekbot settings botharness-client; deepseekbot model-presets; deepseekbot telemetry-status; deepseekbot git-status; deepseekbot release-info; deepseekbot release-check. Use one native Shell call per command so each result is visible. Report the available model route, this Assistant model plan revision, developerMode, model presets, telemetry lock, Git availability and release status. Do not change anything, delegate, seek credentials, or inspect config files.`;
     } else if (phase === 'maintenance-refusals') {
       maintenanceBefore = {
         telemetry: await rpc('telemetryStatus'),
@@ -719,7 +719,7 @@ try {
       assert.deepEqual(
         await rpc('modelPlan', { slug: target }),
         beforePlan,
-        'introduction changed Bot model',
+        'introduction changed Assistant model',
       );
       await page.waitForFunction(
         (id) => !!document.querySelector(`[data-message-id="${id}"]`),
@@ -879,7 +879,7 @@ try {
           resolve(out, 'model-plan-readback.json'),
           JSON.stringify({ target, reviewed, current }, null, 2),
         );
-        steps.push('Bot model plan canonical readback; provider/model credential unchanged');
+        steps.push('Assistant model plan canonical readback; provider/model credential unchanged');
         await modelUi(route);
       } else {
         const current = await settings();

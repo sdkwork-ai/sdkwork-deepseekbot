@@ -901,7 +901,7 @@ it('opens Bot Inbox only inside DM Messages, supports registry navigation and sw
   const draft = host.querySelector<HTMLInputElement>('[data-message-draft]')!;
   draft.value = 'unsent';
   expect(host.querySelector('[data-body="bot-inbox"]')).toBeNull();
-  await click('[data-dock-header] button[aria-label="Bot 收件箱"]');
+  await click('[data-dock-header] button[aria-label="助理收件箱"]');
   expect(host.querySelector('aside [data-body="bot-inbox"]')).not.toBeNull();
   expect(Object.keys(panels())).not.toContain('bot-inbox');
   expect(registry.isOpen('bot-inbox')).toBe(true);
@@ -921,7 +921,7 @@ it('opens Bot Inbox only inside DM Messages, supports registry navigation and sw
   group = true;
   act(() => root.render(view()));
   await settle();
-  expect(host.querySelector('button[aria-label="Bot 收件箱"]')).toBeNull();
+  expect(host.querySelector('button[aria-label="助理收件箱"]')).toBeNull();
   act(() => registry.open('bot-inbox'));
   await settle();
   expect(Object.keys(panels())).not.toContain('bot-inbox');

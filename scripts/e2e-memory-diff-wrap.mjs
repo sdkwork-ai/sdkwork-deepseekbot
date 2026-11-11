@@ -100,7 +100,7 @@ try {
   await page.waitForFunction(
     () =>
       [...document.querySelectorAll('button')].some((node) =>
-        /Bot 模式|Bot mode/.test(node.textContent ?? ''),
+        /助理模式|Assistant mode/.test(node.textContent ?? ''),
       ),
     { timeout: 30000 },
   );
@@ -127,7 +127,7 @@ try {
   }
   await page.evaluate(() =>
     [...document.querySelectorAll('button')]
-      .find((node) => /Bot 模式|Bot mode/.test(node.textContent ?? ''))
+      .find((node) => /助理模式|Assistant mode/.test(node.textContent ?? ''))
       ?.click(),
   );
   await page.waitForSelector('.bh-root.bh-main', { timeout: 30000 });

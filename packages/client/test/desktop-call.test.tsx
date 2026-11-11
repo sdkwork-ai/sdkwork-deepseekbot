@@ -446,9 +446,9 @@ describe('desktop call', () => {
       element.querySelector('button[aria-label="Turn camera off"]')?.getAttribute('aria-pressed'),
     ).toBe('true');
     const panel = document.body.querySelector('[role="group"][aria-label="Camera preview"]')!;
-    expect(panel.textContent).toContain('Changes in the picture go to the Bot');
+    expect(panel.textContent).toContain('Changes in the picture go to the Assistant');
     await act(async () => mac.camera.keyframe());
-    expect(panel.textContent).toContain('Keyframes sent to the Bot: 1');
+    expect(panel.textContent).toContain('Keyframes sent to the Assistant: 1');
     expect(panel.querySelector('.bh-call-camera-flash')?.getAttribute('data-flash')).toBe('true');
     expect(panel.querySelector('input[type="checkbox"]')).toBeNull();
     await act(async () =>

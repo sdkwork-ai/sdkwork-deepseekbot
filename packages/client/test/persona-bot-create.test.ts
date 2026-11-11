@@ -53,7 +53,7 @@ describe('PersonaBot creation form', () => {
       }),
     );
 
-    expect(markup).toContain('创建 Bot');
+    expect(markup).toContain('创建助理');
     expect(markup).toContain('名称用于列表和 @；内部身份由系统生成');
     expect(markup).not.toContain('Git 仓库地址');
     expect(markup).toContain('标签（可选）');
@@ -81,7 +81,7 @@ describe('PersonaBot creation form', () => {
       }),
     );
 
-    expect(markup).toContain('在「工作流」中创建 Bot');
+    expect(markup).toContain('在「工作流」中创建助理');
   });
 
   it('asks only for the repository when opened from Import from GitHub', () => {
@@ -94,7 +94,7 @@ describe('PersonaBot creation form', () => {
       }),
     );
 
-    expect(markup).toContain('从 GitHub 导入 Bot');
+    expect(markup).toContain('从 GitHub 导入助理');
     expect(markup).toContain('Git 仓库地址');
     expect(markup).not.toContain('人格起点');
   });
@@ -105,7 +105,7 @@ describe('PersonaBot creation form', () => {
 
   it('turns stable Host errors into actionable inline copy without exposing IDs', () => {
     expect(personaBotCreateError(new BridgeCallError('invalid-input', 'bad'))).toBe(
-      '请检查 Bot 名称、标签或简介。',
+      '请检查助理名称、标签或简介。',
     );
     expect(personaBotCreateError(new BridgeCallError('duplicate', 'exists'))).toBe(
       '系统未能分配唯一身份，请重试。',
@@ -138,7 +138,7 @@ async function withForm(
     open: ReturnType<typeof vi.fn>,
   ) => Promise<void>,
   source: 'empty' | 'git' = 'empty',
-  created: Record<string, unknown> = { slug: 'bot', displayName: 'Bot' },
+  created: Record<string, unknown> = { slug: 'bot', displayName: 'Assistant' },
 ) {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   const host = document.createElement('div');
@@ -383,7 +383,7 @@ describe('PersonaBot creation dialog', () => {
     const createBot = vi.fn(async () => ({ slug: 'ada', displayName: 'Ada' }));
     const { done } = await render(createBot);
     try {
-      expect(dialog().getAttribute('aria-label')).toBe('创建 Bot');
+      expect(dialog().getAttribute('aria-label')).toBe('创建助理');
       expect(fieldNamed('名称').placeholder).toBe('例如：小研');
       expect(fieldNamed('简介（可选）').placeholder).toBe('例如：负责代码审查与质量把关');
       expect(fieldNamed('标签（可选）').placeholder).toBe('例如：研究员');
@@ -429,7 +429,7 @@ describe('PersonaBot creation dialog', () => {
       expect(buttonNamed('取消').disabled).toBe(true);
       await act(async () => reject(new BridgeCallError('invalid-input', 'bad')));
       expect(host.querySelector('[role="alert"]')?.textContent).toContain(
-        '请检查 Bot 名称、标签或简介。',
+        '请检查助理名称、标签或简介。',
       );
       expect(buttonNamed('创建').disabled).toBe(false);
     } finally {

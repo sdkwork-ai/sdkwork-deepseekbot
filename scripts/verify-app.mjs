@@ -24,7 +24,7 @@ Commands:
   stop                            Stop the recorded Host and delete its temporary DSH_HOME.
 
 Shot options:
-  --bot-mode                Enter Bot mode before acting.
+  --bot-mode                Enter Assistant mode before acting.
   --click <name>            Click the element with this accessible name (repeatable, in order).
   --click-text <text>       Click the last visible button, link or tab in page order whose text contains this.
   --right-click <name>      Right-click the element with this accessible name to open its context menu.
@@ -425,9 +425,9 @@ async function shot(options, paths) {
     if (!options.keepOverlays) await dismissOverlays(page);
     if (options.botMode) {
       if ((await page.$('.bh-root.bh-main')) === null)
-        await page.locator(aria(options.locale === 'zh' ? 'Bot 模式' : 'Bot mode')).click();
+        await page.locator(aria(options.locale === 'zh' ? '助理模式' : 'Assistant mode')).click();
       await page.waitForSelector('.bh-root.bh-main', { timeout: 30_000 });
-      steps.push('entered Bot mode');
+      steps.push('entered Assistant mode');
       await new Promise((done) => setTimeout(done, 1500));
     }
     if (options.theme === 'dark')

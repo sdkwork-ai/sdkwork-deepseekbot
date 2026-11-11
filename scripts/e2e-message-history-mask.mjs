@@ -165,7 +165,7 @@ try {
     );
     await pause();
   }
-  if (!(await page.$('.bh-workspace-rail'))) await click(native ? 'Bot 模式' : 'Bot mode');
+  if (!(await page.$('.bh-workspace-rail'))) await click(native ? '助理模式' : 'Assistant mode');
   await click(native ? 'Bot 设置' : 'Bot settings');
   await click(native ? '界面设置' : 'Appearance');
   if (!native) {

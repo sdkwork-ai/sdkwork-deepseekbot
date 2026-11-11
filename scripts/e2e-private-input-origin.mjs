@@ -66,7 +66,7 @@ try {
     }
   };
   await dismiss();
-  await page.locator('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]').click();
+  await page.locator('button[aria-label="Assistant mode"],button[aria-label="助理模式"]').click();
   await dismiss();
   await page.waitForSelector('.bh-root.bh-main');
   const messagesButton = await page.waitForFunction(() =>

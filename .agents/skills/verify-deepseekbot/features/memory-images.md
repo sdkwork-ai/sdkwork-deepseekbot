@@ -9,7 +9,7 @@
 
 ## How to get to it (user POV)
 
-Enter Bot mode, select a disposable Bot DM in Channels and open Messages. Use the Messages header switches to open Memory files and select a PNG. Open Memory evolution and select its working change or a commit. Close the side panels to give the reader more room; the selected reader stays open. Click a ready image to enlarge it, then press Escape. Refresh the reader if mutable image content changed.
+Enter Assistant mode, select a disposable Bot DM in Channels and open Messages. Use the Messages header switches to open Memory files and select a PNG. Open Memory evolution and select its working change or a commit. Close the side panels to give the reader more room; the selected reader stays open. Click a ready image to enlarge it, then press Escape. Refresh the reader if mutable image content changed.
 
 ## Driving it with verify-app
 

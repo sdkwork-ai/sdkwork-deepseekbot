@@ -485,7 +485,7 @@ export const Config: Schema<BotHarnessConfig> = Schema.object({
   }).default(undefined as unknown as BotSubagentPresetConfig),
   marketplaceUrl: Schema.string()
     .default(DEFAULT_MARKETPLACE_URL)
-    .description('Bot Marketplace 服务地址'),
+    .description('助理市场服务地址'),
   telemetry: Schema.boolean()
     .default(true)
     .description(
@@ -1976,7 +1976,7 @@ export function apply(ctx: Context, config: BotHarnessConfig): void {
           id: randomUUID(),
           at: new Date().toISOString(),
           author: { kind: 'bot', slug: owner.botSlug },
-          body: '这个会话的权限模式被单独改动过，Host 已把它恢复。聊天会话的权限由此 Bot 工作区设置里的“完全访问”开关决定，不能在会话里单独修改。',
+          body: '这个会话的权限模式被单独改动过，Host 已把它恢复。聊天会话的权限由此助理工作区设置里的“完全访问”开关决定，不能在会话里单独修改。',
         })
         .catch(() => undefined);
   };
@@ -2605,19 +2605,19 @@ export function apply(ctx: Context, config: BotHarnessConfig): void {
               callId: execution.callId,
               reason:
                 execution.name === 'channel_attachment_open'
-                  ? 'This PersonaBot wants to edit the selected original attachment. All references to this file will show its current contents.'
+                  ? 'This Assistant wants to edit the selected original attachment. All references to this file will show its current contents.'
                   : execution.name === 'bot_create'
-                    ? 'This PersonaBot wants to create a new PersonaBot with a new Memory folder. The new Bot gets no grants, accesses or secrets from it.'
+                    ? 'This Assistant wants to create a new PersonaBot with a new Memory folder. The new Assistant gets no grants, accesses or secrets from it.'
                     : publishesBotMemory(JSON.stringify(execution.arguments) ?? '')
-                      ? 'This PersonaBot wants to upload a Bot to the Bot Marketplace. Its Memory files become public. Check them for secrets and private details first.'
+                      ? 'This Assistant wants to upload an Assistant to the Assistant Marketplace. Its Memory files become public. Check them for secrets and private details first.'
                       : deletesMarketplaceBot(JSON.stringify(execution.arguments) ?? '')
-                        ? 'This PersonaBot wants to delete one of your Uploaded Bots from the Bot Marketplace. Its files and counts are erased and cannot be restored.'
+                        ? 'This Assistant wants to delete one of your Uploaded Assistants from the Assistant Marketplace. Its files and counts are erased and cannot be restored.'
                         : changesApprovalPolicy(
                               JSON.stringify(execution.arguments) ?? '',
                               templateInUse,
                             )
-                          ? 'This PersonaBot wants to change persistent permissions or its approval policy. A Human can approve once or save Always allow for this tool in the current scope.'
-                          : 'This PersonaBot wants to run a command-line tool with a secret you entered. The program receives the secret and could reveal it. Check the program and every argument.',
+                          ? 'This Assistant wants to change persistent permissions or its approval policy. A Human can approve once or save Always allow for this tool in the current scope.'
+                          : 'This Assistant wants to run a command-line tool with a secret you entered. The program receives the secret and could reveal it. Check the program and every argument.',
               signal: execution.signal,
             });
         if (outcome !== 'allowed-once') {
@@ -3210,7 +3210,7 @@ export function apply(ctx: Context, config: BotHarnessConfig): void {
     },
     stopTurn: async (slug) => {
       const channel = core.channels.getOrCreateDm(slug);
-      if (channel === undefined) throw new Error('Bot DM is unavailable');
+      if (channel === undefined) throw new Error('Assistant DM is unavailable');
       const stopped = await bridgeMethods.channelBotStop({
         channelId: channel.id,
         botSlug: slug,

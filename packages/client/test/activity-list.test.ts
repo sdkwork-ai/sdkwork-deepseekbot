@@ -140,7 +140,7 @@ describe('compact Human Inbox interactions', () => {
       expect(
         [...rowActions.querySelectorAll('button')].map((button) => button.textContent),
       ).toEqual(['']);
-      expect(rowActions.textContent).not.toContain('查看 Bot 收件箱');
+      expect(rowActions.textContent).not.toContain('查看助理收件箱');
       await act(async () =>
         rowActions.querySelector<HTMLButtonElement>('.bh-activity-list-source-link')!.click(),
       );
@@ -159,7 +159,7 @@ describe('compact Human Inbox interactions', () => {
       );
       const maintenance = [
         ...view.host.querySelectorAll<HTMLButtonElement>('.bh-activity-list-detail button'),
-      ].find((button) => button.textContent === '查看 Bot 收件箱')!;
+      ].find((button) => button.textContent === '查看助理收件箱')!;
       expect(maintenance).toBeDefined();
       await act(async () => maintenance.click());
       expect(view.actions.openBot).toHaveBeenCalledWith('ada', 'inbox');

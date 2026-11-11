@@ -11,7 +11,7 @@ const cli = join(repoRoot, 'packages/deepseekbot/dist/deepseekbot.mjs');
 
 export const usage = `Usage: node scripts/e2e-install-review.mjs [--port <n>] [--keep] [--no-build]
 
-Real-model check for Tob's review before a Bot Marketplace install (#3063). It serves a local
+Real-model check for Tob's review before a Assistant Marketplace install (#3063). It serves a local
 Marketplace with two Uploaded Bots, one with a planted prompt injection and exfiltration
 instruction and one clean, launches an isolated Host pointed at it through the botharness-core
 marketplaceUrl config (the first launch creates the Profile, the second reads the patch), and

@@ -136,7 +136,7 @@ async function open(target) {
   await target.goto(instance.url, { waitUntil: 'networkidle2' });
   await target.waitForFunction(
     () =>
-      document.body.innerText.includes('Bot mode') ||
+      document.body.innerText.includes('Assistant mode') ||
       document.querySelector('.bh-root.bh-main, [data-workspace-dock]'),
   );
   await openTimelineConversation(target, channelId, () => dismiss(target));

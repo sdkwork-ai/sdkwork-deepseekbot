@@ -63,7 +63,7 @@ const inbox = async () => {
   await delay(700);
   await page.evaluate(() =>
     [...document.querySelectorAll('button')]
-      .find((button) => button.textContent?.includes('Bot 模式'))
+      .find((button) => button.textContent?.includes('助理模式'))
       ?.click(),
   );
   await page.waitForSelector('.bh-activity-list-entry');

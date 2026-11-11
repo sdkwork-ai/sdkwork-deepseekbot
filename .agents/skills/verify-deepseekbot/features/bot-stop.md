@@ -11,7 +11,7 @@ A Human stops a PersonaBot's running Orchestrator turn. The Host cancels the tur
 
 ## How to get to it (user POV)
 
-- Enter Bot mode, open the `DeepSeek Bot` DM, send a long task, wait for the square Stop button where Send was, and press it.
+- Enter Assistant mode, open the `DeepSeek Bot` DM, send a long task, wait for the square Stop button where Send was, and press it.
 
 ## Driving it with verify-app
 

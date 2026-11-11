@@ -69,7 +69,7 @@ const hasReply = async (marker) =>
   );
 async function openDM() {
   await page.goto(origin, { waitUntil: 'domcontentloaded' });
-  await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]', {
+  await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]', {
     timeout: 60000,
   });
   await page
@@ -88,7 +88,7 @@ async function openDM() {
   );
   await sleep(500);
   if (!(await page.$('[data-channel-id]')))
-    await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+    await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
   for (let attempt = 0; attempt < 3; attempt++) {
     const ready = await page
       .waitForFunction(
@@ -110,7 +110,7 @@ async function openDM() {
       consoleErrors,
     });
     assert.ok(attempt < 2, 'Bot navigation did not enter a Channel surface');
-    await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+    await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
   }
   await page.evaluate(() =>
     [...document.querySelectorAll('button')]

@@ -117,7 +117,7 @@ const click = async (name, scope = '') => {
     Members: ['Members', '成员'],
     'Configure model': ['配置模型，开始与 Tob 对话', 'Configure a model to talk to Tob'],
     Close: ['关闭', 'Close'],
-    'Bot mode': ['Bot 模式', 'Bot mode'],
+    'Assistant mode': ['助理模式', 'Assistant mode'],
     'Bot settings': ['Bot 设置', 'Bot settings'],
     Advanced: ['高级', 'Advanced'],
     'Task model settings': ['任务模型设置…', 'Task model settings…'],
@@ -844,7 +844,7 @@ try {
       if ([...document.querySelectorAll('.bh-workspace-rail')].some(visible))
         return { ready: true };
       const entry = controls.find((node) =>
-        /^(?:Bot mode|Bot 模式)/u.test(
+        /^(?:Assistant mode|助理模式)/u.test(
           node.getAttribute('aria-label') || node.textContent?.trim() || '',
         ),
       );
@@ -860,7 +860,7 @@ try {
     }
     await pause(300);
   }
-  assert.ok(entered, 'Client did not expose Bot mode workspace after onboarding');
+  assert.ok(entered, 'Client did not expose Assistant mode workspace after onboarding');
   await visibleElement('.bh-workspace-rail');
   mark('entry-home');
   await showTobDm(true);

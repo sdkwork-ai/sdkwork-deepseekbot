@@ -10,7 +10,7 @@
 
 ## How to get to it (user POV)
 
-Bot mode → Assistant settings → Appearance → Appearance recovery. Clear all Panel overrides in this mode acts immediately on the displayed mode. Restore all default appearance opens a scope confirmation before resetting both modes and shared wallpaper. Partial cleanup shows an explicit retry message.
+Assistant mode → Steward settings → Appearance → Appearance recovery. Clear all Panel overrides in this mode acts immediately on the displayed mode. Restore all default appearance opens a scope confirmation before resetting both modes and shared wallpaper. Partial cleanup shows an explicit retry message.
 
 ## Driving it with verify-app
 

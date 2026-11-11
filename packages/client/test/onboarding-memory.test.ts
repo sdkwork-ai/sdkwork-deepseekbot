@@ -126,7 +126,7 @@ const channel: ChannelSummary = {
   id: 'dm-memory',
   botSlug: 'memory-bot',
   type: 'dm',
-  name: 'Memory Bot',
+  name: 'Memory Assistant',
   members: ['memory-bot'],
   createdAt: '',
   updatedAt: '',
@@ -149,7 +149,7 @@ beforeEach(() => {
     [
       {
         slug: 'memory-bot',
-        displayName: 'Memory Bot',
+        displayName: 'Memory Assistant',
         roles: [],
         aggregateState: 'idle',
         workspaces: [],
@@ -262,7 +262,7 @@ describe('optional onboarding Memory', () => {
     await render();
     expect(container.querySelector('[role=dialog]')).toBeNull();
     await click('探索记忆');
-    expect(container.textContent).toContain('初始模板和 Bot 的回复不代表已保存');
+    expect(container.textContent).toContain('初始模板和助理的回复不代表已保存');
     await click('暂时不体验');
     expect(container.querySelector('[role=dialog]')).toBeNull();
     expect(onboardingFor(bridge).getSnapshot().receipt?.completed).toBe(true);
@@ -319,13 +319,13 @@ describe('optional onboarding Memory', () => {
     await act(async () =>
       container.querySelectorAll<HTMLButtonElement>('.bh-card-main')[1]!.click(),
     );
-    expect(button('发送给 Bot').disabled).toBe(true);
+    expect(button('发送给助理').disabled).toBe(true);
     await preference('  先给结论，再补充细节。  ');
     expect(actions.send).not.toHaveBeenCalled();
     await act(async () => store.setConversation({ sending: true }));
-    expect(button('发送给 Bot').disabled).toBe(true);
+    expect(button('发送给助理').disabled).toBe(true);
     await act(async () => store.setConversation({ sending: false }));
-    await click('发送给 Bot');
+    await click('发送给助理');
     expect(actions.send).toHaveBeenCalledExactlyOnceWith(
       zhTranslate('onboarding.memory.request', { preference: '先给结论，再补充细节。' }),
     );
@@ -341,7 +341,7 @@ describe('optional onboarding Memory', () => {
       container.querySelectorAll<HTMLButtonElement>('.bh-card-main')[1]!.click(),
     );
     await preference('Concise answers');
-    await click('发送给 Bot');
+    await click('发送给助理');
     expect(onboardingFor(bridge).getSnapshot().error).toBe('Model unavailable');
     await click('探索记忆');
     await act(async () =>

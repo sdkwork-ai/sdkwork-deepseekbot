@@ -188,7 +188,7 @@ try {
     );
     await pause();
   }
-  if (!(await page.$('.bh-workspace-rail'))) await click('Bot mode');
+  if (!(await page.$('.bh-workspace-rail'))) await click('Assistant mode');
 
   await settings();
   await select('Theme', 'Light');
@@ -353,7 +353,7 @@ try {
     await page.evaluate(() => {
       window.oldWallpaperVideo = document.querySelector('[data-bh-wallpaper] video');
       [...document.querySelectorAll('button')]
-        .find((n) => n.getAttribute('aria-label') === 'Exit Bot mode')
+        .find((n) => n.getAttribute('aria-label') === 'Exit Assistant mode')
         .click();
     });
     await pause();

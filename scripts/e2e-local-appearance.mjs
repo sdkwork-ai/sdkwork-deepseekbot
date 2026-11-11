@@ -85,7 +85,7 @@ async function open(p) {
 }
 const click = (name) => page.locator(`::-p-aria(${name}[role="button"])`).click();
 async function appearance() {
-  if (!(await page.$('.bh-workspace-rail'))) await click('Bot mode');
+  if (!(await page.$('.bh-workspace-rail'))) await click('Assistant mode');
   await page.waitForSelector('.bh-workspace-rail');
   await page.keyboard.press('Escape');
   await click('Bot settings');
@@ -190,8 +190,8 @@ try {
   assert.notEqual(invalid.code, 0);
   await otherContext.close();
   await page.keyboard.press('Escape');
-  await page.click('.bh-workspace-rail button[aria-label="Exit Bot mode"]');
-  await page.waitForSelector('button[aria-label="Bot mode"]');
+  await page.click('.bh-workspace-rail button[aria-label="Exit Assistant mode"]');
+  await page.waitForSelector('button[aria-label="Assistant mode"]');
   assert.deepEqual(
     await page.evaluate(() => ({
       mode: document.body.hasAttribute('data-ds-dark-theme'),

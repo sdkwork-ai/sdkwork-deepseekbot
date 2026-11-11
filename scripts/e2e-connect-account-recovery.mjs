@@ -79,7 +79,7 @@ try {
   await page.goto(instance.url, { waitUntil: 'domcontentloaded' });
   await page.goto(instance.url, { waitUntil: 'networkidle2' });
   await dismiss();
-  if (!(await page.$('.bh-root.bh-main'))) await click(zh ? 'Bot 模式' : 'Bot mode');
+  if (!(await page.$('.bh-root.bh-main'))) await click(zh ? '助理模式' : 'Assistant mode');
   await page.waitForSelector('::-p-aria(' + JSON.stringify(zh ? 'Bot 设置' : 'Bot settings') + ')');
   await dismiss();
   await click(zh ? 'Bot 设置' : 'Bot settings');

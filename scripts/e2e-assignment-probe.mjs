@@ -154,8 +154,8 @@ export async function captureAssignmentInbox({
         ?.click(),
     );
     for (let n = 0; n < 3 && !(await page.$('.bh-main')); n++) {
-      await page.waitForSelector('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
-      await page.click('button[aria-label="Bot mode"],button[aria-label="Bot 模式"]');
+      await page.waitForSelector('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
+      await page.click('button[aria-label="Assistant mode"],button[aria-label="助理模式"]');
       await page
         .waitForFunction(
           () =>
@@ -190,7 +190,7 @@ export async function captureAssignmentInbox({
     await page.evaluate(() => {
       for (const e of document.querySelectorAll('[data-panel-head]'))
         if (
-          /Bot Inbox|Bot 收件箱/.test(e.textContent ?? '') &&
+          /Assistant Inbox|Bot 收件箱/.test(e.textContent ?? '') &&
           e.getAttribute('aria-expanded') !== 'true'
         )
           e.click();

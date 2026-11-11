@@ -8,8 +8,8 @@ Apply the shared [UI design standard](ui-design.md) ([中文](ui-design.zh.md)) 
 
 ## Names
 
-- Call a PersonaBot **Bot** in the UI: "New Bot", "Search Bots and Channels", "搜索 Bot 和频道". `PersonaBot` stays the domain term in [GLOSSARY.md](../../GLOSSARY.md), code, ADRs and developer docs; only the visible text says Bot.
-- Call the protected steward **助理** in Chinese and **Assistant** in English, with "your assistant" inside an English sentence. Tob stays its domain term (see [GLOSSARY.md](../../GLOSSARY.md)); UI copy never names it Tob.
+- Call a PersonaBot **Assistant** in English and **助理** in Chinese: "New Assistant", "Search Assistants and Channels", "搜索助理和频道". `PersonaBot` stays the domain term in [GLOSSARY.md](../../GLOSSARY.md), code, ADRs and developer docs; visible text never says Bot.
+- Call the protected steward **总管** in Chinese and **Steward** in English, with "your steward" inside an English sentence. Tob stays its domain term (see [GLOSSARY.md](../../GLOSSARY.md)); UI copy never names it Tob.
 - Use the other product nouns from GLOSSARY.md as they are (Channel, Memory, Orchestrator, Assignment), with the casing the surrounding screen already uses.
 - Keep internal ids, protocol names, config keys and error codes out of the UI. Show them only where the reader needs them to act, such as a copyable diagnostic.
 
@@ -29,13 +29,13 @@ Examples:
 | Before                                                                                                                                                                                                         | After                                                                       |
 | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | Choose what the navigation number includes. Each pending item or unread conversation counts once. This device only; push notifications are unchanged.                                                          | Choose what the badge number counts. This phone only.                       |
-| Get a notification when a Bot needs you or replies to you. It shows the Channel, what the Bot needs, and a short preview of the command, question or message. Private input requests never show their content. | Get notified when a Bot needs you or replies. Private input is never shown. |
-| 仅把这个文件夹授权给此 Bot；不开启项目写入，不更改事项权限或审批规则。                                                                                                                                         | 只把这个文件夹授权给此 Bot，其他权限不变。                                  |
+| Get a notification when an Assistant needs you or replies to you. It shows the Channel, what the Assistant needs, and a short preview of the command, question or message. Private input requests never show their content. | Get notified when an Assistant needs you or replies. Private input is never shown. |
+| 仅把这个文件夹授权给此助理；不开启项目写入，不更改事项权限或审批规则。                                                                                                                                         | 只把这个文件夹授权给此助理，其他权限不变。                                  |
 
 ## Chinese
 
 - Write natural Chinese, not a word-for-word translation. Keep it as short as the English or shorter.
-- Keep product names that the UI shows in English (Bot, Orchestrator, Assignment, provider) in English; do not mix in a second translation for the same thing.
+- Keep product names that the UI shows in English (Orchestrator, Assignment, provider) in English; do not mix in a second translation for the same thing.
 - Use full-width punctuation and no space between Chinese characters and punctuation; keep one space between Chinese and Latin words.
 
 ## Platform differences

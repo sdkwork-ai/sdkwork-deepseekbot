@@ -176,7 +176,7 @@ const login = async (client) => {
   await client.waitForSelector('.bh-activity-list-entry', { timeout: 5000 }).catch(async () => {
     await client.evaluate(() =>
       [...document.querySelectorAll('button')]
-        .find((n) => n.textContent?.includes('Bot 模式'))
+        .find((n) => n.textContent?.includes('助理模式'))
         ?.click(),
     );
     await client.waitForSelector('.bh-activity-list-entry');
@@ -246,7 +246,7 @@ if (mode === 'row-actions') {
             (button) => button.getBoundingClientRect().right <= sourceBox.left + 1,
           ),
           repairTextButtonAbsent: others.every(
-            (button) => !['查看 Bot 收件箱', 'Open Bot Inbox'].includes(button.textContent.trim()),
+            (button) => !['查看 Bot 收件箱', 'Open Assistant Inbox'].includes(button.textContent.trim()),
           ),
         };
       }),
@@ -312,7 +312,7 @@ if (mode === 'row-actions') {
       ),
     );
     console.log(
-      'PASS: rightmost source navigation, repair maintenance in details, owning Bot Inbox navigation without replay or ignore.',
+      'PASS: rightmost source navigation, repair maintenance in details, owning Assistant Inbox navigation without replay or ignore.',
     );
   } catch (error) {
     console.error(error);

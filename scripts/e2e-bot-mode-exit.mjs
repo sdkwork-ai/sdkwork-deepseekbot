@@ -73,7 +73,7 @@ async function capture(name) {
   results.push({ name, ...observed });
 }
 async function enter() {
-  await click(label('Bot mode', 'Bot 模式'));
+  await click(label('Assistant mode', '助理模式'));
   await page.waitForSelector(rail);
   await dismissNotices();
 }
@@ -89,7 +89,7 @@ async function exitBottom(key) {
     await page.keyboard.press(key);
   } else await button.click();
   await page.waitForSelector('[data-bh-workspace-frame]', { hidden: true });
-  await page.waitForSelector(`::-p-aria(${label('Bot mode', 'Bot 模式')}[role="button"])`);
+  await page.waitForSelector(`::-p-aria(${label('Assistant mode', '助理模式')}[role="button"])`);
 }
 try {
   await page.setViewport({ width: 1440, height: 900 });
@@ -104,7 +104,7 @@ try {
   await dismissNotices();
   chinese = await page.evaluate(
     () =>
-      !!document.querySelector('button[aria-label="Bot 模式"], button[aria-label="退出 Bot 模式"]'),
+      !!document.querySelector('button[aria-label="助理模式"], button[aria-label="退出助理模式"]'),
   );
   if (!(await page.$(rail))) await enter();
   await dismissNotices();
@@ -189,7 +189,7 @@ try {
     await enter();
   }
   step = 'top-logo-return';
-  await page.click(`${rail} button[aria-label="${label('Exit Bot mode', '退出 Bot 模式')}"]`);
+  await page.click(`${rail} button[aria-label="${label('Exit Assistant mode', '退出助理模式')}"]`);
   await page.waitForSelector('[data-bh-workspace-frame]', { hidden: true });
   await enter();
   step = 'short-window';
