@@ -9,6 +9,7 @@ Assistant mode swaps the native DSH session view for the BotHarness conversation
 - `bottom-return` adds a permanent **Back to Harness / 返回 Harness** icon directly below Steward settings in the qualified wide workspace Control Rail, using the same exit operation as the top logo. It remains visible without hover or tutorial completion.
 - `exit` leaves Assistant mode with the header logo, which morphs into **Exit Assistant mode** on hover or keyboard focus, and brings back the native left column.
 - `default-bot` prepares Assistant and opens its DM whenever Assistant mode opens with no selected Channel, so the empty welcome state is not shown while Assistant exists.
+- `companion` is opt-in: a new Profile shows no Window Companion until one is selected in Assistant settings → Window companions. An old auto-created default is removed on the next Client load ([ADR-0309](../../../../docs/adr/0309-window-companions-are-opt-in.md)).
 - `welcome-letter` preserves the older DeepSeek Bot welcome; fresh Assistant uses a once-only fixed greeting.
 - `getting-started` opens the tutorial checklist.
 

@@ -119,7 +119,7 @@ it('does not carry another client draft and guards concurrent welcome clicks', a
   release();
   await pending;
 });
-it('initializes the local companion only once and respects its later removal across clients', async () => {
+it('does not create a companion by default and drops the old auto-created default', async () => {
   const saved = new Map<string, string>();
   const dependencies = {
     storage: {
@@ -132,25 +132,59 @@ it('initializes the local companion only once and respects its later removal acr
     source: () => ({ readyState: 1, addEventListener() {}, close() {} }),
     update: async () => {},
   };
-  const first = new WindowCompanions(dependencies);
-  await first.start();
-  first.initializeDefault('ada');
-  expect(first.get('ada')).toBeDefined();
-  first.remove('ada');
-  first.initializeDefault('ada');
-  expect(first.get('ada')).toBeUndefined();
-  first.dispose();
-  const restored = new WindowCompanions(dependencies);
-  await restored.start();
-  restored.initializeDefault('ada');
-  expect(restored.get('ada')).toBeUndefined();
-  restored.dispose();
-  saved.clear();
-  const other = new WindowCompanions(dependencies);
-  await other.start();
-  other.initializeDefault('ada');
-  expect(other.get('ada')).toBeDefined();
-  other.dispose();
+  const fresh = new WindowCompanions(dependencies);
+  await fresh.start();
+  expect(fresh.get('ada')).toBeUndefined();
+  fresh.select('ada');
+  expect(fresh.get('ada')).toBeDefined();
+  fresh.dispose();
+
+  saved.set(
+    'botharness/companions/v2/qa',
+    JSON.stringify({
+      capacity: { layers: 3, retention: 20 },
+      speechSound: false,
+      selections: [
+        {
+          botId: 'ada',
+          activity: true,
+          dm: true,
+          group: false,
+          visibility: 'shared',
+          walking: true,
+          position: 0.75,
+        },
+      ],
+    }),
+  );
+  saved.set('botharness/companions/default-initialized/qa', '1');
+  const migrated = new WindowCompanions(dependencies);
+  await migrated.start();
+  expect(migrated.get('ada')).toBeUndefined();
+  migrated.dispose();
+
+  saved.set(
+    'botharness/companions/v2/qa',
+    JSON.stringify({
+      capacity: { layers: 3, retention: 20 },
+      speechSound: false,
+      selections: [
+        {
+          botId: 'ada',
+          activity: true,
+          dm: true,
+          group: false,
+          visibility: 'shared',
+          walking: true,
+          position: 0.4,
+        },
+      ],
+    }),
+  );
+  const kept = new WindowCompanions(dependencies);
+  await kept.start();
+  expect(kept.get('ada')).toBeDefined();
+  kept.dispose();
 });
 
 it('shares active tutorial progress without reopening the checklist in another client', async () => {

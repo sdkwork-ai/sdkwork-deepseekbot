@@ -128,7 +128,6 @@ export class OnboardingController {
         await this.actions.load();
         if (receipt.defaultBotSlug) {
           await companion?.start();
-          companion?.initializeDefault(receipt.defaultBotSlug);
         }
         if (
           !receipt.journey &&

@@ -114,7 +114,6 @@ export class WindowCompanions {
   private generation: string | undefined;
   private recovering = false;
   private profileId: string | undefined;
-  private hadSavedPreferences = false;
   private revision = 0;
   private scheduled = false;
   private sending = false;
@@ -150,7 +149,6 @@ export class WindowCompanions {
       try {
         const raw = this.deps.storage?.getItem(this.key);
         const data = raw ? record(JSON.parse(raw)) : undefined;
-        this.hadSavedPreferences = raw !== null && raw !== undefined;
         if (data) {
           selections = Array.isArray(data['selections']) ? data['selections'] : [];
           this.state = {
@@ -160,11 +158,11 @@ export class WindowCompanions {
           };
         } else {
           const legacy = this.deps.storage?.getItem(`botharness/companions/v1/${profileId}`);
-          this.hadSavedPreferences ||= Boolean(legacy);
           selections = legacy ? [JSON.parse(legacy)] : [];
         }
       } catch {}
       this.state = { ...this.state, ready: true };
+      if (this.wasAutoCreatedDefault(selections)) selections = [];
       for (const raw of selections) {
         const selected = selection(raw);
         if (selected && !this.children.has(selected.botId)) this.add(selected);
@@ -178,16 +176,27 @@ export class WindowCompanions {
       }
     }
   }
-  initializeDefault(botId: string): void {
-    if (!this.state.ready || this.disposed || !this.profileId) return;
-    const key = `botharness/companions/default-initialized/${this.profileId}`;
+  private wasAutoCreatedDefault(values: readonly unknown[]): boolean {
+    if (values.length !== 1 || !this.profileId) return false;
+    let marked = false;
     try {
-      if (this.deps.storage?.getItem(key)) return;
-      this.deps.storage?.setItem(key, '1');
+      marked = Boolean(
+        this.deps.storage?.getItem(`botharness/companions/default-initialized/${this.profileId}`),
+      );
     } catch {
-      return;
+      return false;
     }
-    if (!this.hadSavedPreferences && this.children.size === 0) this.select(botId);
+    if (!marked) return false;
+    const selected = selection(values[0]);
+    return (
+      selected !== undefined &&
+      selected.activity &&
+      selected.dm &&
+      !selected.group &&
+      selected.visibility === 'shared' &&
+      selected.walking &&
+      selected.position === 0.75
+    );
   }
   select(botId: string): void {
     if (!this.state.ready || this.disposed || !botId || this.children.has(botId)) return;
