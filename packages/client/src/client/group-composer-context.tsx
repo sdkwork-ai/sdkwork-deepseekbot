@@ -220,6 +220,7 @@ export function GroupComposerContextView({
         <ChipButton
           ref={factMount}
           data-composer-chip="workspace"
+          variant="reading"
           collapseLabel
           icon={<ChannelSidebarIcon name="folder-key" size={14} />}
           label={chip}
@@ -229,6 +230,7 @@ export function GroupComposerContextView({
         {avgPerf === undefined ? null : (
           <ChipButton
             data-composer-chip="avg-perf"
+            variant="reading"
             icon={<ChannelSidebarIcon name="gauge" size={14} />}
             label={t('message.perf.speed', { tps: avgPerf.tokensPerSecond })}
             title={t('composerContext.avgPerf.title', { count: avgPerf.count })}

@@ -32,7 +32,7 @@ const styles = stylex.create({
     containerName: 'composer-footer',
     display: { default: 'flex', ':is([hidden])': 'none' },
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     gap: space.x3,
     minWidth: 0,
     minHeight: size.icon,
@@ -48,12 +48,13 @@ const styles = stylex.create({
     flexShrink: 1,
     alignItems: 'center',
   },
-  leading: { flexGrow: 1, flexBasis: '0%' },
+  leading: { flexGrow: 0, flexBasis: 'auto' },
   trailing: {
     justifyContent: 'flex-end',
     maxWidth: { default: '55%', '@container composer-footer (max-width: 480px)': '100%' },
   },
   item: { display: 'flex', flexShrink: 1, minWidth: 0, maxWidth: '100%', position: 'relative' },
+  after: { display: 'inline-flex', flexShrink: 0, alignItems: 'center' },
   editing: {
     outline: `${border.hairline} dashed ${color.borderStrong}`,
     outlineOffset: space.x1,
@@ -79,7 +80,6 @@ const styles = stylex.create({
 });
 
 const labels = {
-  model: 'entry.model',
   workspace: 'entry.workspaceGrants',
   usage: 'footer.usage',
   'avg-perf': 'footer.speed',
@@ -94,6 +94,7 @@ export function ComposerContextBar({
   label,
   hidden = false,
   trailing,
+  after,
   children,
   t,
   available = FOOTER_ITEMS,
@@ -102,6 +103,7 @@ export function ComposerContextBar({
   readonly label: string;
   readonly hidden?: boolean;
   readonly trailing?: ReactNode;
+  readonly after?: ReactNode;
   readonly children: ReactNode;
   readonly t?: BotHarnessTranslate;
   readonly available?: readonly FooterItem[];
@@ -362,12 +364,14 @@ export function ComposerContextBar({
           <>
             {side('left')}
             {side('right')}
+            {after === undefined ? null : <span {...stylex.props(styles.after)}>{after}</span>}
           </>
         ) : (
           <>
             <div data-composer-context-leading="" {...stylex.props(styles.side, styles.leading)}>
               {children}
             </div>
+            {after === undefined ? null : <span {...stylex.props(styles.after)}>{after}</span>}
             {trailing}
           </>
         )}

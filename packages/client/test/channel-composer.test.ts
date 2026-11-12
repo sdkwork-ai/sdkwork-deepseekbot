@@ -124,10 +124,10 @@ describe('Channel composer', () => {
     expect(failed).toContain('report.pdf');
     expect(failed).toContain('title="network unavailable"');
     expect(failed).toContain('重试');
-    expect(failed.match(/<button class="bh-send-btn"[^>]*>/u)?.[0]).toContain('disabled=""');
+    expect(failed.match(/<button[^>]*class="bh-send-btn"[^>]*>/u)?.[0]).toContain('disabled=""');
 
     const ready = render('ready');
-    expect(ready.match(/<button class="bh-send-btn"[^>]*>/u)?.[0]).not.toContain('disabled');
+    expect(ready.match(/<button[^>]*class="bh-send-btn"[^>]*>/u)?.[0]).not.toContain('disabled');
   });
 
   it('renders image previews and document files as distinct attachment shapes', () => {

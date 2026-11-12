@@ -204,6 +204,37 @@ export function useDmComposerContext({
       unsubscribe();
     };
   }, [actions, channelId, modelSlug, plan?.revision, modelRevision, readSessionCatalog]);
+  const grantSlug = bot === undefined || bot.deleted ? undefined : bot.slug;
+  const subscribeGrants = useCallback(
+    (listener: () => void) =>
+      grantSlug === undefined ? () => {} : subscribeWorkspaceGrantChanges(grantSlug, listener),
+    [grantSlug],
+  );
+  const revision = useSyncExternalStore(
+    subscribeGrants,
+    () => (grantSlug === undefined ? 0 : workspaceGrantRevision(grantSlug)),
+    () => 0,
+  );
+  const [grants, setGrants] = useState<WorkspaceGrantView[]>();
+  const [grantError, setGrantError] = useState(false);
+  const grantRequest = useRef(0);
+  const grantMount = useMountedResource<HTMLButtonElement>(() => {
+    if (grantSlug === undefined) return;
+    const version = ++grantRequest.current;
+    setGrantError(false);
+    void actions.listWorkspaceGrants(grantSlug).then(
+      (rows) => {
+        if (grantRequest.current === version)
+          setGrants(rows.filter((grant) => grant.revokedAt === undefined));
+      },
+      () => {
+        if (grantRequest.current === version) setGrantError(true);
+      },
+    );
+    return () => {
+      grantRequest.current += 1;
+    };
+  }, [actions, grantSlug, revision]);
   if (bot === undefined || bot.deleted || channelId === undefined) return;
   const data = modelData?.slug === bot.slug ? modelData : undefined;
   const catalog = data?.catalog;
@@ -346,12 +377,72 @@ export function useDmComposerContext({
       },
     },
   ];
+  const modelEntries = catalog?.models ?? [];
+  const workspaceLabel = grantError
+    ? t('composerContext.unavailable')
+    : grants === undefined
+      ? t('composerContext.loading')
+      : t('composerContext.workspaces', { count: grants.length });
+  const modelName = modelEntries.find(
+    (entry) => entry.provider === route?.provider && entry.model === route?.model,
+  )?.modelName;
+  const modelLabel =
+    (modelStatus === 'unavailable'
+      ? t('composerContext.unavailable')
+      : (modelName ?? route?.model)) ??
+    t(
+      modelStatus === 'loading'
+        ? 'modelPreset.loading'
+        : modelStatus === 'unavailable'
+          ? 'composerContext.unavailable'
+          : 'composerContext.noModel',
+    );
+  const effortName =
+    route?.reasoningEffort === undefined
+      ? undefined
+      : (modelEntries
+          .find((entry) => entry.provider === route.provider && entry.model === route.model)
+          ?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name ??
+        route.reasoningEffort);
   return {
     target: bot.slug,
     shortcuts: [
       ...shortcuts,
       { id: 'footer', label: t('footer.settings'), run: () => footerSettings.current?.open() },
     ],
+    model: (
+      <DmModelSeat
+        models={modelEntries}
+        sessionCatalog={data?.sessionCatalog}
+        route={route}
+        status={modelStatus}
+        busy={modelBusy}
+        error={modelError}
+        label={effortName === undefined ? modelLabel : `${modelLabel} · ${effortName}`}
+        ariaLabel={t('composerContext.modelMenuAria', {
+          model: modelLabel,
+          effort: effortName ?? defaultEffort,
+        })}
+        defaultEffortLabel={defaultEffort}
+        waitForSignedInModel={waitForSignedInModel}
+        onPick={applyModelRoute}
+        onLoad={refreshModels}
+        onReportFailure={reportModelFailure}
+        t={t}
+      />
+    ),
+    access: (
+      <ChipButton
+        ref={grantMount}
+        data-composer-chip="workspace"
+        variant="seat"
+        collapseLabel
+        icon={<ChannelSidebarIcon name="folder-key" size={14} />}
+        label={workspaceLabel}
+        onClick={() => open('workspace')}
+        aria-label={`${t('entry.workspaceGrants')} · ${bot.displayName} · ${workspaceLabel}`}
+      />
+    ),
     content: (
       <>
         <span ref={modelMount} aria-hidden="true" style={{ display: 'contents' }} />
@@ -366,18 +457,8 @@ export function useDmComposerContext({
           loading={loading}
           t={t}
           onUsage={onUsage}
-          onOpen={open}
           panel={panel?.slug === bot.slug ? panel.kind : undefined}
           onClose={() => setPanel(undefined)}
-          models={catalog?.models ?? []}
-          sessionCatalog={data?.sessionCatalog}
-          modelStatus={modelStatus}
-          modelBusy={modelBusy}
-          modelError={modelError}
-          onPickModel={applyModelRoute}
-          onReportModelFailure={reportModelFailure}
-          onReloadModels={refreshModels}
-          waitForSignedInModel={waitForSignedInModel}
           route={route}
         />
         {modelError === undefined ? null : (
@@ -393,6 +474,75 @@ export function useDmComposerContext({
   };
 }
 
+function DmModelSeat({
+  models,
+  sessionCatalog,
+  route,
+  status,
+  busy,
+  error,
+  label,
+  ariaLabel,
+  defaultEffortLabel,
+  waitForSignedInModel,
+  onPick,
+  onLoad,
+  onReportFailure,
+  t,
+}: {
+  models: readonly ModelCatalogEntryView[];
+  sessionCatalog: ModelCatalog | undefined;
+  route: ModelRouteView | undefined;
+  status: 'loading' | 'ready' | 'unavailable';
+  busy: boolean;
+  error: string | undefined;
+  label: string;
+  ariaLabel: string;
+  defaultEffortLabel: string;
+  waitForSignedInModel(selection: ModelSelection, timeoutMs?: number): Promise<boolean>;
+  onPick(route: ModelRouteView): Promise<AssistantModelPickResult>;
+  onLoad(): void;
+  onReportFailure(message: string): void;
+  t: BotHarnessTranslate;
+}): ReactElement {
+  const pickerHost = useModelPickerHost();
+  const catalog = useMemo<ModelCatalogView>(() => ({ models: [...models] }), [models]);
+  return (
+    <span data-composer-chip="model" style={{ display: 'contents' }}>
+      <AssistantModelPicker
+        catalog={catalog}
+        sessionCatalog={sessionCatalog}
+        route={route}
+        status={status}
+        busy={busy}
+        error={error}
+        disabled={status !== 'ready'}
+        onPick={onPick}
+        onLoad={onLoad}
+        requestSignIn={pickerHost.requestSignIn}
+        waitForSignedInModel={waitForSignedInModel}
+        renderFactorySlot={pickerHost.renderFactorySlot}
+        fallback={
+          <ComposerModelMenu
+            label={label}
+            ariaLabel={ariaLabel}
+            current={route}
+            catalog={catalog}
+            defaultEffortLabel={defaultEffortLabel}
+            disabled={status !== 'ready' || busy}
+            onPick={(picked) => {
+              void onPick(picked).then((result) => {
+                if (!result.ok) onReportFailure(result.error.message);
+              });
+            }}
+            t={t}
+          />
+        }
+      />
+    </span>
+  );
+}
+
 function DmComposerContextView({
   footerSettings,
   bot,
@@ -403,18 +553,8 @@ function DmComposerContextView({
   t,
   onUsage,
   avgPerf,
-  onOpen,
   panel,
   onClose,
-  models,
-  sessionCatalog,
-  modelStatus,
-  modelBusy,
-  modelError,
-  onPickModel,
-  onReportModelFailure,
-  onReloadModels,
-  waitForSignedInModel,
   route,
 }: {
   footerSettings?: Ref<ComposerFooterHandle>;
@@ -426,24 +566,10 @@ function DmComposerContextView({
   t: BotHarnessTranslate;
   onUsage(): void;
   avgPerf?: AveragePerfView | undefined;
-  onOpen(kind: 'model' | 'workspace'): void;
   panel: 'model' | 'workspace' | undefined;
   onClose(): void;
-  models: readonly ModelCatalogEntryView[];
-  sessionCatalog: ModelCatalog | undefined;
-  modelStatus: 'loading' | 'ready' | 'unavailable';
-  modelBusy: boolean;
-  modelError: string | undefined;
-  onPickModel(route: ModelRouteView): Promise<AssistantModelPickResult>;
-  onReportModelFailure(message: string): void;
-  onReloadModels(): void;
-  waitForSignedInModel(selection: ModelSelection, timeoutMs?: number): Promise<boolean>;
   route: ModelRouteView | undefined;
 }): ReactElement {
-  const pickerHost = useModelPickerHost();
-  const pickerCatalog = useMemo<ModelCatalogView>(() => ({ models: [...models] }), [models]);
-  const [grants, setGrants] = useState<WorkspaceGrantView[]>();
-  const [grantError, setGrantError] = useState(false);
   const [usageOpen, setUsageOpen] = useState(false);
   const [inspect, setInspect] = useState<{ slug: string; view: BotPromptView }>();
   const [context, setContext] = useState<Awaited<ReturnType<BridgeActions['botContext']>>>();
@@ -477,60 +603,6 @@ function DmComposerContextView({
     },
     [actions, bot.slug, route?.provider, route?.model],
   );
-  const subscribeGrants = useCallback(
-    (listener: () => void) => subscribeWorkspaceGrantChanges(bot.slug, listener),
-    [bot.slug],
-  );
-  const revision = useSyncExternalStore(
-    subscribeGrants,
-    () => workspaceGrantRevision(bot.slug),
-    () => 0,
-  );
-  const request = useRef(0);
-  const grantMount = useMountedResource<HTMLButtonElement>(() => {
-    const version = ++request.current;
-    setGrantError(false);
-    void actions.listWorkspaceGrants(bot.slug).then(
-      (rows) => {
-        if (request.current === version)
-          setGrants(rows.filter((grant) => grant.revokedAt === undefined));
-      },
-      () => {
-        if (request.current === version) setGrantError(true);
-      },
-    );
-    return () => {
-      request.current += 1;
-    };
-  }, [actions, bot.slug, revision]);
-  const modelName = models.find(
-    (entry) => entry.provider === route?.provider && entry.model === route?.model,
-  )?.modelName;
-  const modelLabel =
-    (modelStatus === 'unavailable'
-      ? t('composerContext.unavailable')
-      : (modelName ?? route?.model)) ??
-    t(
-      modelStatus === 'loading'
-        ? 'modelPreset.loading'
-        : modelStatus === 'unavailable'
-          ? 'composerContext.unavailable'
-          : 'composerContext.noModel',
-    );
-  const effortName =
-    route?.reasoningEffort === undefined
-      ? undefined
-      : (models
-          .find((entry) => entry.provider === route.provider && entry.model === route.model)
-          ?.efforts.find((effort) => effort.id === route.reasoningEffort)?.name ??
-        route.reasoningEffort);
-  const modelChipLabel = effortName === undefined ? modelLabel : `${modelLabel} · ${effortName}`;
-  const defaultEffortLabel = t('modelPreset.providerDefault');
-  const workspaceLabel = grantError
-    ? t('composerContext.unavailable')
-    : grants === undefined
-      ? t('composerContext.loading')
-      : t('composerContext.workspaces', { count: grants.length });
   const usageLabel = t('composerContext.usage', {
     name: bot.displayName,
     weeks: activity?.weeks ?? PROFILE_ACTIVITY_WEEKS,
@@ -547,16 +619,40 @@ function DmComposerContextView({
           used: context.usedTokens === null ? '?' : shortTokens(context.usedTokens),
           capacity: shortTokens(context.contextWindow),
         });
+  const usedPercent =
+    context === undefined || context.usedTokens === null || context.contextWindow <= 0
+      ? undefined
+      : Math.min(100, Math.max(0, Math.round((context.usedTokens / context.contextWindow) * 100)));
   return (
     <>
       <ComposerContextBar
         settingsRef={footerSettings}
         t={t}
         label={t('composerContext.label')}
+        available={['usage', 'avg-perf']}
+        after={
+          <span className="bh-composer-context-usage" aria-hidden={usedPercent === undefined}>
+            <span className="bh-composer-context-ring" data-percent={usedPercent ?? 0}>
+              <svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">
+                <circle className="bh-composer-context-ring-track" cx="7" cy="7" r="5.5" />
+                <circle
+                  className="bh-composer-context-ring-fill"
+                  cx="7"
+                  cy="7"
+                  r="5.5"
+                  strokeDasharray={`${(34.5575 * (usedPercent ?? 0)) / 100} 34.5575`}
+                  transform="rotate(-90 7 7)"
+                />
+              </svg>
+              {usedPercent === undefined ? null : <span>{usedPercent}%</span>}
+            </span>
+          </span>
+        }
         trailing={
           <ChipButton
             ref={usageMount}
             data-composer-chip="usage"
+            variant="reading"
             icon={<ChannelSidebarIcon name="ruler" size={14} />}
             label={compactUsage}
             onClick={() => setUsageOpen((open) => !open)}
@@ -567,44 +663,10 @@ function DmComposerContextView({
           />
         }
       >
-        <span data-composer-chip="model" style={{ display: 'contents' }}>
-          <AssistantModelPicker
-            catalog={pickerCatalog}
-            sessionCatalog={sessionCatalog}
-            route={route}
-            status={modelStatus}
-            busy={modelBusy}
-            error={modelError}
-            disabled={modelStatus !== 'ready'}
-            onPick={onPickModel}
-            onLoad={onReloadModels}
-            requestSignIn={pickerHost.requestSignIn}
-            waitForSignedInModel={waitForSignedInModel}
-            renderFactorySlot={pickerHost.renderFactorySlot}
-            fallback={
-              <ComposerModelMenu
-                label={modelChipLabel}
-                ariaLabel={t('composerContext.modelMenuAria', {
-                  model: modelLabel,
-                  effort: effortName ?? defaultEffortLabel,
-                })}
-                current={route}
-                catalog={pickerCatalog}
-                defaultEffortLabel={defaultEffortLabel}
-                disabled={modelStatus !== 'ready' || modelBusy}
-                onPick={(picked) => {
-                  void onPickModel(picked).then((result) => {
-                    if (!result.ok) onReportModelFailure(result.error.message);
-                  });
-                }}
-                t={t}
-              />
-            }
-          />
-        </span>
         {avgPerf === undefined ? null : (
           <ChipButton
             data-composer-chip="avg-perf"
+            variant="reading"
             icon={<ChannelSidebarIcon name="gauge" size={14} />}
             label={t('message.perf.speed', { tps: avgPerf.tokensPerSecond })}
             title={t('composerContext.avgPerf.title', { count: avgPerf.count })}
@@ -612,15 +674,6 @@ function DmComposerContextView({
             disabled
           />
         )}
-        <ChipButton
-          ref={grantMount}
-          data-composer-chip="workspace"
-          collapseLabel
-          icon={<ChannelSidebarIcon name="folder-key" size={14} />}
-          label={workspaceLabel}
-          onClick={() => onOpen('workspace')}
-          aria-label={`${t('entry.workspaceGrants')} · ${bot.displayName} · ${workspaceLabel}`}
-        />
       </ComposerContextBar>
       {usageOpen ? (
         <DmComposerUsagePopover

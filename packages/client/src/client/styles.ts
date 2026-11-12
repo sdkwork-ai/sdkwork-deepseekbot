@@ -4198,7 +4198,7 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
 }
 .bh-composer-rich-input:empty::before {
   content: attr(data-placeholder);
-  color: var(--dsw-alias-label-secondary);
+  color: var(--dsw-alias-label-caption);
   pointer-events: none;
 }
 .bh-composer-rich-input[contenteditable='false'] {
@@ -4446,7 +4446,7 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: ${space.x2};
+  gap: 0;
   width: min(952px, calc(100% - ${space.x4} * 2));
   align-self: center;
   margin: 0 ${space.x4} calc(${space.x4} + env(safe-area-inset-bottom, 0px));
@@ -4454,34 +4454,26 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
 }
 /* Cards above the composer (the Tob journey) share the composer's side inset. */
 .bh-composer-inset { margin-inline: ${space.x4}; }
+/* The composer card is the shell's InputBar: an elevated panel with the draft
+   on top and one control row at the bottom (measured DSH 0.2.2-rc.1). */
 .bh-composer {
-  --bh-composer-body-height: 34px;
-  --bh-composer-compact-padding-left: 44px;
-  --bh-composer-compact-padding-right: 54px;
   position: relative;
-  min-height: 50px;
+  display: flex;
+  flex-direction: column;
+  gap: ${space.x4};
   box-sizing: border-box;
-  overflow: hidden;
-  padding: ${space.x3} var(--bh-composer-compact-padding-right) ${space.x3} var(--bh-composer-compact-padding-left);
-  border: ${border.hairline} solid ${color.border};
-  border-radius: 25px;
-  background: var(--dsw-alias-bg-module-platform);
-  box-shadow: 0 8px 24px
-    color-mix(in srgb, var(--dsw-alias-label-primary) 9%, transparent);
+  width: 100%;
+  padding-top: ${space.x3};
+  border: 0;
+  --dsw-elevation-stroke-color: var(--dsw-alias-border-l2);
+  border-radius: var(--dsw-radius-panel);
+  background: var(--dsw-specific-input-major);
+  box-shadow: var(--dsw-elevation-soft);
+  font-size: var(--dsh-content-font-size, ${text.titleSize});
+  line-height: calc(24px + var(--dsh-content-font-delta, 0px));
   transition:
-    padding 220ms var(--ds-ease-in-out),
-    border-radius 220ms var(--ds-ease-in-out),
     border-color 160ms var(--ds-ease-in-out),
     box-shadow 160ms var(--ds-ease-in-out);
-}
-.bh-composer-expanded {
-  padding-top: ${space.x3};
-  padding-bottom: 48px;
-  border-radius: 20px;
-}
-.bh-composer-with-footer {
-  padding: 10px 12px 48px;
-  border-radius: 20px;
 }
 .bh-composer-reply {
   display: flex;
@@ -4534,9 +4526,9 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
 }
 
 .bh-composer-file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.bh-composer-add-file { position: absolute; left: 8px; bottom: 10px; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: ${border.hairline} solid ${color.border}; border-radius: ${radius.round}; background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-primary); cursor: pointer; }
-.bh-composer-add-file:hover { background: var(--dsw-alias-interactive-bg-active); }
-.bh-composer-add-file:focus-visible { outline: var(--dsw-focus-ring-width) solid var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary)); outline-offset: 2px; }
+.bh-composer-add-file { display: grid; place-items: center; flex: none; width: ${size.icon}; height: ${size.icon}; padding: 0; border: 0; border-radius: ${radius.round}; background: var(--dsw-specific-selector); color: var(--dsw-alias-label-primary); cursor: pointer; }
+.bh-composer-add-file:hover:not(:disabled) { background: var(--dsw-alias-interactive-bg-hover-solid); }
+.bh-composer-add-file:focus-visible { outline: ${border.focus} solid var(--dsw-alias-state-business-primary); outline-offset: ${space.x1}; }
 .bh-composer-add-file:disabled { opacity: .5; cursor: default; }
 .bh-composer-attachments {
   display: flex;
@@ -4612,52 +4604,126 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
   position: relative;
   display: flex;
   min-width: 0;
-  height: var(--bh-composer-body-height);
-  overflow: hidden;
+  max-height: 144px;
+  overflow-y: auto;
+  margin-right: ${space.x2};
 }
 .bh-composer-first-expand .bh-composer-body {
-  transition: height 220ms var(--ds-ease-in-out);
+  transition: max-height 220ms var(--ds-ease-in-out);
 }
 .bh-composer-input {
   display: block;
   font: inherit;
   width: 100%;
   min-width: 0;
-  min-height: 34px;
+  min-height: 36px;
   max-height: 144px;
   box-sizing: border-box;
   border: 0;
   outline: none;
   resize: none;
-  padding: 7px 8px 5px;
+  padding: ${space.x2} ${space.x3} 0 14px;
   background: transparent;
   color: var(--dsw-alias-label-primary);
-  line-height: ${text.bodyLine};
+  line-height: inherit;
+  caret-color: var(--dsw-alias-state-business-primary);
   overflow-wrap: anywhere;
 }
 .bh-composer-input::placeholder {
-  color: var(--dsw-alias-label-secondary);
+  color: var(--dsw-alias-label-caption);
 }
 .bh-composer-input:disabled {
   color: var(--dsw-alias-label-dimmed);
   cursor: default;
 }
-.bh-composer-footer {
-  position: absolute;
-  right: 10px;
-  bottom: 8px;
+/* The shell composer's control row: attach + access on the left, model + send
+   on the right. */
+.bh-composer-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${space.x4};
+  min-width: 0;
+  padding: ${space.x1} ${space.x3} 6px;
+}
+.bh-composer-tools {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  gap: ${space.x4};
+  min-width: 0;
+}
+.bh-composer-footer {
+  display: flex;
+  align-items: center;
+  gap: ${space.x4};
+  flex: none;
+  margin-left: auto;
+  min-width: 0;
+}
+/* The reading row below the card (the shell composer's dock). */
+.bh-composer-dock {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${space.x4};
+  max-width: 100%;
+  min-height: 22px;
+  padding-top: ${space.x2};
+}
+.bh-composer-context-usage {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+}
+.bh-composer-context-ring {
+  display: inline-flex;
+  align-items: center;
+  gap: ${space.x2};
+  padding: ${space.x1} ${space.x3};
+  border-radius: ${radius.sm};
+  color: var(--dsw-alias-label-tertiary);
+  font-size: ${text.bodySize};
+  line-height: ${text.bodyLine};
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.bh-composer-context-ring svg { flex: none; }
+.bh-composer-context-ring-track {
+  fill: none;
+  stroke: var(--dsw-alias-border-l3);
+  stroke-width: 2;
+}
+.bh-composer-context-ring-fill {
+  fill: none;
+  stroke: var(--dsw-alias-label-tertiary);
+  stroke-width: 2;
+  stroke-linecap: round;
 }
 .bh-send-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
   width: 34px;
-  min-width: 34px;
   height: 34px;
   padding: 0;
+  border: 0;
   border-radius: ${radius.round};
+  background: var(--dsw-alias-button-info-fill);
+  color: var(--dsw-static-neutral-bluish-00);
+  cursor: pointer;
+  transform: translateY(-2px);
+  transition: background-color 100ms ease;
 }
-.bh-composer-has-mic { --bh-composer-compact-padding-right: 92px; }
+.bh-send-btn:hover:not(:disabled) { background: var(--dsw-alias-button-info-hover); }
+.bh-send-btn:disabled { opacity: .4; cursor: default; }
+.bh-send-btn[data-sending]:disabled { opacity: 1; cursor: progress; }
+.bh-send-btn:focus-visible { outline: ${border.focus} solid var(--dsw-alias-state-business-primary); outline-offset: ${space.x1}; }
+.bh-send-spinner { animation: bh-send-spin 800ms linear infinite; }
+@keyframes bh-send-spin {
+  to { transform: rotate(360deg); }
+}
+html[data-botharness-motion='reduce'] .bh-send-spinner { animation: none; }
 .bh-composer-has-mic .bh-composer-footer { gap: ${space.x2}; }
 .bh-composer-mic {
   display: grid;
@@ -4716,10 +4782,9 @@ a.bh-message-file-download:hover, button.bh-message-file-download:hover { backgr
 .bh-composer[data-dictation='starting'],
 .bh-composer[data-dictation='listening'],
 .bh-composer[data-dictation='finishing'] {
-  border-color: var(--dsw-alias-state-business-primary);
   box-shadow:
     0 0 0 3px color-mix(in srgb, var(--dsw-alias-state-business-primary) 18%, transparent),
-    0 8px 24px color-mix(in srgb, var(--dsw-alias-state-business-primary) 16%, transparent);
+    var(--dsw-elevation-soft);
 }
 .bh-composer[data-dictation='listening'] .bh-composer-input,
 .bh-composer[data-dictation='finishing'] .bh-composer-input { caret-color: var(--dsw-alias-state-business-primary); }

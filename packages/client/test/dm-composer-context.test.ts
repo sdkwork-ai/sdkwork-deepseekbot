@@ -14,6 +14,10 @@ import { zhTranslate } from '../src/client/locale.js';
 import { rememberModelPlan } from '../src/client/model-plan-store.js';
 import { publishWorkspaceGrantChange } from '../src/client/workspace-grant-events.js';
 
+function contextParts(context: ReturnType<typeof useDmComposerContext>): ReactNode {
+  return createElement('div', null, context?.model, context?.access, context?.content);
+}
+
 it('refreshes mounted inherited footers after a successful global model save without changing fixed models', async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   const host = document.createElement('div');
@@ -84,7 +88,14 @@ it('refreshes mounted inherited footers after a successful global model save wit
       t: zhTranslate,
       onUsage() {},
     });
-    return createElement('div', null, inherited?.content, custom?.content);
+    return createElement(
+      'div',
+      null,
+      inherited?.model,
+      inherited?.content,
+      custom?.model,
+      custom?.content,
+    );
   }
   try {
     await act(async () => root.render(createElement(Harness)));
@@ -165,7 +176,7 @@ it('keeps model, workspace and usage actions available across mobile and desktop
     profileSessionUsage: async () => ({ slug: bot.slug, weeks: 26, since: '', rows: [] }),
   } as unknown as BridgeActions;
   function Harness() {
-    return useDmComposerContext({
+    return contextParts(useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -174,7 +185,7 @@ it('keeps model, workspace and usage actions available across mobile and desktop
       loading: false,
       t: zhTranslate,
       onUsage() {},
-    })?.content;
+    }));
   }
   const resize = (next: boolean) =>
     act(async () => {
@@ -183,20 +194,20 @@ it('keeps model, workspace and usage actions available across mobile and desktop
     });
   try {
     await act(async () => root.render(createElement(Harness)));
-    expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(3);
+    expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(1);
     await act(async () =>
       host.querySelector<HTMLButtonElement>('[data-composer-chip="usage"]')!.click(),
     );
     expect(document.body.querySelector('.bh-composer-usage-popover')).not.toBeNull();
     await resize(true);
-    expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(3);
+    expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(1);
     expect(host.querySelector('[data-composer-chip="workspace"]')).not.toBeNull();
     expect(document.body.querySelector('.bh-composer-usage-popover')).not.toBeNull();
     await act(async () =>
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
     );
     await act(async () =>
-      host.querySelector<HTMLButtonElement>('[data-composer-context] button')!.click(),
+      host.querySelector<HTMLButtonElement>('[data-composer-chip="model"] button')!.click(),
     );
     // The chip opens the same two-level model menu the shell's conversation
     // uses, not the full model editor dialog.
@@ -206,8 +217,8 @@ it('keeps model, workspace and usage actions available across mobile and desktop
     );
     expect(document.body.querySelector('[data-composer-model-menu]')).toBeNull();
     await resize(false);
-    expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(3);
-    expect(host.querySelector('[data-composer-context-leading]')!.textContent).toContain(
+    expect(host.querySelectorAll('[data-composer-context] button')).toHaveLength(1);
+    expect(host.querySelector('[data-composer-chip="workspace"]')!.textContent).toContain(
       '0 个工作区',
     );
     expect(host.querySelector('[data-composer-chip="usage"]')).not.toBeNull();
@@ -241,7 +252,7 @@ it('shows the full catalog model name for inherited and custom routes and keeps 
     listWorkspaceGrants: async () => [],
   } as unknown as BridgeActions;
   function Harness() {
-    return useDmComposerContext({
+    return contextParts(useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -250,12 +261,12 @@ it('shows the full catalog model name for inherited and custom routes and keeps 
       loading: false,
       t: zhTranslate,
       onUsage() {},
-    })?.content;
+    }));
   }
   try {
     await act(async () => root.render(createElement(Harness)));
     const model = () =>
-      host.querySelector<HTMLButtonElement>('[data-composer-context-leading] button')!;
+      host.querySelector<HTMLButtonElement>('[data-composer-chip="model"] button')!;
     expect(model().textContent).toBe(modelName);
     await act(async () =>
       rememberModelPlan(bot.slug, {
@@ -353,7 +364,7 @@ it('applies a picked model and reasoning level from the composer menu', async ()
     throw new Error(`Unexpected method ${method}`);
   }, createStore());
   function Harness() {
-    return useDmComposerContext({
+    return contextParts(useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -362,7 +373,7 @@ it('applies a picked model and reasoning level from the composer menu', async ()
       loading: false,
       t: zhTranslate,
       onUsage() {},
-    })?.content;
+    }));
   }
   const menuRow = (text: string) => {
     const menu = document.body.querySelector('[data-composer-model-menu]');
@@ -475,6 +486,8 @@ it('shares header pin, restores preferences, rejects unavailable and old targets
         ),
       ),
       context?.content,
+      context?.model,
+      context?.access,
     );
   }
   const render = () => act(async () => root.render(createElement(Harness)));
@@ -598,7 +611,7 @@ it('uses compact icon labels and a left context/right usage split, with keyboard
   } as unknown as BridgeActions;
   const details = vi.fn();
   function Harness() {
-    return useDmComposerContext({
+    return contextParts(useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -630,19 +643,19 @@ it('uses compact icon labels and a left context/right usage split, with keyboard
       loading: false,
       t: zhTranslate,
       onUsage: details,
-    })?.content;
+    }));
   }
   const render = () => act(async () => root.render(createElement(Harness)));
   const clickUsage = () =>
     act(async () => host.querySelector<HTMLButtonElement>('[data-composer-chip="usage"]')!.click());
   try {
     await render();
-    expect(host.querySelectorAll('[data-composer-context-leading] button')).toHaveLength(2);
-    expect(host.querySelector('[data-composer-context-leading]')!.textContent).toContain(
+    expect(host.querySelectorAll('[data-composer-context-leading] button')).toHaveLength(1);
+    expect(host.querySelector('[data-composer-chip="workspace"]')!.textContent).toContain(
       '0 个工作区',
     );
     expect(host.querySelector('[data-composer-chip="usage"]')!.textContent).toBe('28K / 1M');
-    expect(host.querySelectorAll('[data-composer-context] button svg')).toHaveLength(3);
+    expect(host.querySelectorAll('[data-composer-context] button svg')).toHaveLength(1);
     await clickUsage();
     expect(details).not.toHaveBeenCalled();
     await act(async () =>
@@ -752,7 +765,7 @@ it('renders the shell model picker factory over the bot route when the host publ
   } as unknown as BridgeActions;
   const renderFactorySlot = vi.fn(() => createElement('span', { 'data-model-picker': 'factory' }));
   function Harness() {
-    const content = useDmComposerContext({
+    const context = useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -761,11 +774,11 @@ it('renders the shell model picker factory over the bot route when the host publ
       loading: false,
       t: zhTranslate,
       onUsage() {},
-    })?.content;
+    });
     return createElement(
       ModelPickerHostContext.Provider,
       { value: { renderFactorySlot: renderFactorySlot as unknown as RenderFactorySlot } },
-      content,
+      contextParts(context),
     );
   }
   const settle = () =>
@@ -832,7 +845,7 @@ it('keeps the model picker enabled while an open-triggered catalog refresh is in
       onClick: () => inputs.load(),
     })) as unknown as RenderFactorySlot;
   function Harness() {
-    const content = useDmComposerContext({
+    const context = useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -841,11 +854,11 @@ it('keeps the model picker enabled while an open-triggered catalog refresh is in
       loading: false,
       t: zhTranslate,
       onUsage() {},
-    })?.content;
+    });
     return createElement(
       ModelPickerHostContext.Provider,
       { value: { renderFactorySlot } },
-      content,
+      contextParts(context),
     );
   }
   const settle = () =>
@@ -919,7 +932,7 @@ it('renders the session catalog groups when the host publishes them', async () =
     createElement('span', { 'data-model-picker': 'factory' }),
   ) as unknown as RenderFactorySlot;
   function Harness() {
-    const content = useDmComposerContext({
+    const context = useDmComposerContext({
       bot,
       channelId: `dm-${bot.slug}`,
       actions,
@@ -929,11 +942,11 @@ it('renders the session catalog groups when the host publishes them', async () =
       t: zhTranslate,
       readSessionCatalog,
       onUsage() {},
-    })?.content;
+    });
     return createElement(
       ModelPickerHostContext.Provider,
       { value: { renderFactorySlot } },
-      content,
+      contextParts(context),
     );
   }
   const settle = () =>

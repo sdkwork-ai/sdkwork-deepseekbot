@@ -14,7 +14,6 @@ import { createPortal } from 'react-dom';
 import * as stylex from '@stylexjs/stylex';
 
 import { ChipButton } from './ds/chip-button.js';
-import { ChannelSidebarIcon } from './channel-sidebar-icon.js';
 import { botEffortChoices, botModelMenuGroups, type BotModelGroup } from './bot-model-route.js';
 import type { BotHarnessTranslate } from './locale.js';
 import type { ModelCatalogView, ModelRouteView } from './bridge.js';
@@ -149,8 +148,8 @@ export function ComposerModelMenu({
     <>
       <ChipButton
         ref={trigger}
+        variant="seat"
         collapseLabel
-        icon={<ChannelSidebarIcon name="cpu" size={14} />}
         label={label}
         title={label}
         onClick={() => {
@@ -162,6 +161,24 @@ export function ComposerModelMenu({
         aria-haspopup="menu"
         aria-expanded={open}
         disabled={disabled}
+        after={
+          <svg
+            className="bh-composer-seat-chevron"
+            viewBox="0 0 12 12"
+            width="12"
+            height="12"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 4.5L6 7.5L9 4.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        }
       />
       {open && anchor !== undefined
         ? createPortal(

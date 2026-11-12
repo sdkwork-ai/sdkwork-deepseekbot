@@ -51,6 +51,34 @@ const styles = stylex.create({
   collapsedLabel: {
     display: { default: 'block', '@container composer-footer (max-width: 480px)': 'none' },
   },
+  seat: {
+    minHeight: size.icon,
+    paddingBlock: 0,
+    paddingInlineStart: space.x3,
+    paddingInlineEnd: space.x2,
+    gap: space.x2,
+    borderWidth: 0,
+    borderRadius: radius.sm,
+    fontSize: text.bodySize,
+    lineHeight: text.bodyLine,
+    fontWeight: text.strong,
+    maxWidth: '220px',
+  },
+  reading: {
+    minHeight: 0,
+    paddingBlock: space.x1,
+    paddingInline: space.x3,
+    gap: space.x2,
+    borderWidth: 0,
+    fontSize: text.bodySize,
+    lineHeight: text.bodyLine,
+    fontVariantNumeric: 'tabular-nums',
+    color: {
+      default: color.subtle,
+      ':hover': color.muted,
+      ':focus-visible': color.muted,
+    },
+  },
   wrapLabel: {
     overflow: 'visible',
     overflowWrap: 'anywhere',
@@ -64,14 +92,26 @@ export interface ChipButtonProps extends Omit<
 > {
   readonly icon?: ReactNode;
   readonly label: ReactNode;
+  readonly after?: ReactNode;
   readonly wrap?: boolean;
   readonly collapseLabel?: boolean;
   readonly trailing?: boolean;
+  readonly variant?: 'chip' | 'seat' | 'reading';
   readonly [data: `data-${string}`]: string | boolean | undefined;
 }
 
 export const ChipButton = forwardRef<HTMLButtonElement, ChipButtonProps>(function ChipButton(
-  { icon, label, wrap = false, collapseLabel = false, trailing = false, type = 'button', ...rest },
+  {
+    icon,
+    label,
+    after,
+    wrap = false,
+    collapseLabel = false,
+    trailing = false,
+    variant = 'chip',
+    type = 'button',
+    ...rest
+  },
   ref,
 ) {
   return (
@@ -83,7 +123,13 @@ export const ChipButton = forwardRef<HTMLButtonElement, ChipButtonProps>(functio
         rest['aria-label'] ?? (collapseLabel && typeof label === 'string' ? label : undefined)
       }
       title={rest.title ?? (collapseLabel && typeof label === 'string' ? label : undefined)}
-      {...stylex.props(styles.chip, wrap && styles.wrap, trailing && styles.trailing)}
+      {...stylex.props(
+        styles.chip,
+        variant === 'seat' && styles.seat,
+        variant === 'reading' && styles.reading,
+        wrap && styles.wrap,
+        trailing && styles.trailing,
+      )}
     >
       {icon === undefined ? null : (
         <span aria-hidden="true" {...stylex.props(styles.icon)}>
@@ -99,6 +145,11 @@ export const ChipButton = forwardRef<HTMLButtonElement, ChipButtonProps>(functio
       >
         {label}
       </span>
+      {after === undefined ? null : (
+        <span aria-hidden="true" {...stylex.props(styles.icon)}>
+          {after}
+        </span>
+      )}
     </button>
   );
 });

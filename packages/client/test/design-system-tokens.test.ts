@@ -125,6 +125,7 @@ const ALLOWANCES: readonly Allowance[] = [
       '.bh-rail-divider',
       '.bh-rail-preview-icon',
       '.bh-composer',
+      '.bh-composer-row',
       '.bh-composer-with-footer',
       '.bh-composer-input',
       "button:has(.bh-panel-glyph[data-wide='true']) > span:not(.bh-panel-glyph):not(.bh-panel-glyph-hit):not(.bh-panel-actions)",

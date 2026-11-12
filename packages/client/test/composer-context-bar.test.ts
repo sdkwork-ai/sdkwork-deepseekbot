@@ -82,8 +82,8 @@ beforeEach(async () => {
         label: 'footer',
         t,
         settingsRef: handle,
-        available: ['model'],
-        children: h('button', { 'data-composer-chip': 'model', onClick: clicked }, 'model'),
+        available: ['workspace'],
+        children: h('button', { 'data-composer-chip': 'workspace', onClick: clicked }, 'workspace'),
       }),
     ),
   );
@@ -134,7 +134,7 @@ it('keeps settings open while hiding the last item and can recover from the shor
   expect(host.querySelector<HTMLElement>('[data-composer-context]')!.hidden).toBe(true);
   expect(dialog()).not.toBeNull();
   expect(JSON.parse(localStorage.getItem('botharness.composer-footer.v1')!).hidden).toContain(
-    'model',
+    'workspace',
   );
   await act(async () =>
     [...host.querySelectorAll('button')].find((b) => b.textContent === 'close')!.click(),

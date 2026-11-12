@@ -1,4 +1,4 @@
-﻿import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@deepseek-ai/dsh-client-ui-primitives', () => ({}));
 
@@ -240,26 +240,23 @@ describe('client styles', () => {
   });
 
   it('keeps the composer island token-driven and clear of the message scroll area', () => {
-    expect(source).toMatch(/\.bh-composer \{[^}]*min-height: 50px/);
-    expect(source).toMatch(/\.bh-composer \{[^}]*border-radius: 25px/);
-    expect(source).toMatch(/\.bh-composer-expanded \{[^}]*padding-bottom: 48px/);
-    expect(source).toMatch(/\.bh-composer-expanded \{[^}]*border-radius: 20px/);
-    expect(source).toMatch(/\.bh-composer-with-footer \{[^}]*padding: 10px 12px 48px/);
-    expect(source).toMatch(
-      /\.bh-composer \{[^}]*background: var\(--dsw-alias-bg-module-platform\)/,
-    );
+    expect(source).toMatch(/\.bh-composer \{[^}]*gap: 12px/);
+    expect(source).toMatch(/\.bh-composer \{[^}]*border-radius: var\(--dsw-radius-panel\)/);
+    expect(source).toMatch(/\.bh-composer \{[^}]*background: var\(--dsw-specific-input-major\)/);
+    expect(source).toMatch(/\.bh-composer \{[^}]*box-shadow: var\(--dsw-elevation-soft\)/);
     expect(source).toMatch(/\.bh-composer-shell \{[^}]*safe-area-inset-bottom/);
     expect(source).not.toContain('.bh-composer-activity');
-    expect(source).toMatch(/\.bh-composer-input \{[^}]*max-height: 144px/);
-    expect(source).toMatch(/\.bh-composer-input \{[^}]*padding: 7px 8px 5px/);
+    expect(source).toMatch(/\.bh-composer-input \{[^}]*min-height: 36px/);
+    expect(source).toMatch(/\.bh-composer-input \{[^}]*padding: 4px 8px 0 14px/);
     expect(source).not.toMatch(/\.bh-composer-input \{[^}]*transition:/);
-    expect(source).toMatch(/\.bh-composer-body \{[^}]*height: var\(--bh-composer-body-height\)/);
     expect(source).not.toMatch(/\n\.bh-composer-body \{[^}]*transition:/);
     expect(source).toMatch(
-      /\.bh-composer-first-expand \.bh-composer-body \{[^}]*transition: height 220ms/,
+      /\.bh-composer-first-expand \.bh-composer-body \{[^}]*transition: max-height 220ms/,
     );
-    expect(source).toMatch(/\.bh-composer-add-file \{[^}]*bottom: 10px/);
-    expect(source).toMatch(/\.bh-composer-footer \{[^}]*bottom: 8px/);
+    expect(source).toMatch(/\.bh-composer-add-file \{[^}]*width: 28px/);
+    expect(source).toMatch(/\.bh-composer-row \{[^}]*justify-content: space-between/);
+    expect(source).toMatch(/\.bh-send-btn \{[^}]*background: var\(--dsw-alias-button-info-fill\)/);
+    expect(source).toMatch(/\.bh-composer-dock \{[^}]*min-height: 22px/);
     expect(source).not.toMatch(/\n\.bh-composer-add-file \{[^}]*transition:/);
     expect(source).not.toMatch(/\n\.bh-composer-footer \{[^}]*transition:/);
     expect(source).toContain("html[data-botharness-motion='reduce'] .bh-composer-add-file");

@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-export const FOOTER_ITEMS = ['model', 'workspace', 'usage', 'avg-perf'] as const;
+export const FOOTER_ITEMS = ['workspace', 'usage', 'avg-perf'] as const;
 export type FooterItem = (typeof FOOTER_ITEMS)[number];
 export type FooterSide = 'left' | 'right';
 export interface FooterPreferences {
@@ -10,7 +10,7 @@ export interface FooterPreferences {
 }
 export const FOOTER_STORAGE_KEY = 'botharness.composer-footer.v1';
 export function defaultFooterPreferences(): FooterPreferences {
-  return { left: ['model', 'workspace'], right: ['usage'], hidden: ['avg-perf'] };
+  return { left: ['workspace', 'usage'], right: [], hidden: ['avg-perf'] };
 }
 export function parseFooterPreferences(raw: string | null): FooterPreferences {
   try {
@@ -50,8 +50,7 @@ export function moveFooterItem(
   return result;
 }
 export function toggleFooterItem(value: FooterPreferences, item: FooterItem): FooterPreferences {
-  if (value.hidden.includes(item))
-    return moveFooterItem(value, item, item === 'usage' ? 'right' : 'left');
+  if (value.hidden.includes(item)) return moveFooterItem(value, item, 'left');
   return {
     left: value.left.filter((id) => id !== item),
     right: value.right.filter((id) => id !== item),

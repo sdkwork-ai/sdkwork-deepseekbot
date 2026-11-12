@@ -31,6 +31,8 @@ export interface ComposerContext {
   target: string;
   shortcuts: readonly ComposerShortcut[];
   content: ReactNode;
+  access?: ReactNode;
+  model?: ReactNode;
 }
 
 export interface ComposerSlashQuery {

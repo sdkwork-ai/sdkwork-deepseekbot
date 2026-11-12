@@ -12,18 +12,14 @@ import {
   useRef,
   useState,
   type ClipboardEvent,
-  type CSSProperties,
   type KeyboardEvent,
   type ReactElement,
 } from 'react';
 
 import {
-  Button,
   FileTypeIcon,
   IconCheckOutlineRegular,
   IconCloseOutlineRegular,
-  IconPaperclipOutlineRegular,
-  IconSendOutlineRegular,
   ImageLightbox,
   fileSizeText,
 } from '@deepseek-ai/dsh-client-ui-primitives';
@@ -326,34 +322,6 @@ export interface ComposerTextareaFit {
   height: number;
 }
 
-function compactComposerScrollHeight(element: HTMLElement, currentHeight: number): number {
-  const composer = element.closest<HTMLElement>('.bh-composer');
-  if (!composer?.classList.contains('bh-composer-with-footer')) return currentHeight;
-  const style = getComputedStyle(composer);
-  const left = Number.parseFloat(style.getPropertyValue('--bh-composer-compact-padding-left'));
-  const right = Number.parseFloat(style.getPropertyValue('--bh-composer-compact-padding-right'));
-  const compactWidth = composer.clientWidth - left - right;
-  if (!Number.isFinite(compactWidth) || compactWidth <= 0) return currentHeight;
-
-  const mirror = element.cloneNode(true) as HTMLElement;
-  if (element instanceof HTMLTextAreaElement && mirror instanceof HTMLTextAreaElement)
-    mirror.value = element.value;
-  mirror.setAttribute('aria-hidden', 'true');
-  mirror.style.position = 'absolute';
-  mirror.style.visibility = 'hidden';
-  mirror.style.pointerEvents = 'none';
-  mirror.style.width = compactWidth + 'px';
-  mirror.style.height = '0px';
-  mirror.style.minHeight = '0px';
-  mirror.style.maxHeight = 'none';
-  mirror.style.overflow = 'hidden';
-  mirror.style.transition = 'none';
-  composer.append(mirror);
-  const compactHeight = mirror.scrollHeight;
-  mirror.remove();
-  return compactHeight;
-}
-
 export function fitComposerTextarea(
   element: Pick<HTMLElement, 'scrollHeight' | 'style'>,
   maxHeight = 144,
@@ -364,13 +332,7 @@ export function fitComposerTextarea(
   const height = Math.min(scrollHeight, maxHeight);
   element.style.height = `${height}px`;
   element.style.overflowY = scrollHeight > maxHeight ? 'auto' : 'hidden';
-  const compactHeight =
-    scrollHeight <= singleLineHeight &&
-    typeof HTMLElement !== 'undefined' &&
-    element instanceof HTMLElement
-      ? compactComposerScrollHeight(element, scrollHeight)
-      : scrollHeight;
-  return { expanded: compactHeight > singleLineHeight, height };
+  return { expanded: scrollHeight > singleLineHeight, height };
 }
 
 export function ChannelComposer({
@@ -1100,7 +1062,6 @@ export function ChannelComposer({
         className={`bh-composer ${fit.expanded ? 'bh-composer-expanded' : 'bh-composer-compact'}${fit.animateFirstExpand ? ' bh-composer-first-expand' : ''}${reply === undefined ? '' : ' bh-composer-replying'}${hasFooter ? ' bh-composer-with-footer' : ''}${voice.ready ? ' bh-composer-has-mic' : ''}`}
         data-layout={fit.expanded ? 'expanded' : 'compact'}
         data-dictation={voice.snapshot.status}
-        style={{ '--bh-composer-body-height': `${fit.height}px` } as CSSProperties}
       >
         {reply === undefined ? null : (
           <div className="bh-composer-reply">
@@ -1279,53 +1240,102 @@ export function ChannelComposer({
             savedFileSelection.current = undefined;
           }}
         />
-        <button
-          type="button"
-          className="bh-composer-add-file"
-          aria-label={t('composer.addAttachment')}
-          disabled={sending || voice.active || attachments.length >= 10}
-          onMouseDown={() => {
-            savedFileSelection.current = selectionOffsets();
-          }}
-          onClick={() => {
-            savedFileSelection.current ??= selectionOffsets();
-            fileInputRef.current?.click();
-          }}
-        >
-          <IconPaperclipOutlineRegular size={16} />
-        </button>
+        <div className="bh-composer-row">
+          <div className="bh-composer-tools">
+            <button
+              type="button"
+              className="bh-composer-add-file"
+              aria-label={t('composer.addAttachment')}
+              disabled={sending || voice.active || attachments.length >= 10}
+              onMouseDown={() => {
+                savedFileSelection.current = selectionOffsets();
+              }}
+              onClick={() => {
+                savedFileSelection.current ??= selectionOffsets();
+                fileInputRef.current?.click();
+              }}
+            >
+              <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path
+                  d="M8 3v10M3 8h10"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+            {context?.access}
+          </div>
+          <div className="bh-composer-footer">
+            {voice.ready ? <ComposerMicButton voice={voice} disabled={sending} t={t} /> : null}
+            {context?.model}
+            <button
+              type="button"
+              className="bh-send-btn"
+              data-sending={sending ? '' : undefined}
+              aria-label={t('composer.send')}
+              aria-busy={sending || undefined}
+              disabled={
+                (!hasVisibleText(value) && attachments.length === 0) ||
+                sending ||
+                voice.active ||
+                mentions.some(
+                  (item) => item.kind === 'all-bots' && item.preview.recipients.length === 0,
+                ) ||
+                attachments.length > 10 ||
+                attachments.some((item) => item.status !== 'ready')
+              }
+              onClick={() => {
+                if (shortcutOptions.length > 0) {
+                  const shortcut = shortcutOptions[shortcutIndex % shortcutOptions.length];
+                  if (shortcut !== undefined) chooseShortcut(shortcut);
+                } else if (!hasShortcutArgument) void onSubmit();
+              }}
+            >
+              {sending ? (
+                <svg
+                  className="bh-send-spinner"
+                  viewBox="0 0 16 16"
+                  width="16"
+                  height="16"
+                  aria-hidden="true"
+                >
+                  <circle
+                    cx="8"
+                    cy="8"
+                    r="6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeOpacity="0.35"
+                    strokeWidth="2"
+                  />
+                  <path
+                    d="M8 2a6 6 0 0 1 6 6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                  <path
+                    d="M8.3125 0.980183C8.66767 1.0531 8.97902 1.20418 9.2627 1.43233C9.48724 1.61297 9.73029 1.85793 9.97949 2.10714L14.707 6.83468L13.293 8.24874L9 3.95577V15.0417H7V3.95577L2.70703 8.24874L1.29297 6.83468L6.02051 2.10714C6.26971 1.85793 6.51277 1.61297 6.7373 1.43233C6.97662 1.23986 7.28445 1.04402 7.6875 0.980183C7.8973 0.947006 8.1031 0.95516 8.3125 0.980183Z"
+                    fill="currentColor"
+                  />
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
         {voice.mounts.map((mount, index) => (
           <span key={index} ref={mount} hidden />
         ))}
-
-        <div className="bh-composer-footer">
-          {voice.ready ? <ComposerMicButton voice={voice} disabled={sending} t={t} /> : null}
-          <Button
-            className="bh-send-btn"
-            variant="primary"
-            size="sm"
-            icon={<IconSendOutlineRegular size={16} />}
-            aria-label={sending ? t('message.sending') : t('composer.send')}
-            disabled={
-              (!hasVisibleText(value) && attachments.length === 0) ||
-              sending ||
-              voice.active ||
-              mentions.some(
-                (item) => item.kind === 'all-bots' && item.preview.recipients.length === 0,
-              ) ||
-              attachments.length > 10 ||
-              attachments.some((item) => item.status !== 'ready')
-            }
-            onClick={() => {
-              if (shortcutOptions.length > 0) {
-                const shortcut = shortcutOptions[shortcutIndex % shortcutOptions.length];
-                if (shortcut !== undefined) chooseShortcut(shortcut);
-              } else if (!hasShortcutArgument) void onSubmit();
-            }}
-          />
-        </div>
       </div>
-      {context?.content}
+      {context?.content === undefined ? null : (
+        <div className="bh-composer-dock">{context.content}</div>
+      )}
     </div>
   );
 }
