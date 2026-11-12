@@ -26,6 +26,7 @@
     "@botharness/pixel-banner": "0.1.0",
     "@botharness/pixel-morph": "0.2.0",
     "@stylexjs/stylex": "0.19.1",
+    "@tanstack/react-query": "^5.104.3",
     "blobatar": "^2.7.0",
     "dockview-react": "8.4.1",
     "driver.js": "1.4.0",
