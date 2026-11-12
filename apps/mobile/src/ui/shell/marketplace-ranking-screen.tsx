@@ -82,7 +82,7 @@ export function MarketplaceRankingScreen() {
             renderItem={({ item }) => (
               <MarketplaceRow
                 bot={item.bot}
-                onPress={() => openMarketplaceBot(item.bot, target, name)}
+                onPress={() => openMarketplaceBot(item.bot, target)}
               />
             )}
           />

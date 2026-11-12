@@ -398,7 +398,6 @@ function WorkspaceRail({
                   ]}
                   onChange={(mode) => {
                     layoutMode.setMode(mode as LayoutMode);
-                    options.actions.telemetryEvent('layout:mode_select', { mode });
                   }}
                 />
               }

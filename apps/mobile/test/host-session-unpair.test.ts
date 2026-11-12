@@ -97,12 +97,6 @@ vi.mock('../src/host/native-notification-preferences', () => ({
     prepare: async () => undefined,
   },
 }));
-vi.mock('../src/telemetry/native', () => ({
-  mobileTelemetry: { foreground: () => undefined, send: () => undefined },
-}));
-vi.mock('../src/telemetry/connection', () => ({
-  createConnectionTelemetry: () => ({}),
-}));
 vi.mock('../src/host/client', () => ({
   createHostClient: () => ({
     start() {},

@@ -58,7 +58,6 @@ vi.mock('../src/ui/shell/host-drawer', () => ({
 }));
 vi.mock('../src/ui/primitives/device-alert-banner', () => ({ DeviceAlertBanner: () => null }));
 vi.mock('../src/ui/request-parts', () => ({ Notice: () => null }));
-vi.mock('../src/ui/shell/statistics-notice', () => ({ StatisticsNotice: () => null }));
 vi.mock('../src/ui/shell/bot-creation-notice', () => ({ BotCreationNotice: () => null }));
 vi.mock('../src/ui/shell/channel-creation-notice', () => ({ ChannelCreationNotice: () => null }));
 vi.mock('../src/ui/primitives/app-dialog-host', () => ({ AppDialogHost: () => null }));

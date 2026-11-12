@@ -73,12 +73,10 @@ describe('remote hosts', () => {
   it('pairs another remote with this browser and remembers it in browser storage', async () => {
     const storage = memoryStorage();
     const { carrier, calls } = fakeCarrier();
-    const record = vi.fn();
-    const sources = createRemoteHosts({ storage, carrier, record });
+    const sources = createRemoteHosts({ storage, carrier });
     expect(sources.getSnapshot()).toEqual({ hosts: [], avatars: new Map(), tab: ALL_HOSTS });
 
     const result = await sources.pair(link(), 'Browser on Laptop', 'host-a');
-    expect(record).toHaveBeenCalledWith('remote_host:host_pair_complete', { outcome: 'success' });
 
     expect(result).toMatchObject({ ok: true, host: { hostId: 'host-b', hostName: 'Studio' } });
     expect(calls[0]).toEqual({
@@ -105,8 +103,7 @@ describe('remote hosts', () => {
 
   it('refuses this remote’s own link, a second pairing and a broken link', async () => {
     const { carrier, calls } = fakeCarrier();
-    const record = vi.fn();
-    const sources = createRemoteHosts({ storage: memoryStorage(), carrier, record });
+    const sources = createRemoteHosts({ storage: memoryStorage(), carrier });
     expect(await sources.pair(link('host-a'), 'Browser', 'host-a')).toEqual({
       ok: false,
       code: 'this-host',
@@ -115,34 +112,25 @@ describe('remote hosts', () => {
       ok: false,
       code: 'link-invalid',
     });
-    expect(record).toHaveBeenCalledWith('remote_host:host_pair_complete', { outcome: 'refused' });
     await sources.pair(link(), 'Browser', 'host-a');
     expect(await sources.pair(link(), 'Browser', 'host-a')).toEqual({
       ok: false,
       code: 'already-paired',
     });
     expect(calls.filter((call) => call.url.endsWith('/pair'))).toHaveLength(1);
-    expect(record.mock.calls.map(([, properties]) => properties)).toEqual([
-      { outcome: 'refused' },
-      { outcome: 'refused' },
-      { outcome: 'success' },
-      { outcome: 'refused' },
-    ]);
   });
 
-  it('records an unreachable remote as a failed pairing', async () => {
-    const record = vi.fn();
+  it('refuses an unreachable remote link', async () => {
     const carrier: HostCarrier = {
       request: () => Promise.reject(new Error('offline')),
       openSocket: () => ({ send: () => {}, close: () => {} }),
     };
-    const sources = createRemoteHosts({ storage: memoryStorage(), carrier, record });
+    const sources = createRemoteHosts({ storage: memoryStorage(), carrier });
     expect(await sources.pair(link(), 'Browser', 'host-a')).toEqual({
       ok: false,
       code: 'unreachable',
       detail: 'remote:socket-offline',
     });
-    expect(record).toHaveBeenCalledWith('remote_host:host_pair_complete', { outcome: 'failed' });
   });
 
   it('keys conversations by remote so the same slug on two hosts never shares state', async () => {
@@ -533,7 +521,7 @@ describe('Host Feed lifecycle', () => {
     await refresh([received]);
     expect(show).toHaveBeenCalledTimes(2);
   });
-  it('records a conversation opened from a remote notification', async () => {
+  it('opens a conversation from a remote notification', async () => {
     const shown: { onclick: ((event: { preventDefault(): void }) => void) | null }[] = [];
     vi.stubGlobal('window', {
       focus() {},
@@ -551,8 +539,7 @@ describe('Host Feed lifecycle', () => {
     host.methods.set('humanAttention', (args) =>
       args.notifications ? { notificationVersion: 1, items } : { queryVersion: 1, items: [] },
     );
-    const record = vi.fn();
-    const sources = createRemoteHosts({ carrier: host.carrier, storage, record });
+    const sources = createRemoteHosts({ carrier: host.carrier, storage });
     releases.push(sources.subscribe(() => {}));
     await vi.waitFor(() => expect(sources.getSnapshot().hosts[0]?.inbox.status).toBe('ready'));
     await sources.notifications.set(host.hostId, { enabled: true });
@@ -570,7 +557,6 @@ describe('Host Feed lifecycle', () => {
     await vi.waitFor(() => expect(shown).toHaveLength(1));
     shown[0]!.onclick?.({ preventDefault() {} });
     expect(sources.getSnapshot().open?.hostId).toBe(host.hostId);
-    expect(record).toHaveBeenCalledWith('remote_host:conversation_open');
   });
 
   it('marks the remote DM channel read through its own credential and refreshes its Inbox', async () => {

@@ -990,8 +990,6 @@ deepseekbot release-restart --confirm
 deepseekbot plugin-check [--force]
 deepseekbot plugin-install <package> <version> --confirm
 deepseekbot plugin-restart --confirm
-deepseekbot telemetry-status
-deepseekbot telemetry-set --enabled | --disabled
 deepseekbot git-status
 deepseekbot git-install
 deepseekbot pairing-list <bot-id>
@@ -1339,9 +1337,6 @@ deepseekbot model-preset-apply <bot-id> --preset <preset-id> --expected-revision
 ### 助理 隐私、Git 与更新
 
 ```bash
-deepseekbot telemetry-status
-deepseekbot telemetry-set --enabled
-# 或：deepseekbot telemetry-set --disabled
 deepseekbot git-status
 deepseekbot git-install
 deepseekbot release-info
@@ -1350,7 +1345,7 @@ deepseekbot release-install <version> --confirm
 deepseekbot release-restart --confirm
 ```
 
-这些命令与设置页复用同一套 telemetry、Git 和 release owner。环境锁定的 telemetry 不能覆盖；应读取实际生效／锁定状态，不能假定已保存的偏好一定控制数据收集。Git 仅覆盖可用性和安装，不新增全局 Git 身份编辑器。
+这些命令与设置页复用同一套 Git 和 release owner。Git 仅覆盖可用性和安装，不新增全局 Git 身份编辑器。
 
 受限 `release-install` 和 `release-restart` 必须带显式 `--confirm`，而且每次调用都需要新的 Human 决定。Full access、记住的允许规则和自动审批都不能替代这次决定；该参数本身不等于审批。`git-install` 不使用 `--confirm`，继续沿用其既有审核策略。重启可能中断运行中的轮次并断开请求 CLI；结果不确定时不得自动重复安装或重启，应重新连接并读取发布状态后再决定下一步。仅在自己拥有的隔离 Profile 中验证这些操作，保留 Human 当前 Desktop。
 
@@ -1696,28 +1691,23 @@ printf '%s' '{"version":1,"session":"agent-qa-0001","entries":[{"ts":17800000000
 
 ### 消息反馈（#2811）
 
-单条消息反馈独立于匿名遥测。Host 生成冻结并脱敏的材料，默认选择锚点前后各 20 条消息，
+单条消息反馈只在本地生成冻结并脱敏的诊断材料，不会上传。默认选择锚点前后各 20 条消息，
 各侧可设为 0–100。`conversation`、`sessions`、`activity`、`deliveries`、`relatedChats` 默认开启，
-`wholeSessions` 默认关闭。提交前检查 `files`、类别选择与 `summary.omissions`。
+`wholeSessions` 默认关闭。下载前检查 `files`、类别选择与 `summary.omissions`。
 即使关闭 `conversation`，执行记录仍可能包含重复的聊天文本。
 
 ```bash
 printf '%s' '{"channelId":"<channel>","messageId":"<message>","before":20,"after":20}' | deepseekbot feedback-preview
 printf '%s' '{"token":"<preview-token>"}' | deepseekbot feedback-download --out evidence.zip
-printf '%s' '{"token":"<preview-token>","feedback":{"rating":"bad","tags":["no-response"],"comment":"合成测试"}}' | deepseekbot feedback-submit --confirm
 ```
 
-命令沿用在线 Host 鉴权，stdout 只输出一个 JSON。下载不覆盖已有文件。提交必须带 `--confirm`，
-评分为 `good` 或 `bad`，固定标签可选，评价最多 500 个 Unicode 字符。内容通过 stdin 或文件输入，
+命令沿用在线 Host 鉴权，stdout 只输出一个 JSON。下载不覆盖已有文件。内容通过 stdin 或文件输入，
 不要放在命令参数中。预览令牌属于当前 Host 连接，30 分钟后失效，最多保留最近四份。
-`preview-stale` 需要重新预览。提交失败后材料与评分被冻结，重试原请求沿用同一反馈编号；
-修改内容时请主动刷新预览。成功返回 `reportId`。仅评分、标签、短评、编号与版本发送到 PostHog，诊断包仍是本地下载。
-
-提交沿用现有 PostHog 接入地址，无需额外配置，不部署专用接收服务或私有诊断存储。见[反馈与本地诊断](message-feedback.md)。
+`preview-stale` 需要重新预览。没有 `feedback-submit` 命令，也没有反馈上传地址。见[反馈与本地诊断](message-feedback.md)。
 
 ### Failed-turn feedback
 
-`feedback-preview` accepts `failureTurn: true` alongside the canonical failed message's `channelId` and `messageId` in stdin JSON. Its frozen preview includes `uploadEvidence`: only the matching turn input and tool call/result events, redacted and capped at 128 KiB. Ambiguous/missing turn identity and oversized evidence refuse instead of uploading a whole Session. `feedback-submit --confirm` uploads that frozen turn with rating/tags/comment to the existing feedback endpoint. The diagnostic ZIP stays a separate download. Ordinary feedback keeps its existing metadata-only POST.
+`feedback-preview` accepts `failureTurn: true` alongside the canonical failed message's `channelId` and `messageId` in stdin JSON. Its frozen preview includes `uploadEvidence`: only the matching turn input and tool call/result events, redacted and capped at 128 KiB. Ambiguous/missing turn identity and oversized evidence refuse instead of including a whole Session. The evidence stays in the local diagnostic ZIP; nothing is uploaded.
 
 ### 直接调用凭据工具与来源恢复
 

@@ -690,25 +690,14 @@ describe('storage message commands', () => {
   });
 });
 
-describe('telemetry and Git commands', () => {
-  it('reads and sets usage statistics and Git through the Host', async () => {
-    const live = await host((method, args) =>
-      ok(
-        method.startsWith('telemetry')
-          ? { enabled: args['enabled'] ?? true, preference: args['enabled'] ?? true }
-          : { state: method === 'gitInstall' ? 'installing' : 'missing' },
-      ),
+describe('Git commands', () => {
+  it('reads and installs Git through the Host', async () => {
+    const live = await host((method) =>
+      ok({ state: method === 'gitInstall' ? 'installing' : 'missing' }),
     );
-    expect((await invoke(['telemetry-status'], live.url)).json.enabled).toBe(true);
-    expect((await invoke(['telemetry-set', '--disabled'], live.url)).json.enabled).toBe(false);
-    await invoke(['telemetry-set', '--enabled'], live.url);
-    expect((await invoke(['telemetry-set'], live.url)).json.error.code).toBe('usage');
     expect((await invoke(['git-status'], live.url)).json.state).toBe('missing');
     expect((await invoke(['git-install'], live.url)).json.state).toBe('installing');
     expect(live.calls).toEqual([
-      { method: 'telemetryStatus', args: {} },
-      { method: 'telemetrySet', args: { enabled: false } },
-      { method: 'telemetrySet', args: { enabled: true } },
       { method: 'gitStatus', args: {} },
       { method: 'gitInstall', args: {} },
     ]);

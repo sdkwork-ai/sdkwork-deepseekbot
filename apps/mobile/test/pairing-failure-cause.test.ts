@@ -9,7 +9,6 @@ import {
   relayFailureDetail,
   reasonCode,
 } from '../src/host/pairing-detail';
-import { sanitizeEvent } from '../src/telemetry/schema';
 
 const LAN = 'http://192.168.1.20:3080';
 const CONNECT = 'https://abc123.deepseekbot.dev';
@@ -314,46 +313,7 @@ describe('encrypted redemption', () => {
   });
 });
 
-describe('pairing telemetry detail', () => {
-  const base = {
-    uuid: '11111111-1111-4111-8111-111111111111',
-    distinct_id: '22222222-2222-4222-8222-222222222222',
-    timestamp: '2026-11-04T00:00:00.000Z',
-    event: 'pairing:attempt_complete',
-    properties: {
-      platform: 'ios',
-      environment: 'production',
-      language: 'en',
-      app_version: '1.5.3',
-      app_build: '15',
-      foreground_session_id: '33333333-3333-4333-8333-333333333333',
-      method: 'qr',
-      attempt_id: '44444444-4444-4444-8444-444444444444',
-      outcome: 'failed',
-      reason: 'unreachable',
-      duration_bucket: '1-5s',
-    },
-  };
-
-  it('keeps a well-formed detail and still accepts events without one', () => {
-    expect(sanitizeEvent(base)?.properties).not.toHaveProperty('detail');
-    expect(
-      sanitizeEvent({
-        ...base,
-        properties: { ...base.properties, detail: 'lan:channel-timeout,connect:http-530' },
-      })?.properties['detail'],
-    ).toBe('lan:channel-timeout,connect:http-530');
-  });
-
-  it('drops events whose detail carries free text', () => {
-    expect(
-      sanitizeEvent({
-        ...base,
-        properties: { ...base.properties, detail: 'connect:failed to reach 10.0.0.4' },
-      }),
-    ).toBeUndefined();
-  });
-
+describe('pairing failure detail', () => {
   it('caps joined details to the last four paths', () => {
     expect(
       joinFailureDetails(['lan:a', 'lan:b', 'lan:c', 'connect:d', 'connect:e'])?.split(','),

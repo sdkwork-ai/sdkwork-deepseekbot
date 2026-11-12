@@ -18,7 +18,7 @@ import { createHostClient } from '../src/host/client';
 import type { HostCarrier } from '../src/host/carrier';
 import { interfacePreferences } from '../src/ui/interface-preferences';
 
-it('prevents a stale scope submission and retains the frozen report on retry', async () => {
+it('previews and downloads the diagnostic archive without submitting anything', async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   await interfacePreferences.restore({
     read: async () => ({ language: 'en', appearance: 'light' }),
@@ -37,21 +37,13 @@ it('prevents a stale scope submission and retains the frozen report on retry', a
             JSON.stringify({
               token: 'p1',
               bytes: 10,
-              canSubmit: true,
+              canSubmit: false,
               files: [{ path: 'manifest.json', content: '{}' }],
               summary: { channels: [], sessions: [], admissions: 0, omissions: [] },
             }),
         };
       submissions.push(JSON.parse(String(init.body)));
-      return {
-        status: submissions.length === 1 ? 503 : 200,
-        text: async () =>
-          JSON.stringify(
-            submissions.length === 1
-              ? { error: { code: 'upload-failed' } }
-              : { reportId: 'accepted', expiresAt: '2026-11-25' },
-          ),
-      };
+      return { status: 500, text: async () => JSON.stringify({ error: { code: 'unexpected' } }) };
     },
   };
   const client = createHostClient({
@@ -71,11 +63,12 @@ it('prevents a stale scope submission and retains the frozen report on retry', a
   };
   await act(async () =>
     root.render(
-      <MessageFeedbackForm client={client} channelId="chat" messageId="m1" onClose={() => {}} />,
+      <MessageFeedbackForm client={client} channelId="chat" messageId="m1" />,
     ),
   );
   try {
-    expect(button('Submit feedback').disabled).toBe(true);
+    expect(button('Download diagnostics').disabled).toBe(false);
+    expect(container.querySelector('button[aria-label="Submit feedback"]')).toBeNull();
     expect(container.textContent).not.toContain('manifest.json');
     await act(async () => button('View files').click());
     expect(container.textContent).toContain('manifest.json');
@@ -86,21 +79,17 @@ it('prevents a stale scope submission and retains the frozen report on retry', a
     await act(async () =>
       (container.querySelector('[data-testid="feedback-inbox"]') as HTMLInputElement).click(),
     );
-    expect(button('Submit feedback').disabled).toBe(true);
+    expect(button('Download diagnostics').disabled).toBe(true);
     await act(async () => button('Refresh evidence').click());
-    await act(async () => button('Submit feedback').click());
-    expect(button('Good').disabled).toBe(true);
-    await act(async () => button('Submit feedback').click());
-    expect(container.textContent).toContain('accepted');
+    expect(button('Download diagnostics').disabled).toBe(false);
     await act(async () => button('Download diagnostics').click());
-    expect(shareFeedbackArchive).toHaveBeenCalledWith(new Uint8Array([80, 75]), 'accepted');
+    expect(shareFeedbackArchive).toHaveBeenCalledWith(new Uint8Array([80, 75]), 'p1');
     vi.mocked(shareFeedbackArchive).mockRejectedValueOnce(new Error('save-failed'));
     await act(async () => button('Download diagnostics').click());
     await act(async () => button('Refresh evidence').click());
     await act(async () => button('Download diagnostics').click());
-    expect(shareFeedbackArchive).toHaveBeenLastCalledWith(new Uint8Array([80, 75]), 'accepted');
-    expect(submissions).toHaveLength(2);
-    expect(submissions[0]).toEqual(submissions[1]);
+    expect(shareFeedbackArchive).toHaveBeenLastCalledWith(new Uint8Array([80, 75]), 'p1');
+    expect(submissions).toHaveLength(0);
   } finally {
     await act(async () => root.unmount());
     container.remove();

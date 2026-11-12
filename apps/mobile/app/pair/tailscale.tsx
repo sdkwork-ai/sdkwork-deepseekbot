@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Pressable, View, useWindowDimensions } from 'react-native';
 
 import { readPairingImage, type PairingImageResult } from '../../src/host/pairing-image';
-import type { PairingMethod } from '../../src/telemetry/schema';
+import type { PairingMethod } from '../../src/host/pairing';
 import { HOST_NAME_MAX } from '../../src/ui/design/host-look';
 import { useDesignTheme } from '../../src/ui/design/theme';
 import { pairingScan, radius, space } from '../../src/ui/design/tokens';

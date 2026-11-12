@@ -6,7 +6,6 @@ import type {
   MarketplaceSectionName,
 } from '../../../../../packages/core/src/marketplace/client';
 import { marketplace, useCatalogueResource } from '../../marketplace/native-catalogue';
-import { recordFeature } from '../../telemetry/features';
 import { pressTint, useDesignTheme } from '../design/theme';
 import { marketplaceHome, radius, space } from '../design/tokens';
 import { useMounted } from '../mounted';
@@ -156,7 +155,7 @@ function HotCarousel({
   const start = (bot: MarketplaceEntry) => {
     if (importing) return;
     setImporting(bot.id);
-    void importMarketplaceBot(bot, target, 'hot').finally(() => setImporting(undefined));
+    void importMarketplaceBot(bot, target).finally(() => setImporting(undefined));
   };
   return (
     <FlatList
@@ -171,7 +170,7 @@ function HotCarousel({
         <PosterCard
           bot={item.bot}
           busy={importing === item.bot.id}
-          onOpen={() => openMarketplaceBot(item.bot, target, 'hot')}
+          onOpen={() => openMarketplaceBot(item.bot, target)}
           onImport={() => start(item.bot)}
         />
       )}
@@ -186,10 +185,7 @@ export function MarketplaceSections({ target }: { target: MarketplaceTarget }) {
   const resource = marketplace.sections(locale);
   const state = useCatalogueResource(resource);
   const mounted = useMounted<ViewInstance>(() => {
-    void resource.refresh().then(() => {
-      if (resource.getSnapshot().value?.some((section) => section.entries.length > 0))
-        recordFeature('marketplace:section_view', {});
-    });
+    void resource.refresh();
   }, [resource]);
   const shown = (state.value ?? []).filter((section) => section.entries.length > 0);
   return (
@@ -217,7 +213,7 @@ export function MarketplaceSections({ target }: { target: MarketplaceTarget }) {
                 <CompactRow
                   key={bot.id}
                   bot={bot}
-                  onPress={() => openMarketplaceBot(bot, target, section.section)}
+                  onPress={() => openMarketplaceBot(bot, target)}
                 />
               ))}
             </View>

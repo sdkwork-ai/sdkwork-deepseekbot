@@ -18,7 +18,6 @@ import { appBuildLabel } from '../src/ui/app-build';
 import { SettingsView, type SettingsActions } from '../src/ui/settings-view';
 import { HumanAvatarButton } from '../src/ui/shell/human-avatar';
 import { t } from '../src/ui/strings';
-import { StatisticsSettings } from '../src/ui/shell/statistics-settings';
 vi.mock('react-native-gesture-handler', () => import('./gesture-handler-shim'));
 vi.mock('react-native-reanimated', () => import('./reanimated-shim'));
 vi.mock('react-native-worklets', () => ({
@@ -32,14 +31,6 @@ vi.mock('../src/account/native-account-profile', () => ({
   useAccountProfile: () => ({ status: 'signed-out' }),
 }));
 vi.mock('expo-image', () => ({ Image: () => null }));
-vi.mock('../src/telemetry/native', () => ({
-  mobileTelemetry: {
-    subscribe: () => () => {},
-    getSnapshot: () => statisticsSnapshot,
-    setEnabled: vi.fn(async () => true),
-  },
-}));
-const statisticsSnapshot = { loaded: true, enabled: true, storageError: false };
 
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 
@@ -172,17 +163,4 @@ describe('Human avatar', () => {
     expect(humanNameOf({ displayName: '  ' })).toBeUndefined();
     expect(humanNameOf(null)).toBeUndefined();
   });
-});
-
-it('keeps statistics last and details collapsed until requested', async () => {
-  const view = await render(
-    <SettingsView version="2.0.0" actions={actions()} statistics={<StatisticsSettings />} />,
-  );
-  const text = view.textContent!;
-  expect(text.lastIndexOf(t.statisticsTitle)).toBeGreaterThan(text.lastIndexOf(t.appVersion));
-  expect(text).not.toContain(t.statisticsNotice);
-  await act(async () => button(view, t.statisticsDetails)!.click());
-  expect(view.textContent).toContain(t.statisticsNotice);
-  await act(async () => button(view, t.statisticsHideDetails)!.click());
-  expect(view.textContent).not.toContain(t.statisticsNotice);
 });

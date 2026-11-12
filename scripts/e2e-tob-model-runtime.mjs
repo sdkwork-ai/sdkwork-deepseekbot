@@ -606,24 +606,17 @@ try {
         ['model-plan', [target]],
         ['settings', ['botharness-client']],
         ['model-presets', []],
-        ['telemetry-status', []],
         ['git-status', []],
         ['release-info', []],
         ['release-check', []],
       ])
         direct[name] = await humanCli(name, args);
       writeFileSync(resolve(out, 'human-cli-discovery.json'), JSON.stringify(direct, null, 2));
-      prompt = `Use native bash and the scoped deepseekbot CLI only. Run separate short commands: deepseekbot capabilities; deepseekbot model-catalog; deepseekbot list; deepseekbot model-plan ${target}; deepseekbot settings botharness-client; deepseekbot model-presets; deepseekbot telemetry-status; deepseekbot git-status; deepseekbot release-info; deepseekbot release-check. Use one native Shell call per command so each result is visible. Report the available model route, this Assistant model plan revision, developerMode, model presets, telemetry lock, Git availability and release status. Do not change anything, delegate, seek credentials, or inspect config files.`;
+      prompt = `Use native bash and the scoped deepseekbot CLI only. Run separate short commands: deepseekbot capabilities; deepseekbot model-catalog; deepseekbot list; deepseekbot model-plan ${target}; deepseekbot settings botharness-client; deepseekbot model-presets; deepseekbot git-status; deepseekbot release-info; deepseekbot release-check. Use one native Shell call per command so each result is visible. Report the available model route, this Assistant model plan revision, developerMode, model presets, Git availability and release status. Do not change anything, delegate, seek credentials, or inspect config files.`;
     } else if (phase === 'maintenance-refusals') {
       maintenanceBefore = {
-        telemetry: await rpc('telemetryStatus'),
         release: await rpc('releaseUpdate'),
       };
-      assert.ok(
-        maintenanceBefore.telemetry.lockedBy,
-        'refusal fixture requires environment-locked telemetry',
-      );
-      assert.equal(maintenanceBefore.telemetry.enabled, false);
       assert.notEqual(
         maintenanceBefore.release.status,
         'restart-required',
@@ -639,7 +632,7 @@ try {
         JSON.stringify(maintenanceBefore, null, 2),
       );
       prompt =
-        'This isolated development-profile test has telemetry disabled by an environment lock and no installable release or pending restart. Use native bash and deepseekbot to exercise exactly these three expected refusals, each in its own short Shell call: deepseekbot telemetry-set --enabled; deepseekbot release-install 999.0.0 --confirm; deepseekbot release-restart --confirm. Run each once and continue to the next after its expected refusal; do not retry any command. Report each exact CLI refusal code. Do not install another version, change environment/config files, seek credentials, delegate, or work around the refusals.';
+        'This isolated development-profile test has no installable release and no pending restart. Use native bash and deepseekbot to exercise exactly these two expected refusals, each in its own short Shell call: deepseekbot release-install 999.0.0 --confirm; deepseekbot release-restart --confirm. Run each once and continue to the next after its expected refusal; do not retry any command. Report each exact CLI refusal code. Do not install another version, change environment/config files, seek credentials, delegate, or work around the refusals.';
     } else if (phase === 'model-approve') {
       command = 'model-plan-customize';
       const defaultSetting = (await rpc('describe', {}, 'settings')).namespaces.find(
@@ -702,7 +695,7 @@ try {
       assert.match(reply.body, /[？?]/u, 'reply should invite a concrete next step');
       assert.ok(
         !calls.some((call) =>
-          /deepseekbot (?:settings-set|home-model-set|model-plan-(?:set|customize|inherit|assignments-set)|model-preset-(?:create|update|apply)|telemetry-set|git-install|release-(?:install|restart))\b/u.test(
+          /deepseekbot (?:settings-set|home-model-set|model-plan-(?:set|customize|inherit|assignments-set)|model-preset-(?:create|update|apply)|git-install|release-(?:install|restart))\b/u.test(
             JSON.stringify(call.args),
           ),
         ),
@@ -750,7 +743,6 @@ try {
         'model-plan',
         'settings',
         'model-presets',
-        'telemetry-status',
         'git-status',
         'release-info',
         'release-check',
@@ -773,7 +765,6 @@ try {
       steps.push('direct Human CLI and real Tob native Shell model/runtime/maintenance discovery');
     } else if (phase === 'maintenance-refusals') {
       const refusals = [
-        ['telemetry-set', 'telemetry-locked'],
         ['release-install', 'maintenance-unavailable'],
         ['release-restart', 'restart-not-pending'],
       ];
@@ -793,11 +784,8 @@ try {
         assert.ok(calls[0].result.includes(code), name + ' Shell result did not contain ' + code);
       }
       const after = {
-        telemetry: await rpc('telemetryStatus'),
         release: await rpc('releaseUpdate'),
       };
-      for (const key of ['enabled', 'preference', 'lockedBy'])
-        assert.deepEqual(after.telemetry[key], maintenanceBefore.telemetry[key]);
       assert.equal(after.release.status, maintenanceBefore.release.status);
       const newApprovals = (
         await rpc('channelMessages', { channelId: home.channelId })
@@ -813,7 +801,7 @@ try {
         JSON.stringify({ refusals, calls: evidence.calls, after }, null, 2),
       );
       steps.push(
-        'actual CLI refusal codes for environment-locked telemetry, unavailable release install and no pending restart; no side effects',
+        'actual CLI refusal codes for unavailable release install and no pending restart; no side effects',
       );
     } else {
       mark('approval-wait');

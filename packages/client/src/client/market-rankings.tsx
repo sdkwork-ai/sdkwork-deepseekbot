@@ -359,8 +359,6 @@ export function MarketplaceSections({
       (loaded) => {
         if (!live) return;
         setSections(loaded);
-        if (loaded.some((section) => section.entries.length > 0))
-          actions.telemetryEvent('marketplace:section_view');
       },
       () => undefined,
     );

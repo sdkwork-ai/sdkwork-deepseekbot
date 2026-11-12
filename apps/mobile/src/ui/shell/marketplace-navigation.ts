@@ -1,13 +1,11 @@
 import { router } from 'expo-router';
 import type {
   MarketplaceEntry,
-  MarketplaceInstallSource,
   MarketplaceSectionName,
 } from '../../../../../packages/core/src/marketplace/client';
 import { botCreation } from '../../host/native-bot-creation';
 import { selectMarketplaceImport } from '../../marketplace/import-selection';
 import { marketplace } from '../../marketplace/native-catalogue';
-import { recordFeature } from '../../telemetry/features';
 import { locale } from '../strings';
 
 export type MarketplaceTarget = { entry: 'host'; hostId: string } | { entry: 'all' };
@@ -21,21 +19,14 @@ export function marketplaceTarget(params: {
     : { entry: 'all' };
 }
 
-export function openMarketplaceBot(
-  bot: MarketplaceEntry,
-  target: MarketplaceTarget,
-  source: MarketplaceInstallSource,
-): void {
-  recordFeature('marketplace:bot_open', { entry: source, step: 'detail' });
+export function openMarketplaceBot(bot: MarketplaceEntry, target: MarketplaceTarget): void {
   router.push({ pathname: '/marketplace-bot', params: { id: bot.id, ...target } });
 }
 
 export async function importMarketplaceBot(
   bot: MarketplaceEntry,
   target: MarketplaceTarget,
-  source: MarketplaceInstallSource,
 ): Promise<void> {
-  recordFeature('marketplace:bot_open', { entry: source, step: 'install' });
   const resource = marketplace.detail(bot.id, locale);
   await resource.refresh();
   const loaded = resource.getSnapshot();
@@ -56,13 +47,11 @@ export async function importMarketplaceBot(
     });
 }
 
-export function openDigest(day: string, from: 'hero' | 'archive', target: MarketplaceTarget) {
-  recordFeature('marketplace:digest_open', { entry: from });
+export function openDigest(day: string, target: MarketplaceTarget) {
   router.push({ pathname: '/marketplace-digest', params: { day, ...target } });
 }
 
 export function openPastPicks(target: MarketplaceTarget) {
-  recordFeature('marketplace:digest_archive_open', {});
   router.push({ pathname: '/marketplace-past-picks', params: { ...target } });
 }
 

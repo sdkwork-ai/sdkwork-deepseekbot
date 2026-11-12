@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocalSearchParams, usePreventRemove, useRouter } from 'expo-router';
+import { useLocalSearchParams, usePreventRemove } from 'expo-router';
 import { useHostSession } from '../src/host/host-session';
 import { MessageFeedbackForm } from '../src/ui/chat/message-feedback';
 import { SheetPage } from '../src/ui/primitives/sheet-page';
@@ -13,7 +13,6 @@ export default function MessageFeedbackScreen() {
     failureTurn?: string;
   }>();
   const { client, saved } = useHostSession();
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   usePreventRemove(busy, () => {});
   const t = useStrings();
@@ -27,9 +26,6 @@ export default function MessageFeedbackScreen() {
           messageId={messageId}
           failureTurn={failureTurn === '1'}
           onBusyChange={setBusy}
-          onClose={() => {
-            if (!busy) router.back();
-          }}
         />
       ) : (
         <Text>{t.feedback.unavailable}</Text>

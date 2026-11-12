@@ -53,7 +53,6 @@ import {
 } from '../push/delivery.js';
 import { createExpoSender } from '../push/expo-sender.js';
 import { createDevicePushHttp } from '../push/http.js';
-import type { TelemetryService } from '../telemetry/service.js';
 import { coalesce } from '../runtime/coalesce.js';
 
 const PUSH_SETTLE_MS = 500;
@@ -91,21 +90,6 @@ interface WebServerLike {
   }): () => void;
 }
 
-const CONNECT_OUTCOMES: Readonly<Record<string, 'success' | 'denied' | 'expired'>> = {
-  'signed-in': 'success',
-  'sign-in-failed': 'denied',
-  'sign-in-expired': 'expired',
-};
-
-export function recordConnectTelemetry(
-  telemetry: Pick<TelemetryService, 'capture'> | undefined,
-  phase: string,
-): void {
-  if (phase === 'sign-in-started') telemetry?.capture('connect:sign_in_start');
-  const outcome = CONNECT_OUTCOMES[phase];
-  if (outcome !== undefined) telemetry?.capture('connect:sign_in_complete', { outcome });
-}
-
 function detail(event: DevicePairingEvent): string {
   const parts = [`phase=${event.phase}`];
   if ('deviceId' in event && event.deviceId !== undefined) parts.push(`device=${event.deviceId}`);
@@ -130,7 +114,6 @@ export function mountDevicePairing(
     credentials?: () => CredentialProvider | undefined;
     packageAnchors?: readonly string[];
     onAccount?: (account: ConnectAccount | undefined) => void;
-    telemetry?: Pick<TelemetryService, 'capture'>;
     calls?: () => VoiceCalls | undefined;
     botNetwork?: {
       registry: PersonaBotRegistry;
@@ -562,7 +545,6 @@ export function mountDevicePairing(
       connect,
       record: (phase, info) => {
         write('device-connect', phase, `device-connect phase=${phase}${info ? ` ${info}` : ''}`);
-        recordConnectTelemetry(options.telemetry, phase);
       },
     });
     let connectBots: ReturnType<typeof createConnectBotBridge> | undefined;
@@ -661,7 +643,7 @@ export function mountDevicePairing(
           maxWaitMs: SETTLE_MAX_WAIT_MS,
         });
         const off = options.database.subscribe(({ module, topics }) => {
-          if (module === 'live-activity' || module === 'telemetry') return;
+          if (module === 'live-activity') return;
           if (topics.length > 0 && topics.every((topic) => topic === 'usage')) return;
           settle.schedule();
         });

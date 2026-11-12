@@ -110,4 +110,4 @@ the new running identity. Never restart busy work automatically or promise unive
 
 These are planned tracer bullets, not completed behavior. Existing #1931/#1932 own cross-device
 acceptance; #1933 consumes this path for later quota-gated automation. Do not duplicate their
-owners, the upstream DSH installer, telemetry or the shared device queue.
+owners, the upstream DSH installer or the shared device queue.

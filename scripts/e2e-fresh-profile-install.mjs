@@ -111,7 +111,7 @@ async function qualify(artifacts, version, root, port, productName, upgradeFrom)
   const home = join(root, 'dsh-home');
   const userHome = join(root, 'user-home');
   for (const directory of [runtime, home, userHome]) mkdirSync(directory, { recursive: true });
-  const env = { ...process.env, DSH_HOME: home, HOME: userHome, BOTHARNESS_TELEMETRY: '0' };
+  const env = { ...process.env, DSH_HOME: home, HOME: userHome };
   for (const key of Object.keys(env))
     if (/API_KEY|TOKEN|SECRET|PASSWORD|NODE_AUTH|DEEPSEEKBOT_HOST/iu.test(key)) delete env[key];
   writeFileSync(join(runtime, 'package.json'), '{"private":true}\n');

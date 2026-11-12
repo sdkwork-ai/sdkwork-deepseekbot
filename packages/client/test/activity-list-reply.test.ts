@@ -80,13 +80,6 @@ describe('Human Inbox reply actions', () => {
           messageId: 'human-00000000-0000-4000-8000-000000000000',
         },
       },
-      {
-        endpoint: 'telemetryEvent',
-        payload: {
-          event: 'activity:inbox_reply_send',
-          properties: { target: 'message', surface: 'browser' },
-        },
-      },
     ]);
     expect(clientStore.getSnapshot().selection).toEqual({ kind: 'inbox' });
     expect(clientStore.getSnapshot().conversation.messages).toEqual([]);

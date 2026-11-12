@@ -2,13 +2,10 @@ import { isDeepStrictEqual } from 'node:util';
 import type { GitService, GitStatus } from '../memory/managed-git.js';
 import type { ReleaseService, ReleaseUpdate } from '../release/service.js';
 import { isReleaseVersion } from '../release/version.js';
-import type { TelemetryService } from '../telemetry/service.js';
 import type { PreparedTobOperation } from './cli-operations.js';
 import { TobError } from './service.js';
 
 export const TOB_MAINTENANCE_CAPABILITIES = [
-  ['telemetry-status', 'Read telemetry preference and environment locks', false],
-  ['telemetry-set', 'Change telemetry preference unless locked', true],
   ['git-status', 'Read Git availability and installation progress', false],
   ['git-install', 'Install the managed Git runtime when available', true],
   ['release-info', 'Read the running release and release notes', false],
@@ -50,7 +47,6 @@ function releaseView(state: ReleaseUpdate) {
   return state;
 }
 export function createTobMaintenanceOperations(deps: {
-  telemetry: TelemetryService;
   git: GitService;
   release: ReleaseService;
 }) {
@@ -69,41 +65,6 @@ export function createTobMaintenanceOperations(deps: {
     args: Record<string, unknown>,
   ): Promise<PreparedTobOperation | undefined> => {
     if (!TOB_MAINTENANCE_CAPABILITIES.some((entry) => entry.command === command)) return undefined;
-    if (command === 'telemetry-status') {
-      keys(args, []);
-      return {
-        run: (guard) => {
-          guard();
-          return deps.telemetry.status();
-        },
-      };
-    }
-    if (command === 'telemetry-set') {
-      keys(args, ['enabled']);
-      if (typeof args.enabled !== 'boolean') throw new TobError('invalid-input');
-      const enabled = args.enabled;
-      const previousValue = deps.telemetry.status();
-      if (previousValue.lockedBy) throw new TobError('telemetry-locked');
-      return {
-        proposal: Object.freeze({
-          command,
-          target: 'telemetry',
-          previousValue,
-          patch: { enabled },
-        }),
-        run(guard, beforeEffect) {
-          guard();
-          const current = deps.telemetry.status();
-          if (current.lockedBy) throw new TobError('telemetry-locked');
-          same(current, previousValue);
-          beforeEffect?.();
-          const result = deps.telemetry.setPreference(enabled);
-          if (result.preference !== enabled || result.enabled !== enabled)
-            throw new TobError('readback-mismatch');
-          return result;
-        },
-      };
-    }
     if (command === 'git-status') {
       keys(args, []);
       return {

@@ -103,7 +103,6 @@ import type {
   ReleaseUpdate,
 } from '../release/service.js';
 import type { PluginInstall, PluginRestart, PluginUpdates } from '../release/plugins.js';
-import type { TelemetryStatus } from '../telemetry/service.js';
 import type { OverviewMemory } from '../memory/overview.js';
 import type {
   ApprovalReviewerModelView,
@@ -773,9 +772,6 @@ export class BotharnessBridgeService extends TypertRemoteService {
         expectedDefaultRevision,
       }),
     );
-  }
-  telemetryEvent(event: string, properties?: Record<string, string | boolean>): null {
-    return unwrap(this.methods.telemetryEvent({ event, properties: properties ?? {} }));
   }
   modelPlanInherit(slug: string, expectedRevision: number): { revision: number } {
     return unwrap(this.methods.modelPlanInherit({ slug, expectedRevision }));
@@ -2704,20 +2700,12 @@ export class BotharnessBridgeService extends TypertRemoteService {
     return unwrapAsync(this.methods.pluginRestart({}));
   }
 
-  telemetryStatus(): TelemetryStatus {
-    return unwrap(this.methods.telemetryStatus());
-  }
-
   gitStatus(): GitStatus {
     return unwrap(this.methods.gitStatus());
   }
 
   gitInstall(): GitStatus {
     return unwrap(this.methods.gitInstall());
-  }
-
-  telemetrySet(enabled: boolean): TelemetryStatus {
-    return unwrap(this.methods.telemetrySet({ enabled }));
   }
 
   takeoverList(query: {
@@ -2841,7 +2829,6 @@ markRemoteMethods(BotharnessBridgeService.prototype, [
   'tobHome',
   'onboarding',
   'onboardingModel',
-  'telemetryEvent',
   'modelPlanInherit',
   'channelRetry',
   'botNewSession',
@@ -3084,8 +3071,6 @@ markRemoteMethods(BotharnessBridgeService.prototype, [
   'pluginUpdates',
   'pluginInstall',
   'pluginRestart',
-  'telemetryStatus',
-  'telemetrySet',
   'gitStatus',
   'gitInstall',
   'scheduleList',

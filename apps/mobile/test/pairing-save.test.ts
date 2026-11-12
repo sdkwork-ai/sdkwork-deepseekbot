@@ -2,9 +2,7 @@ import { expect, it, vi } from 'vitest';
 import { pairHost } from '../src/host/pairing';
 import { FakeHost } from './fake-host';
 
-it('counts a submitted invalid link once and requires saved-Host persistence for success', async () => {
-  const finish = vi.fn();
-  const pairing = vi.fn(() => ({ finish }));
+it('refuses an invalid link and requires saved-Host persistence for success', async () => {
   const save = vi.fn(async (): Promise<void> => {
     throw new Error('SENTINEL disk error');
   });
@@ -13,15 +11,12 @@ it('counts a submitted invalid link once and requires saved-Host persistence for
     deviceName: 'SENTINEL phone',
     carrier: host.carrier,
     save,
-    telemetry: { pairing },
     method: 'paste' as const,
   };
   expect(await pairHost({ ...base, text: 'SENTINEL invalid link' })).toEqual({
     ok: false,
     code: 'link-invalid',
   });
-  expect(pairing).toHaveBeenCalledWith('paste');
-  expect(finish).toHaveBeenLastCalledWith('refused', 'link-invalid');
   expect(save).not.toHaveBeenCalled();
   const text =
     'deepseekbot://pair?p=' +
@@ -39,9 +34,7 @@ it('counts a submitted invalid link once and requires saved-Host persistence for
     code: 'storage-failure',
     detail: 'app:storage-error',
   });
-  expect(finish).toHaveBeenLastCalledWith('failed', 'storage-failure', 'app:storage-error');
   host.offer = 'offer-1';
   save.mockResolvedValueOnce(undefined);
   expect(await pairHost({ ...base, method: 'qr', text })).toEqual({ ok: true });
-  expect(finish).toHaveBeenLastCalledWith('success');
 });

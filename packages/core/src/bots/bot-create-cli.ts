@@ -230,8 +230,6 @@ Usage:
   tobs share-draft-discard <bot-id>
   tobs data-reset-preview
   tobs data-reset-confirm --confirmation-stdin --confirm
-  tobs telemetry-status
-  tobs telemetry-set (--enabled | --disabled)
   tobs git-status
   tobs git-install
   tobs pairing-list <id>

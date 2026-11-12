@@ -3,6 +3,8 @@ Status: Proposed
 Date: 2026-10-16
 ---
 
+> Superseded by [ADR-0308](0308-product-telemetry-and-its-ingest-service-are-removed.md): mobile statistics, its PostHog adapter and its Settings surface are removed. This record stays as history.
+
 # Mobile statistics default on with an independent install ID
 
 The Expo app needs to distinguish pairing failure, connection failure and a usable first chat without exporting the Human's conversations or Host identity. [#1929](https://github.com/BotHarness/DeepSeekBot/issues/1929) defines the contract; [#1935](https://github.com/BotHarness/DeepSeekBot/issues/1935) implements its first tracer. This extends ADR-0132's Host-only scope. It does **not** change the Host's default-on policy.

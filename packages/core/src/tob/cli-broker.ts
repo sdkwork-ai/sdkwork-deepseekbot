@@ -55,7 +55,7 @@ const CODES = new Set([
   'model-plan-required',
   'preset-name-conflict',
   'legacy-model-repair-required',
-  'telemetry-locked',
+  'operation-in-progress',
   'maintenance-unavailable',
   'confirmation-required',
   'restart-not-pending',

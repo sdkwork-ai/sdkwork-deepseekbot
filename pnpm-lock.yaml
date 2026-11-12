@@ -480,9 +480,6 @@ importers:
       marked:
         specifier: ^18.1.1
         version: 18.1.1
-      posthog-react-native:
-        specifier: 4.81.2
-        version: 4.81.2(a67871673cc00a0031cc887fece2315b)
       react:
         specifier: 19.3.0
         version: 19.3.0

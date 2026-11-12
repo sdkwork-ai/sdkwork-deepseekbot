@@ -768,15 +768,15 @@ export function diagnosticBundleZip(bundle: DiagnosticBundle): Buffer {
 
 const FEEDBACK_README = `# Message Feedback / 消息反馈
 
-This frozen, redacted evidence is downloaded locally and is never attached to feedback submission.
-Only your rating, tags and short comment are sent to PostHog. Share this archive yourself if needed.
+This frozen, redacted evidence is downloaded locally and never uploaded. There is no feedback
+submission service. Share this archive yourself if needed.
 Review every included file:
 redaction is best effort. Execution records may repeat conversation text even when the
 conversation category is disabled. Category choices and missing evidence are in manifest.json.
 The downloaded archive remains under your control.
 
-这是冻结并脱敏后的本地诊断材料，不会随反馈上报。只有评分、标签和短评发送到 PostHog。
-需要排查时，请自行分享此诊断包。本地文件由你保管。
+这是冻结并脱敏后的本地诊断材料，不会上传，也没有反馈上报服务。需要排查时，请自行分享此诊断包。
+本地文件由你保管。
 请检查所有文件，脱敏无法保证删除所有敏感信息。关闭对话类别后，执行记录仍可能包含对话文本。
 类别选择和缺失材料见 manifest.json。
 `;

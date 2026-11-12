@@ -3,6 +3,8 @@ Status: Proposed
 Date: 2026-10-06
 ---
 
+> Partially superseded by [ADR-0308](0308-product-telemetry-and-its-ingest-service-are-removed.md): the plugin telemetry, the auto-consent on the site's analytics and the `t.botharness.ai` ingest Worker are removed. The campaign short-link design below remains current.
+
 # Anonymous PostHog telemetry and campaign short links
 
 DeepSeekBot measures two things it cannot see today: how the plugin is used, and which marketing posts and videos bring people to the product site. Both go to one PostHog Cloud US project. The plugin sends anonymous, default-on usage events from the Host; the product site sends named interaction events with consent-based cross-day identity; and a separate short-link Worker turns per-post Campaign Links into UTM parameters that PostHog already understands. Telemetry exists to improve the plugin and understand usage, collects nothing that identifies a person or their content, and the code doing it is open source in this repository and `BotHarness/deepseekbot-site`.

@@ -17,8 +17,6 @@ import {
   type GenuiView,
   type GenuiViewState,
 } from '../../../core/src/channels/genui.js';
-import type { ClientTelemetryEventName } from '../../../core/src/telemetry/events.js';
-import { telemetrySurface } from './telemetry-surface.js';
 import type { PixelBannerRecipe } from '@botharness/pixel-banner';
 import { onboardingFor } from './onboarding.js';
 import { loadAveragePerf, type AveragePerfView } from './message-perf.js';
@@ -480,10 +478,6 @@ export interface BridgeActions {
     globalDefault: boolean,
   ): Promise<{ revision: number }>;
   inheritModel(slug: string, expectedRevision: number): Promise<{ revision: number }>;
-  telemetryEvent(
-    event: ClientTelemetryEventName,
-    properties?: Record<string, string | boolean>,
-  ): void;
   retryMessage(
     channelId: string,
     messageId: string,
@@ -1233,20 +1227,6 @@ function mergeLatestWindow(
   return { messages, keptPrefix: overlap >= 0 || continues };
 }
 
-const APPROVAL_DECISIONS = {
-  'allowed-once': 'allow_once',
-  'allowed-always-tool': 'allow_always',
-  'allowed-always-exact': 'allow_always',
-  'allowed-always-all': 'allow_always',
-  rejected: 'reject',
-} as const;
-
-async function recorded<T>(work: Promise<T>, record: () => void): Promise<T> {
-  const value = await work;
-  record();
-  return value;
-}
-
 export function createActions(
   call: BridgeCall,
   clientStore: ClientStore,
@@ -1968,15 +1948,7 @@ export function createActions(
       return result;
     },
     inheritModel: (slug, expectedRevision) =>
-      recorded(invoke('modelPlanInherit', { slug, expectedRevision }), () =>
-        actions.telemetryEvent('model:plan_update', { via: 'inherit' }),
-      ),
-    telemetryEvent: (event, properties = {}) => {
-      void invoke('telemetryEvent', {
-        event,
-        properties: { ...properties, surface: telemetrySurface() },
-      }).catch(() => {});
-    },
+      invoke('modelPlanInherit', { slug, expectedRevision }),
     async botContext(botSlug) {
       return invoke('botContext', { slug: botSlug });
     },
@@ -2046,32 +2018,14 @@ export function createActions(
       createModelPreset(call, name, orchestrator, assignmentDefault, assignmentModels),
     updateModelPreset: (id, expectedRevision, name, orchestrator, assignmentDefault) =>
       updateModelPreset(call, id, expectedRevision, name, orchestrator, assignmentDefault),
-    applyModelPreset: (slug, presetId) =>
-      recorded(applyModelPreset(call, slug, presetId), () =>
-        actions.telemetryEvent('model:plan_update', { via: 'preset' }),
-      ),
+    applyModelPreset: (slug, presetId) => applyModelPreset(call, slug, presetId),
     customizeModelPlan: (slug, orchestrator, expectedRevision) =>
-      recorded(customizeModelPlan(call, slug, orchestrator, expectedRevision), () =>
-        actions.telemetryEvent('model:plan_update', { via: 'custom' }),
-      ),
+      customizeModelPlan(call, slug, orchestrator, expectedRevision),
     setStandingLimits: (slug, limits) => setStandingLimits(call, slug, limits),
     setModelPlanAssignments: (slug, expectedRevision, assignmentDefault, assignmentModels) =>
-      recorded(
-        setModelPlanAssignments(call, slug, expectedRevision, assignmentDefault, assignmentModels),
-        () => actions.telemetryEvent('model:plan_update', { via: 'assignments' }),
-      ),
+      setModelPlanAssignments(call, slug, expectedRevision, assignmentDefault, assignmentModels),
     setModelPlan: (slug, expectedRevision, orchestrator, assignmentDefault, assignmentModels) =>
-      recorded(
-        setModelPlan(
-          call,
-          slug,
-          expectedRevision,
-          orchestrator,
-          assignmentDefault,
-          assignmentModels,
-        ),
-        () => actions.telemetryEvent('model:plan_update', { via: 'plan' }),
-      ),
+      setModelPlan(call, slug, expectedRevision, orchestrator, assignmentDefault, assignmentModels),
     listHostFolders: (path, signal, offset) => loadHostFolders(call, path, signal, offset),
     async addWorkspaceFolder(slug) {
       if (folderAccess === undefined) throw new Error('DSH folder picker is unavailable');
@@ -2216,31 +2170,22 @@ export function createActions(
     toolApprovalExecutionState: (channelId, messageId) =>
       loadToolApprovalExecutionState(call, channelId, messageId),
     decideToolApproval: (channelId, messageId, outcome) =>
-      recorded(
-        settleNativeInboxAction(
-          'tool-approval',
-          channelId,
-          messageId,
-          () => decideToolApproval(call, channelId, messageId, outcome),
-          () => loadToolApprovalStatus(call, channelId, messageId),
-        ),
-        () =>
-          actions.telemetryEvent('activity:approval_submit', {
-            decision: APPROVAL_DECISIONS[outcome],
-          }),
+      settleNativeInboxAction(
+        'tool-approval',
+        channelId,
+        messageId,
+        () => decideToolApproval(call, channelId, messageId, outcome),
+        () => loadToolApprovalStatus(call, channelId, messageId),
       ),
     userQuestionStatus: (channelId, messageId) =>
       loadUserQuestionStatus(call, channelId, messageId),
     answerUserQuestion: (channelId, messageId, answers) =>
-      recorded(
-        settleNativeInboxAction(
-          'user-question',
-          channelId,
-          messageId,
-          () => answerUserQuestion(call, channelId, messageId, answers),
-          () => loadUserQuestionStatus(call, channelId, messageId),
-        ),
-        () => actions.telemetryEvent('activity:question_submit'),
+      settleNativeInboxAction(
+        'user-question',
+        channelId,
+        messageId,
+        () => answerUserQuestion(call, channelId, messageId, answers),
+        () => loadUserQuestionStatus(call, channelId, messageId),
       ),
     async load(signal) {
       clientStore.setRosterStatus('loading', undefined);
@@ -2444,7 +2389,6 @@ export function createActions(
       loadHumanAttention(call, category, 50, cursor, filters),
     openActivityList() {
       clientStore.select({ kind: 'inbox' });
-      actions.telemetryEvent('activity:inbox_open');
       void refreshActivityListStatus();
       const scope = activityListScope();
       if (scope === undefined) return Promise.resolve();
@@ -2522,7 +2466,6 @@ export function createActions(
     },
     async dismissActivityList(item) {
       await dismissActivityListItem(call, item.id, item.sourceEventId ?? '');
-      actions.telemetryEvent('activity:inbox_item_dismiss');
       activityListScopeVersion += 1;
       activityListHeadSeq += 1;
       activityListPageSeq += 1;
@@ -2583,7 +2526,6 @@ export function createActions(
     },
     async snoozeActivityList(item, until) {
       await snoozeActivityListItem(call, item.id, item.sourceEventId ?? '', until);
-      actions.telemetryEvent('activity:inbox_item_snooze');
       activityListScopeVersion += 1;
       activityListHeadSeq += 1;
       activityListPageSeq += 1;
@@ -2650,9 +2592,6 @@ export function createActions(
         message.author.kind !== 'human'
       )
         throw new Error('Channel reply could not be confirmed');
-      actions.telemetryEvent('activity:inbox_reply_send', {
-        target: 'message',
-      });
       return message;
     },
     pickWorkspaceFolder() {
@@ -2692,7 +2631,6 @@ export function createActions(
         },
         async () => ((await readRequest())?.grantRequestResolved === true ? 'expired' : 'pending'),
       );
-      actions.telemetryEvent('activity:grant_request_submit');
     },
     async markAllRead(scope) {
       try {
@@ -2787,9 +2725,6 @@ export function createActions(
           message.assignmentReply.sourceEventId !== sourceEventId
         )
           throw new Error('Assignment response could not be confirmed');
-        actions.telemetryEvent('activity:inbox_reply_send', {
-          target: 'assignment',
-        });
         return message;
       } finally {
         await Promise.allSettled([

@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { expect, it } from 'vitest';
 import { runBotCreateCli } from '../src/bots/bot-create-cli.js';
 
-it('previews feedback through the live authenticated Host and refuses submission without confirmation', async () => {
+it('previews feedback through the live authenticated Host and no longer offers submission', async () => {
   const seen: string[] = [];
   const server = createServer(async (req, res) => {
     if (req.method === 'GET') {
@@ -12,7 +12,7 @@ it('previews feedback through the live authenticated Host and refuses submission
     expect(req.headers.cookie).toBe('owner=test');
     seen.push(req.url ?? '');
     res.setHeader('content-type', 'application/json');
-    res.end(JSON.stringify({ token: 'preview-reference', canSubmit: true }));
+    res.end(JSON.stringify({ token: 'preview-reference' }));
   });
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
   const address = server.address();

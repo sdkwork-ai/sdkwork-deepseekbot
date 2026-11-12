@@ -42,8 +42,6 @@ export const TOB_AGENT_COMMAND_USAGE: Readonly<Record<string, string>> = {
     'deepseekbot model-preset-update <preset-id> --name <name> --orchestrator-provider <provider> --orchestrator-model <model> [--orchestrator-effort <effort>] --assignment-provider <provider> --assignment-model <model> [--assignment-effort <effort>] --expected-revision <observed-preset-revision> [--plan-stdin]; optional stdin JSON: {assignmentModels:[{provider,model,allowedEfforts:string[],defaultEffort,note?}]}',
   'model-preset-apply':
     'deepseekbot model-preset-apply <bot-slug> --preset <preset-id> --expected-revision <observed-Bot-plan-revision> --preset-revision <observed-preset-revision>',
-  'telemetry-status': 'deepseekbot telemetry-status',
-  'telemetry-set': 'deepseekbot telemetry-set (--enabled | --disabled)',
   'git-status': 'deepseekbot git-status',
   'git-install': 'deepseekbot git-install',
   'release-info': 'deepseekbot release-info [--since <version>]',
@@ -78,8 +76,6 @@ const OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'model-preset-create': ['name', ...ROUTE_FLAGS, 'plan-stdin'],
   'model-preset-update': ['name', ...ROUTE_FLAGS, 'plan-stdin', 'expected-revision'],
   'model-preset-apply': ['preset', 'expected-revision', 'preset-revision'],
-  'telemetry-status': [],
-  'telemetry-set': ['enabled', 'disabled'],
   'git-status': [],
   'git-install': [],
   'release-info': ['since'],
@@ -92,7 +88,6 @@ const READS = new Set([
   'model-catalog',
   'model-plan',
   'model-presets',
-  'telemetry-status',
   'git-status',
   'release-info',
   'release-check',
@@ -309,11 +304,6 @@ export async function parseAgentManagement(
         expectedRevision: revision(values['expected-revision']),
         expectedPresetRevision: revision(values['preset-revision'], '--preset-revision', 1),
       });
-      break;
-    case 'telemetry-set':
-      if ((values.enabled === true) === (values.disabled === true))
-        usage('Choose exactly one of --enabled or --disabled.');
-      args.enabled = values.enabled === true;
       break;
     case 'release-info':
       if (values.since !== undefined) args.since = required(values.since, '--since');

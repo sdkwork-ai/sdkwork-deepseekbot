@@ -64,7 +64,6 @@ export async function runDeviceClientCommand(
           `${JSON.stringify({ type: 'device-key-confirmation-required', fingerprint })}\n`,
         );
       },
-      telemetry: { pairing: () => ({ finish: () => {} }) },
       save: async (host) => {
         writeFileSync(values.out!, `${JSON.stringify(serializeSavedHost(host))}\n`, {
           flag: 'wx',

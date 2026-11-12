@@ -2,7 +2,6 @@ import { CHANNEL_BODY_PANEL, readChannelDock, writeChannelDock } from './channel
 import { createBotPresentation } from './bot-presentation.js';
 import { disposeClientLog, installClientLog } from './diagnostic-log.js';
 import { watchClientLogState } from './diagnostic-log-state.js';
-import { telemetrySurface } from './telemetry-surface.js';
 import { mountWindowZoomControl } from './window-zoom-control.js';
 import { mountWindowZoom, type ZoomCompatibility } from './window-zoom-mount.js';
 import { Wallpaper } from './wallpaper.js';
@@ -13,7 +12,7 @@ import { refreshBotPrimaryColors } from './bot-primary-color.js';
 import { Appearance } from './appearance.js';
 import { mountAppearance } from './appearance-scope.js';
 import { mountAppearanceControl } from './appearance-control.js';
-import { recordRemoteHosts, remoteHosts } from './remote-hosts.js';
+import { remoteHosts } from './remote-hosts.js';
 import { bindBotAppearance } from './bot-color-scheme.js';
 import type {} from '@deepseek-ai/dsh-client-ui-theme/client';
 import { AppearanceSection } from './appearance-settings.js';
@@ -88,7 +87,6 @@ import {
 } from './bot-settings-sections.js';
 import { PluginsSection } from './plugin-updates-view.js';
 import { ReleaseNotesController } from './release-notes.js';
-import { TelemetryNoticeController } from './telemetry-notice.js';
 import './bot-settings-slot.js';
 import { BotMain } from './bot-main.js';
 import { expectMobileConversation, MobileBotPanel } from './mobile-bot-panel.js';
@@ -211,7 +209,7 @@ export function apply(ctx: ClientContext): void {
   ctx.effect(() => clearConversationDrafts);
   ctx.effect(() => {
     if (typeof window === 'undefined') return () => {};
-    installClientLog({ window, surface: telemetrySurface() });
+    installClientLog({ window });
     const offStore = watchClientLogState(store);
     return () => {
       offStore();
@@ -298,7 +296,6 @@ export function apply(ctx: ClientContext): void {
   });
   const setupRpc = connectionRpc(ctx);
   if (setupRpc) actions.appSetup = new ProviderAppSetup(setupRpc);
-  recordRemoteHosts((event, properties) => actions.telemetryEvent(event, properties));
   let companionSource: ((url: string) => CompanionSource) | undefined;
   const companion = new WindowCompanions({
     storage,
@@ -408,9 +405,6 @@ export function apply(ctx: ClientContext): void {
     ),
   );
   const releaseNotes = new ReleaseNotesController(call, storage);
-  const telemetryNotice = new TelemetryNoticeController(call, storage, () => {
-    botSettings.open(BOT_SETTINGS_SECTIONS.dataPrivacy);
-  });
   const lastView =
     typeof window === 'undefined'
       ? undefined
@@ -1161,7 +1155,6 @@ export function apply(ctx: ClientContext): void {
             nativeSessions,
             prefs,
             releaseNotes,
-            telemetryNotice,
             workspace,
             ...botModePrefsFace(prefs),
             exitBotMode: () => ctx.layout.selectPanel(null),
@@ -1442,6 +1435,40 @@ export function apply(ctx: ClientContext): void {
       return unsubscribe;
     }, 'botharness: Bot view restore');
   }
+  const openDefaultAssistant = async (): Promise<void> => {
+    const home = await actions.tobHome();
+    if (!store.getSnapshot().bots.some((bot) => bot.slug === home.botSlug)) await actions.load();
+    if (store.getSnapshot().selection !== undefined) return;
+    await actions.openChannel(home.channelId);
+  };
+  ctx.effect(() => {
+    let pending: ReturnType<typeof setTimeout> | undefined;
+    const check = (): void => {
+      const snapshot = store.getSnapshot();
+      const home =
+        snapshot.mode === 'bot' && snapshot.status === 'ready' && snapshot.selection === undefined;
+      if (!home) {
+        if (pending !== undefined) clearTimeout(pending);
+        pending = undefined;
+        return;
+      }
+      if (pending !== undefined) return;
+      pending = setTimeout(() => {
+        pending = undefined;
+        const now = store.getSnapshot();
+        if (now.mode !== 'bot' || now.status !== 'ready' || now.selection !== undefined) return;
+        void openDefaultAssistant().catch((error: unknown) => {
+          ctx.logger.warn('botharness: default assistant unavailable', error);
+        });
+      }, 300);
+    };
+    const unsubscribe = store.subscribe(check);
+    check();
+    return () => {
+      unsubscribe();
+      if (pending !== undefined) clearTimeout(pending);
+    };
+  }, 'botharness: default assistant home');
   ctx.effect(() => {
     const info = panelInfoOf(ctx.layout);
     if (info === undefined) return () => {};

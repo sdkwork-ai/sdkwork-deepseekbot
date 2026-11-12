@@ -214,7 +214,6 @@ async function withPanel(
     createBot: vi.fn(async () => undefined),
     openBot: vi.fn(async () => undefined),
     marketplaceAccount: vi.fn(async () => ({ signedIn: false, author: null })),
-    telemetryEvent: vi.fn(),
     ...extra,
   };
   const registry = { open: vi.fn() };
@@ -297,7 +296,6 @@ describe('Market panel', () => {
         ).not.toBeNull();
         const order = [...host.querySelectorAll('[data-market-daily-picks], .bh-market-sections')];
         expect(order[0]).toBe(row);
-        expect(actions['telemetryEvent']).toHaveBeenCalledWith('marketplace:digest_view');
       },
       { marketplaceDigests: digests },
     );
@@ -370,13 +368,6 @@ describe('Market panel', () => {
         await click(host, '返回');
         expect(visible()).toEqual([]);
         expect(home.hidden).toBe(false);
-        expect(actions['telemetryEvent']!.mock.calls).toEqual([
-          ['marketplace:digest_view'],
-          ['marketplace:digest_open', { entry: 'hero' }],
-          ['marketplace:digest_archive_open'],
-          ['marketplace:digest_open', { entry: 'archive' }],
-          ['marketplace:bot_open', { entry: 'digest', step: 'detail' }],
-        ]);
       },
       {
         marketplaceDigest: digest,
@@ -442,7 +433,6 @@ describe('Market panel', () => {
           'alice/popular',
         );
         expect([...rows[0]!.querySelectorAll('button')].at(-1)?.textContent).toBe('导入');
-        expect(actions['telemetryEvent']!.mock.calls).toEqual([['marketplace:section_view']]);
       },
       { marketplaceSections: sections },
     );
@@ -559,10 +549,6 @@ describe('Market panel', () => {
         ).toEqual(['alice/climber', 'alice/sprinter', 'alice/jumper']);
 
         await act(async () => button(page, '查看 alice/sprinter 详情').click());
-        expect(actions['telemetryEvent']).toHaveBeenLastCalledWith('marketplace:bot_open', {
-          entry: 'rising',
-          step: 'detail',
-        });
         expect(host.querySelector('[data-market-page="bot"]')).not.toBeNull();
         expect(page.getAttribute('aria-hidden')).toBe('true');
         await act(async () =>
@@ -575,10 +561,6 @@ describe('Market panel', () => {
           (item) => item.textContent === '导入',
         );
         await act(async () => imports[2]!.click());
-        expect(actions['telemetryEvent']).toHaveBeenLastCalledWith('marketplace:bot_open', {
-          entry: 'rising',
-          step: 'install',
-        });
         expect(host.querySelector('h1')?.textContent).toBe('安装 jumper');
         await act(async () => button(host.querySelector('[data-dialog]')!, '返回').click());
 
@@ -612,17 +594,9 @@ describe('Market panel', () => {
       async ({ host, actions }) => {
         const hot = host.querySelector<HTMLElement>('[data-market-section="hot"]')!;
         await act(async () => button(hot, '导入').click());
-        expect(actions['telemetryEvent']).toHaveBeenLastCalledWith('marketplace:bot_open', {
-          entry: 'hot',
-          step: 'install',
-        });
         await act(async () => button(host.querySelector('[data-dialog]')!, '返回').click());
         const fresh = host.querySelector<HTMLElement>('[data-market-section="new"]')!;
         await act(async () => button(fresh, '查看 alice/fresh 详情').click());
-        expect(actions['telemetryEvent']).toHaveBeenLastCalledWith('marketplace:bot_open', {
-          entry: 'new',
-          step: 'detail',
-        });
         expect(host.querySelector('[data-market-page="bot"]')).not.toBeNull();
       },
       {
@@ -893,10 +867,6 @@ describe('Market panel', () => {
         await click(host, '仍然安装');
 
         expect(install).toHaveBeenCalledWith('R_helper', 'review-1', undefined, 'list');
-        expect(actions['telemetryEvent']).toHaveBeenCalledWith('marketplace:bot_open', {
-          entry: 'list',
-          step: 'install',
-        });
         expect(actions['createBot']).not.toHaveBeenCalled();
         expect(registry.open).toHaveBeenCalledWith(CHANNEL_BODY_PANEL);
         expect(host.querySelector('h1')).toBeNull();
@@ -1374,10 +1344,6 @@ describe('Uploaded Bots in the Market panel', () => {
       async ({ host, actions }) => {
         const home = host.querySelector<HTMLElement>('.bh-market-page')!;
         await click(host, '查看 Alice/Helper 详情');
-        expect(actions['telemetryEvent']).toHaveBeenCalledWith('marketplace:bot_open', {
-          entry: 'list',
-          step: 'detail',
-        });
         const page = host.querySelector('[data-market-page="bot"]')!;
         expect(page.getAttribute('aria-label')).toBe('Helper');
         expect(home.hidden).toBe(true);

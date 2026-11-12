@@ -30,8 +30,5 @@ appId: ai.botharness.deepseekbot.dev
 - scrollUntilVisible:
     element: 'Computers.*'
     direction: DOWN
-- scrollUntilVisible:
-    element: 'About anonymous statistics'
-    direction: DOWN
 - assertVisible: 'Close'
 - tapOn: 'Close'

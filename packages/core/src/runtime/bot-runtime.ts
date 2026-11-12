@@ -911,7 +911,6 @@ export interface BotRuntimeOptions {
   stopSettleTimeoutMs?: number;
   closeSessionApprovals?: (sessionIds: readonly string[]) => void;
   botNetwork?: import('./bot-network.js').BotNetworkPort;
-  onTobDelegation?: () => void;
   promptText?: (botSlug: string) => PromptText;
   promptLimits?: (botSlug: string) => PromptLimits;
   tob?: TobService;
@@ -1655,13 +1654,11 @@ class BotRuntimeImplementation implements BotRuntime {
   readonly #waitOptions: Pick<BotRuntimeOptions, 'database' | 'beginAssignmentWait'>;
   #closed = false;
   readonly #tob: TobService | undefined;
-  readonly #onTobDelegation: () => void;
   readonly #directToolCalls = new Map<string, DirectBotToolCall[]>();
 
   constructor(options: BotRuntimeOptions) {
     this.#waitOptions = options;
     this.#tob = options.tob;
-    this.#onTobDelegation = options.onTobDelegation ?? (() => {});
     this.#externalMessaging = options.externalMessaging;
     this.#database = attachOperationalModule(options.database, 'bot-runtime');
     this.#grants = options.grants;
@@ -8832,7 +8829,6 @@ class BotRuntimeImplementation implements BotRuntime {
     if (result.status === 'conflict') throw new Error('Bot DM delivery key has different content');
     input.afterSend?.();
     this.admitBotDmMessage(channel.id, result.message.id);
-    if (result.status === 'appended' && this.#tob?.isTob(botSlug)) this.#onTobDelegation();
     return { channelId: channel.id, message: result.message };
   }
 

@@ -381,13 +381,6 @@ describe('client apply', () => {
     expect(botSettings.getSnapshot()).toEqual({ open: true, sectionId: 'companions' });
 
     botSettings.close();
-    const main = specs.find((spec) => spec.name === 'main' && spec.key === PANEL_ID);
-    (
-      main?.inject?.() as { telemetryNotice: { openSettings(): void } }
-    ).telemetryNotice.openSettings();
-    expect(botSettings.getSnapshot()).toEqual({ open: true, sectionId: 'data-privacy' });
-
-    botSettings.close();
     const native = specs.find((spec) => spec.name === 'settings.section');
     (native?.inject?.() as { openBotSettings(): void }).openBotSettings();
     expect(botSettings.getSnapshot().open).toBe(true);

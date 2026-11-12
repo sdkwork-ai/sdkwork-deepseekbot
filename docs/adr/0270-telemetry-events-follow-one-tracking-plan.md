@@ -1,6 +1,6 @@
 # ADR-0270: Telemetry events follow one tracking plan
 
-- Status: Accepted
+- Status: Superseded by [ADR-0308](0308-product-telemetry-and-its-ingest-service-are-removed.md)
 - Date: 2026-10-28
 - Related: ADR-0132, ADR-0214, ADR-0256
 

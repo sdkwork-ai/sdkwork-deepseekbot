@@ -2620,31 +2620,6 @@ function parseHumanIdentity(value: unknown): LocalHumanIdentity {
   };
 }
 
-export type TelemetryLock = 'config' | 'DO_NOT_TRACK' | 'BOTHARNESS_TELEMETRY';
-
-export interface TelemetryStatus {
-  enabled: boolean;
-  preference: boolean;
-  lockedBy?: TelemetryLock;
-}
-
-const TELEMETRY_LOCKS: readonly TelemetryLock[] = [
-  'config',
-  'DO_NOT_TRACK',
-  'BOTHARNESS_TELEMETRY',
-];
-
-export function parseTelemetryStatus(value: unknown): TelemetryStatus {
-  const item = asRecord(value);
-  if (typeof item?.['enabled'] !== 'boolean') throw new Error('invalid telemetry status');
-  const lockedBy = TELEMETRY_LOCKS.find((lock) => lock === item['lockedBy']);
-  return {
-    enabled: item['enabled'],
-    preference: item['preference'] !== false,
-    ...(lockedBy === undefined ? {} : { lockedBy }),
-  };
-}
-
 export type GitUnavailableReason = 'missing' | 'unrunnable' | 'too-old';
 
 export type GitInstallFailure = 'unsupported' | 'network' | 'checksum' | 'unpack' | 'unrunnable';
@@ -3202,20 +3177,6 @@ export async function confirmStorageMessages(
     }),
   );
   return { messages: count(result?.['messages']), freedBytes: count(result?.['freedBytes']) };
-}
-
-export async function loadTelemetryStatus(
-  call: BridgeCall,
-  signal?: AbortSignal,
-): Promise<TelemetryStatus> {
-  return parseTelemetryStatus(await unwrap(call, 'telemetryStatus', {}, signal));
-}
-
-export async function setTelemetryPreference(
-  call: BridgeCall,
-  enabled: boolean,
-): Promise<TelemetryStatus> {
-  return parseTelemetryStatus(await unwrap(call, 'telemetrySet', { enabled }));
 }
 
 export async function loadHumanIdentity(

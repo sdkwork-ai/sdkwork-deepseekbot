@@ -41,9 +41,6 @@ import { createConnectionLifetime } from './connection-lifetime';
 import { connectionSummary } from './connection-summary';
 import { createQuietChannels } from './quiet-channels';
 import { loadSavedHosts, saveHosts, type SavedHost } from './saved-host';
-import { mobileTelemetry } from '../telemetry/native';
-import { createConnectionTelemetry } from '../telemetry/connection';
-import type { ConnectionTrigger } from '../telemetry/schema';
 import { forgetRecentChats } from '../ui/shell/recent-chats';
 import { locale, t } from '../ui/strings';
 
@@ -222,7 +219,7 @@ connectionMode.onApproval(({ hostId, itemId }) => {
     .catch(() => connectionMode.reportAlertFailure());
 });
 
-function connect(saved: SavedHost, trigger: ConnectionTrigger) {
+function connect(saved: SavedHost) {
   deviceAlerts.paired(saved.hostId);
   const client = createHostClient({
     ...saved,
@@ -248,7 +245,6 @@ function connect(saved: SavedHost, trigger: ConnectionTrigger) {
     credential: saved.credential,
     carrier: nativeCarrier(),
     localStore: () => (hostStoreAvailable() ? hostStore(saved.hostId) : Promise.resolve(undefined)),
-    telemetry: createConnectionTelemetry(mobileTelemetry, trigger),
   });
   clientHosts.set(client, saved.hostId);
   warmHostConversations(saved.hostId);
@@ -352,9 +348,8 @@ function connect(saved: SavedHost, trigger: ConnectionTrigger) {
   };
 }
 
-function adopt(next: SavedHosts, trigger: ConnectionTrigger = 'open'): void {
+function adopt(next: SavedHosts): void {
   const previous = state.saved;
-  mobileTelemetry.foreground(AppState.currentState === 'active', next.hosts.length);
   notificationPreferences.setForeground(AppState.currentState === 'active');
   stored = next;
   void notificationPreferences.sync(next.hosts).catch(() => undefined);
@@ -376,7 +371,7 @@ function adopt(next: SavedHosts, trigger: ConnectionTrigger = 'open'): void {
       existing.host.client.updateRoutes?.(saved.routes);
       continue;
     }
-    const session = connect(saved, trigger);
+    const session = connect(saved);
     sessions.set(saved.hostId, session);
     if (connectionMode.supported) connectionLifetime.add(session.host.client);
     else session.host.client.start();
@@ -397,18 +392,14 @@ function adopt(next: SavedHosts, trigger: ConnectionTrigger = 'open'): void {
   for (const listener of listeners) listener();
 }
 
-async function commit(
-  next: SavedHosts,
-  trigger: ConnectionTrigger = 'switch',
-  current: () => boolean = () => true,
-): Promise<boolean> {
+async function commit(next: SavedHosts, current: () => boolean = () => true): Promise<boolean> {
   if (!current()) return false;
   await saveHosts(next);
   if (!current()) {
     await saveHosts(stored);
     return false;
   }
-  adopt(next, trigger);
+  adopt(next);
   return true;
 }
 
@@ -425,7 +416,6 @@ AppState.addEventListener('change', (next) => {
   if (next === 'active') deviceAlerts.invalidate();
   else alertBanners.clear();
   connectionLifetime.foreground(next === 'active');
-  mobileTelemetry.foreground(next === 'active', state.hosts.length);
   notificationPreferences.setForeground(next === 'active');
   scheduleAlerts();
   if (next !== 'active') return;
@@ -496,7 +486,7 @@ export const hostSession = {
     selectionIntent++;
     if (state.saved?.hostId !== host.hostId) sourceChangeRevision++;
     return serialize(async () => {
-      await commit(withHost(stored, host), 'pair');
+      await commit(withHost(stored, host));
       void pushSession.enable(stored.hosts);
     });
   },
@@ -512,7 +502,7 @@ export const hostSession = {
       const next = selectHost(stored, hostId);
       if (next === undefined) return false;
       sourceChangeRevision++;
-      return commit(next, 'switch', ownsSelection);
+      return commit(next, ownsSelection);
     });
   },
   async removeAccount(owner: AccountOwner): Promise<void> {
@@ -746,7 +736,6 @@ function conversationFor(
     cache: conversationCache(),
     ...cacheWait,
     cacheKey: JSON.stringify(['computer', clientHosts.get(client), key]),
-    telemetry: { send: () => mobileTelemetry.send(options.botSlug === undefined ? 'group' : 'dm') },
   });
   let watchers = 0;
   let idle: ReturnType<typeof setTimeout> | undefined;

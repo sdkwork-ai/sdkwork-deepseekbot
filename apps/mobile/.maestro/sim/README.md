@@ -7,8 +7,7 @@ These flows need values from a running Host, so `maestro test .maestro` (which o
 `computer-video-recovery.yaml` is a separate Chinese-locale Simulator regression. It
 requires an assigned device, an existing disposable pairing and a running local Computer.
 Pass `-e COMPUTER_LINK=deepseekbot-dev://computer/<bot-slug>`; the link contains no pairing
-credential. Dismiss notification permission and first-use anonymous-statistics notices
-before running it. Check the full-screen screenshot when an app-scoped accessibility tree
+credential. Dismiss the notification permission notice before running it. Check the full-screen screenshot when an app-scoped accessibility tree
 misses a native sheet. The More control may be exposed as a `popupbutton`, so locate its
 label rather than hard-coding a `button` role. This flow checks the native menu, a fresh
 reconnect waiting state and actual return to Chats. It does not grant control or claim

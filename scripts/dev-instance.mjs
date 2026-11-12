@@ -254,7 +254,6 @@ async function launch(options) {
     `dsh-${basename(options.home).replace(/[^a-zA-Z0-9-]/gu, '-')}-${options.port}.log`,
   );
   const env = {
-    BOTHARNESS_TELEMETRY: '0',
     ...process.env,
     DSH_HOME: options.home,
     BOTHARNESS_CLIENT_DIAGNOSTICS: options.clientDiagnostics ? '1' : '0',

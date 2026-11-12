@@ -34,6 +34,8 @@ export interface PairingPayload {
   verifier?: string;
 }
 
+export type PairingMethod = 'qr' | 'image' | 'paste' | 'deep_link' | 'account';
+
 export type PairingRefusal =
   | 'lan-build-required'
   | 'lan-unreachable'
@@ -333,29 +335,22 @@ export type PairingFailure = PairingRefusal | 'storage-failure' | 'cancelled' | 
 export async function pairHost(options: {
   existing?: (hostId: string) => SavedHost | undefined;
   text: string | (() => Promise<ParsedLink>);
-  method: import('../telemetry/schema').PairingMethod;
+  method: PairingMethod;
   deviceName: string;
   carrier: HostCarrier;
   save(host: SavedHost): Promise<void>;
   onPending?: (deviceFingerprint: string) => void;
   confirmFingerprint?: (fingerprint: string, hostName: string) => Promise<boolean>;
-  telemetry: Pick<import('../telemetry/mobile-telemetry').MobileTelemetry, 'pairing'>;
   signal?: AbortSignal;
 }): Promise<{ ok: true } | { ok: false; code: PairingFailure; detail?: string }> {
-  const observation = options.telemetry.pairing(options.method);
-  const cancelled = () => observation.finish('cancelled');
-  options.signal?.addEventListener('abort', cancelled, { once: true });
   try {
     if (options.signal?.aborted) {
-      cancelled();
       return { ok: false, code: 'cancelled' };
     }
     const parsed =
       typeof options.text === 'string' ? parsePairingLink(options.text) : await options.text();
     if (options.signal?.aborted) return { ok: false, code: 'cancelled' };
     if (!parsed.ok) {
-      if (parsed.detail === undefined) observation.finish('refused', parsed.code);
-      else observation.finish('refused', parsed.code, parsed.detail);
       return parsed;
     }
     const existing = options.existing?.(parsed.payload.host.id);
@@ -379,12 +374,6 @@ export async function pairHost(options: {
           });
     if (options.signal?.aborted) return { ok: false, code: 'cancelled' };
     if (!redeemed.ok) {
-      const detail = 'detail' in redeemed ? redeemed.detail : undefined;
-      observation.finish(
-        redeemed.code === 'unreachable' ? 'failed' : 'refused',
-        redeemed.code,
-        detail,
-      );
       return redeemed;
     }
     try {
@@ -392,10 +381,8 @@ export async function pairHost(options: {
     } catch (error) {
       const message = error instanceof Error ? error.message : '';
       const detail = `app:storage-${/^[a-z][a-z0-9-]{0,39}$/u.test(message) ? message : 'error'}`;
-      observation.finish('failed', 'storage-failure', detail);
       return { ok: false, code: 'storage-failure', detail };
     }
-    observation.finish('success');
     return { ok: true };
   } catch (error) {
     const code =
@@ -403,10 +390,7 @@ export async function pairHost(options: {
         ? 'lan-build-required'
         : 'unknown';
     const detail = channelFailureDetail('app:', error instanceof Error ? error.message : 'thrown');
-    observation.finish('failed', code, detail);
     return { ok: false, code, detail };
-  } finally {
-    options.signal?.removeEventListener('abort', cancelled);
   }
 }
 

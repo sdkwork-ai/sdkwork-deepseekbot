@@ -118,19 +118,16 @@ export function MarketPanelView({
     step: MarketplaceFlowStart['step'],
     source: MarketplaceInstallSource,
   ): void => {
-    actions.telemetryEvent('marketplace:bot_open', { entry: source, step });
     if (step === 'install') {
       setFlow({ bot, step, source });
       return;
     }
     push({ kind: 'bot', bot, source });
   };
-  const openDigest = (day: string, from: 'hero' | 'archive'): void => {
-    actions.telemetryEvent('marketplace:digest_open', { entry: from });
+  const openDigest = (day: string): void => {
     push({ kind: 'digest', day });
   };
   const openArchive = (): void => {
-    actions.telemetryEvent('marketplace:digest_archive_open');
     push({ kind: 'archive' });
   };
   const back = (): void => setPages((current) => current.slice(0, -1));
@@ -149,7 +146,7 @@ export function MarketPanelView({
               actions={actions}
               lang={lang}
               t={t}
-              onOpen={(day) => openDigest(day, 'hero')}
+              onOpen={(day) => openDigest(day)}
               onArchive={openArchive}
             />
           ) : null}
@@ -240,7 +237,7 @@ export function MarketPanelView({
                 t={t}
                 hidden={hidden}
                 onBack={back}
-                onOpen={(day) => openDigest(day, 'archive')}
+                onOpen={(day) => openDigest(day)}
               />
             );
         }

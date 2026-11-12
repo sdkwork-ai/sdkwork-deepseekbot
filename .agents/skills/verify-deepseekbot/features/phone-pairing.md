@@ -101,9 +101,9 @@ In the assigned native QA window, use the signed-out app without redeeming a pai
 
 Cloud services exits the pairing form; its unfinished local inputs are not saved. These empty-form navigation checks do not prove in-flight pairing cancellation or return to an already paired Computer. Keep those, Android and physical-device checks separate.
 
-## Optional phone statistics
+## Optional phone statistics (removed)
 
-Settings shows a default-on switch at the bottom with collapsed details; pairing has no statistics control. Saved opt-outs remain off. In the shared-device QA lane, follow [the mobile statistics acceptance path](../../../../docs/mobile-statistics.md#runnable-device-acceptance): verify the one-time Web-aligned notice, privacy/source links, Settings navigation and persistent dismissal (not a collection gate), prove zero vendor requests after opt-out, then enable tagged QA and correlate pairing, live Roster and first-chat events with PostHog. Repeat on physical iOS and Android. Capture both supported languages and opt-out while offline. Web exports and injected-sender tests do not qualify device delivery.
+The phone has no statistics switch and no one-time notice; pairing, live Roster loading and first-chat acceptance send no events. Confirm Settings and the pairing form expose no statistics control, and that a paired QA device makes zero vendor requests during pairing and a first chat. See [ADR-0308](../../../../docs/adr/0308-product-telemetry-and-its-ingest-service-are-removed.md).
 
 ## Contextual creation (#2195)
 

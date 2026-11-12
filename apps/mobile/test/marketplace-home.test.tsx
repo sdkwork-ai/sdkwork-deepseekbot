@@ -53,7 +53,6 @@ vi.mock('../src/host/native-bot-creation', () => ({
 }));
 
 import { digestCoverLayout } from '../src/marketplace/digest';
-import { setFeatureSink } from '../src/telemetry/features';
 import { DigestCover } from '../src/ui/shell/marketplace-cover';
 import { MarketplaceDigestScreen } from '../src/ui/shell/marketplace-digest-screen';
 import { MarketplacePastPicksScreen } from '../src/ui/shell/marketplace-past-picks-screen';
@@ -109,12 +108,10 @@ const article = {
 
 let root: Root;
 let element: HTMLElement;
-const features = vi.fn();
 beforeEach(() => {
   interfacePreferences.setLanguage('en');
   vi.clearAllMocks();
   fixture.params = { entry: 'all' };
-  setFeatureSink(features);
   fixture.fetch.mockImplementation(async (url) => {
     const path = new URL(String(url)).pathname;
     const section = /^\/v1\/sections\/(hot|new|rising)$/u.exec(path)?.[1];
@@ -159,7 +156,6 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   element.remove();
-  setFeatureSink(undefined);
 });
 const byTestId = (id: string) => element.querySelector<HTMLElement>(`[data-testid="${id}"]`);
 const testIds = () =>
@@ -303,8 +299,6 @@ describe('Marketplace home', () => {
     expect(element.querySelectorAll('[data-testid^="marketplace-compact-new"]')).toHaveLength(3);
     expect(element.querySelectorAll('[data-testid^="marketplace-compact-rising"]')).toHaveLength(3);
     expect(byTestId('marketplace-compact-new1')?.textContent).toContain(t.marketplace.installs(7));
-    expect(features).toHaveBeenCalledWith('marketplace:digest_view', {});
-    expect(features).toHaveBeenCalledWith('marketplace:section_view', {});
   });
 
   it('shows only results for a topic', async () => {
@@ -314,7 +308,7 @@ describe('Marketplace home', () => {
     expect(byTestId('marketplace-bot-listed')).not.toBeNull();
   });
 
-  it('pushes the article, past picks, rankings and Bot detail with their telemetry', async () => {
+  it('pushes the article, past picks, rankings and Bot detail', async () => {
     fixture.params = { entry: 'host', hostId: 'A' };
     await act(async () => root.render(<MarketplaceScreen />));
     await act(async () => button(t.marketplace.readDigest('Writers week')).click());
@@ -322,13 +316,11 @@ describe('Marketplace home', () => {
       pathname: '/marketplace-digest',
       params: { day: '2026-10-28', entry: 'host', hostId: 'A' },
     });
-    expect(features).toHaveBeenCalledWith('marketplace:digest_open', { entry: 'hero' });
     await act(async () => byTestId('marketplace-past-picks')!.click());
     expect(fixture.push).toHaveBeenLastCalledWith({
       pathname: '/marketplace-past-picks',
       params: { entry: 'host', hostId: 'A' },
     });
-    expect(features).toHaveBeenCalledWith('marketplace:digest_archive_open', {});
     await act(async () => byTestId('marketplace-see-all-rising')!.click());
     expect(fixture.push).toHaveBeenLastCalledWith({
       pathname: '/marketplace-ranking',
@@ -339,21 +331,12 @@ describe('Marketplace home', () => {
       pathname: '/marketplace-bot',
       params: { id: 'new2', entry: 'host', hostId: 'A' },
     });
-    expect(features).toHaveBeenCalledWith('marketplace:bot_open', { entry: 'new', step: 'detail' });
     await act(async () => button('Bot listed, example/listed').click());
-    expect(features).toHaveBeenLastCalledWith('marketplace:bot_open', {
-      entry: 'list',
-      step: 'detail',
-    });
   });
 
   it('imports a Hot Bot straight into the creation flow', async () => {
     await act(async () => root.render(<MarketplaceScreen />));
     await act(async () => byTestId('marketplace-poster-import-hot2')!.click());
-    expect(features).toHaveBeenCalledWith('marketplace:bot_open', {
-      entry: 'hot',
-      step: 'install',
-    });
     expect(controller.getSnapshot().record).toMatchObject({
       kind: 'draft',
       draft: { source: { listingId: 'hot2', expectedCommit: 'a'.repeat(40) } },
@@ -379,10 +362,6 @@ describe('Marketplace pushed screens', () => {
       pathname: '/marketplace-bot',
       params: { id: 'edit', entry: 'all' },
     });
-    expect(features).toHaveBeenCalledWith('marketplace:bot_open', {
-      entry: 'digest',
-      step: 'detail',
-    });
     await act(async () => byTestId('marketplace-digest-past-picks')!.click());
     expect(fixture.push).toHaveBeenLastCalledWith({
       pathname: '/marketplace-past-picks',
@@ -400,7 +379,6 @@ describe('Marketplace pushed screens', () => {
       pathname: '/marketplace-digest',
       params: { day: '2026-10-27', entry: 'all' },
     });
-    expect(features).toHaveBeenCalledWith('marketplace:digest_open', { entry: 'archive' });
   });
 
   it('shows every ranked Bot in See all', async () => {
@@ -409,9 +387,5 @@ describe('Marketplace pushed screens', () => {
     expect(byTestId('screen-title')?.textContent).toBe(t.marketplace.rising);
     expect(element.querySelectorAll('[data-testid^="marketplace-bot-rising"]')).toHaveLength(5);
     await act(async () => byTestId('marketplace-bot-rising5')!.click());
-    expect(features).toHaveBeenLastCalledWith('marketplace:bot_open', {
-      entry: 'rising',
-      step: 'detail',
-    });
   });
 });

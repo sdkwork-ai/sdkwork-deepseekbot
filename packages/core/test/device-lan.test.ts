@@ -165,7 +165,6 @@ it.each([undefined, 'http://127.0.0.1:4100', 'https://desktop.example.ts.net', '
         method: 'qr',
         deviceName: 'Test phone',
         carrier: raw,
-        telemetry: { pairing: () => ({ finish: () => {} }) },
         onPending: () => {
           const pending = pairing.pendingKeys()[0]!;
           expect(pairing.approveKey(pending.receipt, 'ff'.repeat(32))).toBe(false);

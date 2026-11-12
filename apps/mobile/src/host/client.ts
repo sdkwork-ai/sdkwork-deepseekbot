@@ -2,7 +2,6 @@ import { readComputerAvailability } from './computer-availability';
 import { encryptedCarrier, encodeBase64, ConnectRefused } from './encrypted-carrier';
 import type { HostEncryption } from './hosts';
 import { learnedRoutes, preferredRoutes } from './learned-routes';
-import type { ConnectionTelemetry } from '../telemetry/connection';
 import { ActivitySmoother } from '../../../../packages/client/src/client/activity-smoothing';
 import type { BotPrimaryColor } from '../../../../packages/core/src/bots/primary-color';
 import type { HostCarrier, HostSocket } from './carrier';
@@ -187,7 +186,6 @@ export interface HostClientOptions {
   onPurged?: (placements: unknown) => void;
   hostId?: string;
   encryption?: HostEncryption;
-  telemetry?: ConnectionTelemetry;
   routes: string[];
   credential: string;
   carrier: HostCarrier;
@@ -440,12 +438,6 @@ export function createHostClient(options: HostClientOptions): HostClient {
       (Object.keys(next) as (keyof HostSnapshot)[]).every((key) => next[key] === snapshot[key]);
     if (unchanged) return;
     snapshot = next;
-    if (connection !== undefined)
-      options.telemetry?.update(
-        connection.status,
-        'attempt' in connection ? connection.attempt : 0,
-        connection.status === 'refused' ? connection.code : 'none',
-      );
     for (const listener of listeners) listener();
   };
 
@@ -780,7 +772,6 @@ export function createHostClient(options: HostClientOptions): HostClient {
       carrier.close?.();
       avatars.clear();
       avatarLoading.clear();
-      options.telemetry?.dispose();
       publish({
         status: 'refused',
         route,
@@ -1388,7 +1379,6 @@ export function createHostClient(options: HostClientOptions): HostClient {
       avatars.clear();
       avatarLoading.clear();
       publish({ status: 'stopped', route });
-      options.telemetry?.dispose();
     },
     retryNow(trigger = 'manual_retry') {
       if (!running) return;
@@ -1396,20 +1386,13 @@ export function createHostClient(options: HostClientOptions): HostClient {
         fetchedArrangement = undefined;
         fetchedSorting = undefined;
       }
-      options.telemetry?.begin(trigger);
       if (snapshot.connection.status === 'connected') {
         if (trigger === 'resume') {
           resumeRequested = true;
           resumeLive();
           return;
         }
-        void refreshConnected().then(
-          () => {
-            if (running && snapshot.connection.status === 'connected')
-              options.telemetry?.update('connected');
-          },
-          () => {},
-        );
+        void refreshConnected().catch(() => undefined);
       }
       clearTimeout(retryTimer);
       wake?.();

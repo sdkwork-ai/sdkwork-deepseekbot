@@ -10,7 +10,6 @@ import {
   type OperationalDatabaseModulePort,
 } from '../database/owner.js';
 import type { PersonaBotRegistry } from './registry.js';
-import type { TelemetryCapture } from '../telemetry/service.js';
 
 export interface MemoryOwnership {
   path: string;
@@ -170,7 +169,6 @@ export function createPersonaBotDeletions(options: {
   stop(slug: string): Promise<void>;
   accept?(slug: string, commit: (database: DatabaseSync) => void): void;
   changed?(slug: string): void;
-  capture?: TelemetryCapture;
   log?(event: {
     module: 'bot-deletion';
     initiator: 'human';
@@ -357,9 +355,6 @@ export function createPersonaBotDeletions(options: {
         retainedRecord = options.registry.retainedRecordBody(slug);
       } catch {}
       write(state, retainedRecord, true);
-      try {
-        options.capture?.('bot_library:bot_delete');
-      } catch {}
       return run(state);
     },
     async retry(slug) {

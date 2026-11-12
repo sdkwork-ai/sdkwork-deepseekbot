@@ -1477,7 +1477,6 @@ export function BotSidebar({
       event.preventDefault();
       setShowShortcutHints(false);
       setQuickSwitcherOpen(true);
-      actions.telemetryEvent('search:switcher_open');
     };
     document.addEventListener('keydown', onChannelShortcut);
     document.addEventListener('keydown', onConversationStep);
@@ -1902,7 +1901,6 @@ export function BotSidebar({
   const openQuickSwitcherMessage = ({ channelId, message }: MessageSearchHit): void => {
     const channel = state.channels.find((item) => item.id === channelId);
     if (channel === undefined) return;
-    actions.telemetryEvent('search:result_open', { kind: 'message' });
     openQuickSwitcherEntry({ channel }, () => actions.openAround(channelId, message.id));
   };
 
@@ -3078,7 +3076,6 @@ export function BotSidebar({
                   search: quickSwitcherSettings.search,
                   open: (result) => {
                     setQuickSwitcherOpen(false);
-                    actions.telemetryEvent('search:result_open', { kind: 'setting' });
                     quickSwitcherSettings.open(result);
                   },
                 }
@@ -3093,7 +3090,6 @@ export function BotSidebar({
           shortcutBindings={shortcutBindings}
           t={t}
           onOpen={(entry) => {
-            actions.telemetryEvent('search:result_open', { kind: 'channel' });
             openQuickSwitcherEntry(entry);
           }}
           onClose={() => setQuickSwitcherOpen(false)}

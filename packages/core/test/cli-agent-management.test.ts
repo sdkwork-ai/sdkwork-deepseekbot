@@ -40,7 +40,6 @@ describe('scoped management CLI arguments', () => {
     'list',
     'model-catalog',
     'model-presets',
-    'telemetry-status',
     'git-status',
     'release-check',
   ])('classifies %s as a bounded Host read without consuming input', async (command) => {
@@ -250,22 +249,8 @@ describe('scoped management CLI arguments', () => {
     ).rejects.toMatchObject({ code: 'usage' });
   });
 
-  it('accepts exactly one telemetry preference and treats Git installation as a write', async () => {
+  it('treats Git installation as a write', async () => {
     const { parse } = parser();
-    expect(await parse('telemetry-set', [], { enabled: true })).toEqual({
-      command: 'telemetry-set',
-      args: { enabled: true },
-      write: true,
-    });
-    expect(await parse('telemetry-set', [], { disabled: true })).toEqual({
-      command: 'telemetry-set',
-      args: { enabled: false },
-      write: true,
-    });
-    await expect(parse('telemetry-set')).rejects.toMatchObject({ code: 'usage' });
-    await expect(
-      parse('telemetry-set', [], { enabled: true, disabled: true }),
-    ).rejects.toMatchObject({ code: 'usage' });
     expect(await parse('git-install')).toEqual({ command: 'git-install', args: {}, write: true });
   });
 

@@ -313,7 +313,7 @@ const MarketplaceCatalogue = memo(function MarketplaceCatalogue({
               )
             }
             renderItem={({ item }) => (
-              <MarketplaceRow bot={item} onPress={() => openMarketplaceBot(item, target, 'list')} />
+              <MarketplaceRow bot={item} onPress={() => openMarketplaceBot(item, target)} />
             )}
           />
         )}

@@ -265,9 +265,6 @@ export function MarketDailyPicks({
   const [state, mount] = useLoaded(
     () => actions.marketplaceDigests(lang),
     [lang],
-    (digests) => {
-      if (digests.length > 0) actions.telemetryEvent('marketplace:digest_view');
-    },
   );
   const digests = state.status === 'ready' ? state.value.slice(0, DAILY_PICKS_SHOWN) : [];
   return (

@@ -1,5 +1,4 @@
-import type { PairingFailure } from '../host/pairing';
-import type { PairingMethod } from '../telemetry/schema';
+import type { PairingFailure, PairingMethod } from '../host/pairing';
 import { t } from './strings';
 
 const LINK_FAULTS = new Set<PairingFailure>([

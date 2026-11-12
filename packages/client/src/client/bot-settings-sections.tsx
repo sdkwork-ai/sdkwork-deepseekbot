@@ -41,7 +41,6 @@ import { ProfileBackupSettings } from './profile-backup.js';
 import type { ReleaseNotesController } from './release-notes.js';
 import { ReleaseSettings } from './release-notes-view.js';
 import type { ClientStore } from './store.js';
-import { TelemetrySettings } from './telemetry-settings.js';
 import type { WindowCompanions } from './window-companions.js';
 import { CompanionSettings } from './window-companions-view.js';
 
@@ -175,7 +174,6 @@ export function DataPrivacySection({ call, t }: SectionProps<{ call: BridgeCall 
   return (
     <Rows>
       <ProfileBackupSettings t={t} />
-      <TelemetrySettings call={call} t={t} />
       <StorageSettings call={call} t={t} />
       <DataResetSettings call={call} t={t} />
     </Rows>

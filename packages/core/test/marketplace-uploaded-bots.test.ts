@@ -86,15 +86,8 @@ function fixture() {
     prompts: [],
     run: async () => ({ text: '{"findings": []}', model: 'deepseek/test' }),
   };
-  const captures: [string, Record<string, unknown> | undefined][] = [];
   const bridge = createBridgeMethods({
     ...core,
-    telemetry: {
-      status: () => ({ enabled: true, preference: true }),
-      setPreference: () => ({ enabled: true, preference: true }),
-      capture: (event: string, properties?: Record<string, unknown>) =>
-        captures.push([event, properties]),
-    },
     marketplace: client,
     shareDrafts,
     marketplaceReceipts: {
@@ -112,7 +105,7 @@ function fixture() {
       },
     }),
   });
-  return { core, bridge, market, session, reviewer, receipts, captures };
+  return { core, bridge, market, session, reviewer, receipts };
 }
 
 function write(root: string, path: string, data: string | Buffer) {
@@ -329,9 +322,6 @@ it('uploads a Bot, retries an expired token once, and installs it as a fresh Bot
   });
   if (!installed.ok) throw new Error(installed.error.message);
   expect(f.receipts).toEqual([uploaded.value.bot.id]);
-  expect(f.captures.filter(([event]) => event === 'marketplace:bot_install')).toEqual([
-    ['marketplace:bot_install', { entry: 'digest' }],
-  ]);
   expect(installed.value.bot).toMatchObject({
     displayName: 'Helper',
     description: 'Writes things down',

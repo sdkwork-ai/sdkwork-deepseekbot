@@ -7,7 +7,6 @@ import { loadUsage } from '../../../src/host/usage';
 import { appBuildLabel } from '../../../src/ui/app-build';
 import { copyMessage } from '../../../src/ui/chat/message-menu';
 import { currentAppBuild } from '../../../src/ui/native-app-build';
-import { StatisticsSettings } from '../../../src/ui/shell/statistics-settings';
 import { MessageDisplaySetting } from '../../../src/ui/shell/message-display-settings';
 import { ActivityCountLink } from '../../../src/ui/shell/activity-count-settings';
 import { HapticFeedbackSetting } from '../../../src/ui/shell/haptic-feedback-setting';
@@ -36,7 +35,6 @@ export default function SettingsScreen() {
     <SettingsTabPage>
       <SettingsView
         profile={<AccountProfileRow onPress={() => router.push('/settings/profile')} />}
-        statistics={<StatisticsSettings />}
         messageDisplay={<MessageDisplaySetting />}
         activityCount={<ActivityCountLink />}
         hapticFeedback={<HapticFeedbackSetting />}

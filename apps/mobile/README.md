@@ -205,15 +205,12 @@ npx eas-cli build --profile store-test --platform all --auto-submit
 
 Both stores refuse an external TestFlight review or a Play rollout until the app's privacy answers and policy are in place. The answers live in [`store/privacy/`](store/privacy/README.md); the public policy is the "Mobile app" section of <https://deepseekbot.app/en/privacy/#mobile-app>.
 
-1. **Re-check before each store build** whether anything the app sends changed: cloud on, statistics on, a new permission, SDK or data flow. If it did, update `store/privacy/` and the site's `content/privacy/{en,zh}.md` in the same change.
+1. **Re-check before each store build** whether anything the app sends changed: cloud on, a new permission, SDK or data flow. If it did, update `store/privacy/` and the site's `content/privacy/{en,zh}.md` in the same change.
 2. **Publish the policy.** The site does not deploy on merge: after the site PR merges, run `pnpm deploy` in `deepseekbot-site` (after `npx wrangler login`) and check the live page.
 3. **App Store:** upload `app-store-privacy.json` with fastlane ([command](store/privacy/README.md#apply)). It replaces and publishes the answers.
 4. **Google Play:** the first time, fill App content → Data safety in Play Console from the table in `store/privacy/README.md`, export it and commit `play-data-safety.csv`. After that, edit the CSV and upload it through the Play Developer API ([command](store/privacy/README.md#apply)).
 5. Put the policy URL in both store listings, then submit the build for review.
 
-## Optional statistics
-
-Phone statistics default on for new installs and preserve saved opt-outs, independently of Host telemetry. Settings places the switch last with collapsed details. A one-time informational notice follows the Web client; collection does not wait for dismissal. Public mobile privacy copy and device qualification remain release gates. See [privacy, configuration and device acceptance](../../docs/mobile-statistics.md). Builds send nothing unless explicitly configured for tagged QA or qualified production.
 
 ## SDK 58 upgrade checks
 
@@ -221,7 +218,7 @@ Use the repository's pinned Node and pnpm versions. SDK 58 targets React Native 
 
 CI checks Expo Doctor, types and tests, and exports both iOS and Android bundles in a required `mobile-export` job. Exporting bundles does not compile native code: separately verify a fresh iOS build and Android Release build (including R8), then the native user journeys. Android compilation requires compile SDK 37. The web preview explicitly retains single-page output. The simulator cache uses the strict fingerprint preset so app-version changes invalidate a cached native binary; SDK 58's balanced default ignores those version fields.
 
-For retained-data acceptance, install over an existing build with the same app identity and verify paired Hosts, local appearance, collapsed sections, DM activity preferences and statistics settings after restart. The fresh-install simulator journey alone does not prove upgrade preservation. Record simulator, real-device and Human QA results separately; follow [shared device QA](../../docs/agents/device-qa.md) for scheduling and resource limits.
+For retained-data acceptance, install over an existing build with the same app identity and verify paired Hosts, local appearance, collapsed sections, DM activity preferences after restart. The fresh-install simulator journey alone does not prove upgrade preservation. Record simulator, real-device and Human QA results separately; follow [shared device QA](../../docs/agents/device-qa.md) for scheduling and resource limits.
 
 ### Channel Agents (UAT candidate)
 

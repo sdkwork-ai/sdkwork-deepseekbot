@@ -84,7 +84,7 @@ export function MarketplacePastPicksScreen() {
                   <DigestCard
                     digest={item}
                     grid
-                    onPress={() => openDigest(item.day, 'archive', target)}
+                    onPress={() => openDigest(item.day, target)}
                   />
                 ) : null}
               </View>

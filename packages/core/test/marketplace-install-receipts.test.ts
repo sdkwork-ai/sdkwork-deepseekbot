@@ -15,7 +15,6 @@ import { createShareDrafts } from '../src/marketplace/share-draft.js';
 import { createMarketplaceUploads } from '../src/marketplace/uploaded-bots.js';
 import type { MemoryCloneResult } from '../src/memory/clone.js';
 import { createBotStateTracker } from '../src/state/bot-state.js';
-import { ensureInstallId } from '../src/telemetry/service.js';
 import { createMarket, fakeRepository, submit } from '../../market/test/market-harness.js';
 import { createTestRegistry, registryDatabase } from './registry-fixture.js';
 
@@ -58,18 +57,14 @@ async function installs(market: ReturnType<typeof createMarket>, id: string): Pr
 }
 
 describe('marketplace Host identifier', () => {
-  it('is random, private to the Host, reused, and never the Telemetry install id', () => {
+  it('is random, private to the Host and reused', () => {
     const dataDir = tempDir();
-    const telemetryId = ensureInstallId(dataDir);
 
     const id = ensureMarketplaceHostId(dataDir);
     expect(id).toMatch(/^[A-Za-z0-9_-]{32}$/u);
-    expect(id).not.toContain(telemetryId);
     expect(ensureMarketplaceHostId(dataDir)).toBe(id);
-    expect(ensureInstallId(dataDir)).toBe(telemetryId);
     if (process.platform !== 'win32')
       expect(statSync(join(dataDir, MARKETPLACE_HOST_FILE)).mode & 0o777).toBe(0o600);
-    expect(readFileSync(join(dataDir, 'telemetry.json'), 'utf8')).not.toContain(id);
     expect(ensureMarketplaceHostId(tempDir())).not.toBe(id);
   });
 

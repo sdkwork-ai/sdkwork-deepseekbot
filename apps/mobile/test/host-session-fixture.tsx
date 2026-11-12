@@ -56,12 +56,6 @@ vi.mock('../src/host/native-notifications', () => ({
 vi.mock('../src/host/native-notification-avatars', () => ({
   notificationAvatars: { sync: async () => true },
 }));
-vi.mock('../src/telemetry/native', () => ({
-  mobileTelemetry: { foreground: () => undefined, send: () => undefined },
-}));
-vi.mock('../src/telemetry/connection', () => ({
-  createConnectionTelemetry: () => undefined,
-}));
 vi.mock('../src/host/push-session', () => ({
   createPushSession: () => ({
     getSnapshot: () => ({ status: 'off' }),

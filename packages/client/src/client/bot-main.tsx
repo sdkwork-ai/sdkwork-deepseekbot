@@ -208,8 +208,6 @@ import { DmCallControl } from './dm-call.js';
 import { color, radius, text } from './ds/tokens.stylex.js';
 import type { ReleaseNotesController } from './release-notes.js';
 import { ReleaseNotesAnnouncement } from './release-notes-view.js';
-import type { TelemetryNoticeController } from './telemetry-notice.js';
-import { TelemetryNotice } from './telemetry-notice-view.js';
 import {
   followsLatest,
   rememberTimelineScroll,
@@ -3962,7 +3960,6 @@ export function BotPanel({
   profileCards,
   nativeChatT,
   releaseNotes,
-  telemetryNotice,
   renderFactorySlot,
   requestModelSignIn,
   readSessionCatalog,
@@ -3978,7 +3975,6 @@ export function BotPanel({
   profileCards?: ProfileCardRegistry | undefined;
   nativeChatT?: NativeChatFailureText | undefined;
   releaseNotes?: ReleaseNotesController | undefined;
-  telemetryNotice?: TelemetryNoticeController | undefined;
   appearance?: Appearance | undefined;
   workspace?: WorkspaceOptions | undefined;
   renderFactorySlot?: RenderFactorySlot | undefined;
@@ -4010,9 +4006,6 @@ export function BotPanel({
       <OnboardingOverlay actions={actions} companion={companion} t={t} />
       {releaseNotes === undefined ? null : (
         <ReleaseNotesAnnouncement controller={releaseNotes} t={t} deferred={deferRelease} />
-      )}
-      {telemetryNotice === undefined ? null : (
-        <TelemetryNotice controller={telemetryNotice} releaseNotes={releaseNotes} t={t} />
       )}
       <BotMain
         appearance={appearance}

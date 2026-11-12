@@ -102,8 +102,7 @@ import { createMessagingTyping, type MessagingProcessing } from './typing.js';
 import { createMessagingFeedback, type SourceFeedback } from './feedback.js';
 import { createBotSourcePolicyStore, type BotSourcePolicyStore } from '../runtime/source-policy.js';
 import type { DatabaseSync } from 'node:sqlite';
-import { CONNECTOR_TYPES as TELEMETRY_CONNECTOR_TYPES } from '../telemetry/events.js';
-import type { TelemetryCapture } from '../telemetry/service.js';
+import type { ImCommandServices } from './im-commands.js';
 import { OperationalDatabaseError, type OperationalDatabaseModulePort } from '../database/owner.js';
 import {
   MessagingError,
@@ -402,15 +401,6 @@ export interface OutboundMessaging {
 
 type StoredIntent = OutboxIntent & { requestId: string; payloadHash: string };
 
-const CONNECTOR_TYPES = new Set<string>(
-  TELEMETRY_CONNECTOR_TYPES.filter((type) => type !== 'other'),
-);
-
-export function connectorType(platform: string): string {
-  const normalized = platform.trim().toLowerCase();
-  return CONNECTOR_TYPES.has(normalized) ? normalized : 'other';
-}
-
 export function createOutboundMessaging(options: {
   database: OperationalDatabaseModulePort;
   channels?: Pick<ChannelStore, 'get' | 'getOrCreateDm'>;
@@ -430,16 +420,8 @@ export function createOutboundMessaging(options: {
   recover?: boolean;
   now?: () => Date;
   warn?: (message: string) => void;
-  capture?: TelemetryCapture;
 }): OutboundMessaging {
   const { database } = options;
-  const connectorEnabled = (platform: string): void => {
-    try {
-      options.capture?.('im:connector_enable', { type: connectorType(platform) });
-    } catch {
-      return;
-    }
-  };
   const transaction = <T>(command: (db: DatabaseSync) => T, topics: string[] = []): T => {
     try {
       return database.transaction((db) => {
@@ -1588,7 +1570,6 @@ export function createOutboundMessaging(options: {
           ['bindings'],
         );
         await bounded(inbound.reconcileBinding(bound.id));
-        if (bound.enabled) connectorEnabled(bound.platform);
         return bound;
       }
       const value = binding(input.id);
@@ -1752,8 +1733,6 @@ export function createOutboundMessaging(options: {
           operation: input.kind,
         }),
       );
-      if (updated.enabled && !value.enabled && !updated.revokedAt)
-        connectorEnabled(updated.platform);
       return updated;
     },
     readChannelMedia(input) {
@@ -2657,10 +2636,8 @@ export function createOutboundMessaging(options: {
         inspected.target.digest !== input.targetDigest
       )
         throw new MessagingError('rebind-required');
-      let createdBinding: string | undefined;
       const authorized = transaction(
         (db) => {
-          createdBinding = undefined;
           active(input.botSlug);
           const existing = db
             .prepare(
@@ -2714,8 +2691,6 @@ export function createOutboundMessaging(options: {
               messagingDefaultsPlatform.safeParse(value.platform).success ? 1 : 0,
               value.platform === 'weixin' ? 1 : 0,
             );
-          if (!reusable && readMessagingIdentity(db, bindingId).enabled)
-            createdBinding = value.platform;
           db.prepare(
             'INSERT INTO messaging_grants (id, binding_id, bot_slug, revision, created_at, body) VALUES (?, ?, ?, ?, ?, ?)',
           ).run(id, bindingId, input.botSlug, 1, at, JSON.stringify(value));
@@ -2723,7 +2698,6 @@ export function createOutboundMessaging(options: {
         },
         ['bindings', 'grants'],
       );
-      if (createdBinding !== undefined) connectorEnabled(createdBinding);
       return authorized;
     },
     revoke(botSlug, grantId) {

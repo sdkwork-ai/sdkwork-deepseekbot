@@ -15,7 +15,6 @@ import { Button } from '../primitives/button';
 import { SheetHeader } from '../primitives/sheet-header';
 import { Text } from '../primitives/text';
 import { useMounted } from '../mounted';
-import { recordFeature } from '../../telemetry/features';
 import { FileIcon } from '../shell/icons';
 import { conversationHref } from '../shell/open-conversation';
 import { useStrings } from '../strings';
@@ -64,9 +63,6 @@ export default function ShareScreen() {
     if (saved === undefined || saved === null || sending || empty) return;
     setSending(true);
     await deliverShare(draftKey(saved.hostId, row), share);
-    recordFeature('share:bot_share_send', {
-      content: share.files.length === 0 ? 'text' : share.text === '' ? 'files' : 'both',
-    });
     incoming.clearSharedPayloads();
     router.replace(conversationHref(row, saved.hostId));
   };

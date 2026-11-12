@@ -200,14 +200,6 @@ import type {
   PluginUpdateService,
   PluginUpdates,
 } from '../release/plugins.js';
-import type { ActiveDay } from '../telemetry/active-day.js';
-import {
-  isClientTelemetryEventName,
-  telemetryEventProperties,
-  type TelemetryEventName,
-  type TelemetrySurface,
-} from '../telemetry/events.js';
-import type { TelemetryCapture, TelemetryStatus } from '../telemetry/service.js';
 import {
   AssignmentReplyTargetError,
   type HumanAssignmentContext,
@@ -648,7 +640,6 @@ export interface BridgeMethods {
   onboarding(payload: unknown): Promise<BridgeResult<OnboardingSnapshot>>;
   modelPlanInherit(payload: unknown): BridgeResult<{ revision: number }>;
   onboardingModel(payload: unknown): Promise<BridgeResult<{ revision: number }>>;
-  telemetryEvent(payload: unknown): BridgeResult<null>;
   channelRetry(payload: unknown): Promise<BridgeResult<{ accepted: true }>>;
   botNewSession(payload: unknown): Promise<BridgeResult<{ started: true }>>;
   botCompact(payload: unknown): Promise<BridgeResult<ManualCompactionResult>>;
@@ -1081,10 +1072,8 @@ export interface BridgeMethods {
   pluginUpdates(payload?: unknown): Promise<BridgeResult<PluginUpdates>>;
   pluginInstall(payload: unknown): Promise<BridgeResult<PluginInstall>>;
   pluginRestart(payload: unknown): Promise<BridgeResult<PluginRestart>>;
-  telemetryStatus(): BridgeResult<TelemetryStatus>;
   gitStatus(): BridgeResult<GitStatus>;
   gitInstall(): BridgeResult<GitStatus>;
-  telemetrySet(payload: unknown): BridgeResult<TelemetryStatus>;
   takeoverList(payload: unknown): BridgeResult<{ takeovers: TakeoverHandoff[] }>;
   takeoverStatus(payload: unknown): BridgeResult<{ takeover: TakeoverHandoff }>;
   takeoverRequest(payload: unknown): Promise<BridgeResult<{ takeover: TakeoverHandoff }>>;
@@ -1253,12 +1242,6 @@ export interface BridgeMethodsDeps {
   marketplaceReceipts?: InstallReceipts;
   release?: ReleaseService;
   plugins?: PluginUpdateService;
-  telemetry?: {
-    status(): TelemetryStatus;
-    setPreference(enabled: boolean): TelemetryStatus;
-    capture?: TelemetryCapture;
-  };
-  activeDay?: ActiveDay;
   git?: Pick<GitService, 'status' | 'install'>;
 }
 
@@ -1432,22 +1415,6 @@ function releaseUnavailable(): BridgeResult<never> {
   return {
     ok: false,
     error: { code: 'release-unavailable', message: 'Release information is unavailable' },
-  };
-}
-
-const TUTORIAL_EVENTS: Record<TutorialAction, TelemetryEventName> = {
-  start: 'onboarding:tutorial_start',
-  pause: 'onboarding:tutorial_pause',
-  skip: 'onboarding:tutorial_skip',
-  continue: 'onboarding:tutorial_resume',
-  restart: 'onboarding:tutorial_restart',
-  finish: 'onboarding:tutorial_complete',
-};
-
-function telemetryUnavailable(): BridgeResult<never> {
-  return {
-    ok: false,
-    error: { code: 'telemetry-unavailable', message: 'Usage statistics are unavailable' },
   };
 }
 
@@ -2861,8 +2828,6 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
           asSlug(payload),
           action as TutorialAction | undefined,
         );
-        if (action !== undefined)
-          deps.telemetry?.capture?.(TUTORIAL_EVENTS[action as TutorialAction]);
         const newsAvailable =
           (await deps
             .onboardingNews?.(asSlug(payload) ?? value.defaultBotSlug)
@@ -2886,22 +2851,6 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       const result = deps.registry.inheritModel(slug, revision as number);
       if (!result.ok) return invalidInput('Bot model changed; reopen before saving');
       return { ok: true, value: { revision: result.record.modelPlanRevision ?? 0 } };
-    },
-    telemetryEvent(payload) {
-      const source = asObject(payload);
-      const event = source['event'];
-      if (!isClientTelemetryEventName(event)) return invalidInput('Unknown telemetry event');
-      const properties = telemetryEventProperties(event, asObject(source['properties']));
-      if (properties === undefined) return invalidInput('Invalid telemetry event properties');
-      deps.telemetry?.capture?.(event, properties);
-      if (event === 'app:bot_mode_enter') {
-        const surface = properties['surface'];
-        deps.activeDay?.mark(
-          'bot_mode_enter',
-          typeof surface === 'string' ? (surface as TelemetrySurface) : undefined,
-        );
-      }
-      return { ok: true, value: null };
     },
     async onboardingModel(payload) {
       if (deps.modelCatalog === undefined || deps.defaultModel === undefined) return unavailable();
@@ -3977,11 +3926,6 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       });
       if (!result.ok) return createFailure(slug, result);
       if (listingId !== undefined) sendReceipt(listingId.trim());
-      if (source['origin'] === 'marketplace') {
-        try {
-          deps.telemetry?.capture?.('marketplace:bot_install');
-        } catch {}
-      }
       return {
         ok: true,
         value: {
@@ -4114,33 +4058,11 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
       if (deps.plugins === undefined) return releaseUnavailable();
       return { ok: true, value: await deps.plugins.restart() };
     },
-    telemetryStatus() {
-      return {
-        ok: true,
-        value: deps.telemetry?.status() ?? { enabled: false, preference: false },
-      };
-    },
     gitStatus() {
       return { ok: true, value: deps.git?.status() ?? unmanagedGitStatus() };
     },
     gitInstall() {
       return { ok: true, value: deps.git?.install() ?? unmanagedGitStatus() };
-    },
-    telemetrySet(payload) {
-      const enabled = asObject(payload)['enabled'];
-      if (typeof enabled !== 'boolean') return invalidInput('enabled is required');
-      if (deps.telemetry === undefined) return telemetryUnavailable();
-      try {
-        return { ok: true, value: deps.telemetry.setPreference(enabled) };
-      } catch {
-        return {
-          ok: false,
-          error: {
-            code: 'telemetry-persist-failed',
-            message: 'The usage statistics choice could not be saved',
-          },
-        };
-      }
     },
     marketplaceDetail(payload) {
       const { id, lang: langValue } = asObject(payload);
@@ -4381,12 +4303,6 @@ export function createBridgeMethods(deps: BridgeMethodsDeps): BridgeMethods {
           prepared.value.input,
         );
         sendReceipt(prepared.value.listing.id);
-        try {
-          deps.telemetry?.capture?.(
-            'marketplace:bot_install',
-            typeof installSource === 'string' ? { entry: installSource } : undefined,
-          );
-        } catch {}
         const listing = prepared.value.listing;
         const marked = deps.registry.setMarketplaceListing(created.record.slug, {
           id: listing.id,

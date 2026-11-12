@@ -38,8 +38,6 @@ export interface HostAdminValues {
   role?: string[];
   confirm?: boolean;
   'confirmation-stdin'?: boolean;
-  enabled?: boolean;
-  disabled?: boolean;
   name?: string;
   description?: string;
   'operation-key'?: string;
@@ -139,8 +137,6 @@ export const HOST_ADMIN_COMMANDS = [
     description:
       'clear all BotHarness data and restart the Host; needs --confirmation-stdin --confirm',
   },
-  { command: 'telemetry-status', description: 'read the usage statistics choice' },
-  { command: 'telemetry-set', description: 'turn usage statistics on or off' },
   { command: 'git-status', description: 'read whether the Host can use Git for Memory' },
   { command: 'git-install', description: 'install Git through the Host when it is missing' },
   { command: 'pairing-list', description: "list a Bot's IM pairing requests and roles" },
@@ -198,8 +194,6 @@ const POSITIONALS: Record<HostAdminCommand, number> = {
   'plugin-restart': 0,
   'data-reset-preview': 0,
   'data-reset-confirm': 0,
-  'telemetry-status': 0,
-  'telemetry-set': 0,
   'git-status': 0,
   'git-install': 0,
   'pairing-list': 1,
@@ -304,8 +298,6 @@ function validate(command: HostAdminCommand, rest: string[], values: HostAdminVa
     );
   if (command === 'data-reset-confirm' && values['confirmation-stdin'] !== true)
     usage('data-reset-confirm requires --confirmation-stdin.');
-  if (command === 'telemetry-set' && values.enabled === values.disabled)
-    usage('telemetry-set needs exactly one of --enabled or --disabled.');
   if (command !== 'pairing-review') return undefined;
   const kind = values.decision;
   if (kind !== 'approve' && kind !== 'reject' && kind !== 'revoke')
@@ -594,10 +586,6 @@ export async function runHostAdminCommand(
       return rpc('dataResetPreview', {});
     case 'data-reset-confirm':
       return rpc('dataResetConfirm', { token: resetToken });
-    case 'telemetry-status':
-      return rpc('telemetryStatus', {});
-    case 'telemetry-set':
-      return rpc('telemetrySet', { enabled: values.enabled === true });
     case 'git-status':
       return rpc('gitStatus', {});
     case 'git-install':

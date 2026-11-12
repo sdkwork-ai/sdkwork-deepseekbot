@@ -2,11 +2,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { createTobMaintenanceOperations } from '../src/tob/cli-maintenance-operations.js';
 import type { GitService, GitStatus } from '../src/memory/managed-git.js';
 import type { ReleaseService, ReleaseUpdate } from '../src/release/service.js';
-import type { TelemetryService, TelemetryStatus } from '../src/telemetry/service.js';
 import { TobError } from '../src/tob/service.js';
 
 function fixture() {
-  let telemetry: TelemetryStatus = { enabled: true, preference: true };
   let git: GitStatus = {
     available: false,
     reason: 'missing',
@@ -21,7 +19,6 @@ function fixture() {
     installable: true,
   };
   let pendingVersion = '1.1.0';
-  const setPreference = vi.fn((enabled: boolean) => (telemetry = { enabled, preference: enabled }));
   const installGit = vi.fn(
     () =>
       (git = {
@@ -53,7 +50,6 @@ function fixture() {
     return { status: 'restarting' as const };
   });
   const prepare = createTobMaintenanceOperations({
-    telemetry: { status: () => telemetry, setPreference } as unknown as TelemetryService,
     git: {
       status: () => git,
       install: installGit,
@@ -68,13 +64,9 @@ function fixture() {
   });
   return {
     prepare,
-    setPreference,
     installGit,
     installRelease,
     restart,
-    telemetry: (value: TelemetryStatus) => {
-      telemetry = value;
-    },
     update: (value: ReleaseUpdate) => {
       update = value;
     },
@@ -84,27 +76,10 @@ function fixture() {
   };
 }
 describe('Tob maintenance uses reviewed owner operations', () => {
-  it('refuses telemetry environment locks and stale reviews without modifying preference', async () => {
+  it('does not offer the removed telemetry commands', async () => {
     const f = fixture();
-    f.telemetry({ enabled: false, preference: true, lockedBy: 'DO_NOT_TRACK' });
-    await expect(f.prepare('telemetry-set', { enabled: true })).rejects.toMatchObject({
-      code: 'telemetry-locked',
-    });
-    f.telemetry({ enabled: true, preference: true });
-    const operation = (await f.prepare('telemetry-set', { enabled: false }))!;
-    expect(operation.proposal).toMatchObject({
-      previousValue: { enabled: true, preference: true },
-      patch: { enabled: false },
-    });
-    f.telemetry({ enabled: false, preference: false });
-    expect(() => operation.run(() => {})).toThrow('stale-setting');
-    expect(f.setPreference).not.toHaveBeenCalled();
-  });
-  it('writes telemetry through its owner and returns canonical readback', async () => {
-    const f = fixture();
-    const operation = (await f.prepare('telemetry-set', { enabled: false }))!;
-    expect(await operation.run(() => {})).toEqual({ enabled: false, preference: false });
-    expect(f.setPreference).toHaveBeenCalledExactlyOnceWith(false);
+    expect(await f.prepare('telemetry-status', {})).toBeUndefined();
+    expect(await f.prepare('telemetry-set', { enabled: true })).toBeUndefined();
   });
   it('does not install Git after source revocation and waits for one admitted install', async () => {
     const f = fixture();
@@ -197,9 +172,6 @@ describe('Tob maintenance uses reviewed owner operations', () => {
     await expect(
       f.prepare('release-restart', { confirm: true, force: true }),
     ).rejects.toMatchObject({ code: 'invalid-input' });
-    await expect(f.prepare('telemetry-set', { enabled: 'false' })).rejects.toMatchObject({
-      code: 'invalid-input',
-    });
     expect(await f.prepare('unknown', {})).toBeUndefined();
   });
 });

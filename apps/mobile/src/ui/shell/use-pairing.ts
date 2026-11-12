@@ -11,9 +11,7 @@ import { connectAccount } from '../../host/native-connect-account';
 import { hostLooks } from '../../host/native-host-look';
 import { conversationFilter } from '../../host/native-conversation-filter';
 import { computerEnvironmentKey } from '../../host/conversation-environments';
-import { pairHost, type PairingFailure } from '../../host/pairing';
-import { mobileTelemetry } from '../../telemetry/native';
-import type { PairingMethod } from '../../telemetry/schema';
+import { pairHost, type PairingFailure, type PairingMethod } from '../../host/pairing';
 import { hostLookName } from '../design/host-look';
 import { clearsPastedLink } from '../pairing-failure';
 import { openPairedHostSetup } from './workspace-navigation';
@@ -144,7 +142,6 @@ export function usePairing(options: { stayOnPage?: boolean; preventDuplicates?: 
         );
         if (!original) setupHost.current = host.hostId;
       },
-      telemetry: mobileTelemetry,
       signal: operation.signal,
     });
     pending.current = undefined;

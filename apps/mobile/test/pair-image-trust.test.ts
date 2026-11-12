@@ -30,7 +30,6 @@ function setup() {
   } satisfies HostCarrier;
   const save = vi.fn();
   const onPending = vi.fn();
-  const finish = vi.fn();
   return {
     method: 'image' as const,
     text: imageLink(),
@@ -38,7 +37,6 @@ function setup() {
     carrier,
     save,
     onPending,
-    telemetry: { pairing: vi.fn(() => ({ finish })) },
   };
 }
 
@@ -57,7 +55,6 @@ it('requires full Host fingerprint confirmation for an image before any enrollme
   expect(options.carrier.openSocket).not.toHaveBeenCalled();
   expect(options.onPending).not.toHaveBeenCalled();
   expect(options.save).not.toHaveBeenCalled();
-  expect(options.telemetry.pairing).toHaveBeenCalledWith('image');
 });
 
 it('refuses image pairing when no confirmation handler is provided', async () => {

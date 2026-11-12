@@ -8,7 +8,7 @@ import {
 import { resolveDshHome } from '../im/config-store.js';
 import { LogDatabaseUnreadableError } from '../logs/log-db.js';
 import { installedRelease } from '../release/service.js';
-import { installedDshVersion } from '../telemetry/service.js';
+import { installedDshVersion } from '../release/dsh-version.js';
 import type { BotCreateCliIo } from './bot-create-cli.js';
 import type { connectLiveHost } from './cli-live.js';
 import { CliLiveError } from './cli-live-error.js';

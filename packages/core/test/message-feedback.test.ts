@@ -4,13 +4,9 @@ import { queryChannelMessages } from '../src/channels/store.js';
 import { pageChannelTimeline } from '../src/channels/timeline.js';
 import type { ChannelMessage } from '../src/channels/channel.js';
 import { readZip } from '../src/bots/zip-archive.js';
-import { feedbackRatingSchema } from '../src/diagnostics/feedback-contract.js';
 
 const base = 'http://localhost/api/botharness/message-feedback';
-function fixture(
-  submit?: Parameters<typeof createMessageFeedbackHttp>[0]['submit'],
-  reusedAssignment = false,
-) {
+function fixture(reusedAssignment = false) {
   const messages: ChannelMessage[] = Array.from({ length: 61 }, (_, index) => ({
     id: `m${index}`,
     at: new Date(1_700_000_000_000 + index * 1000).toISOString(),
@@ -143,7 +139,6 @@ function fixture(
     },
     readTimeline: (id, request) => pageChannelTimeline(id, messages, request),
     homes: [],
-    ...(submit ? { submit } : {}),
   });
   const post = (action: string, body: unknown) =>
     handler(
@@ -158,7 +153,7 @@ function fixture(
 
 describe('message feedback through the Host HTTP interface', () => {
   it('includes a reused Assignment addressed through serialized native tool arguments', async () => {
-    const f = fixture(undefined, true);
+    const f = fixture(true);
     const preview = await (
       await f.post('preview', { channelId: 'dm', messageId: 'm30', before: 0, after: 0 })
     ).json();
@@ -178,22 +173,6 @@ describe('message feedback through the Host HTTP interface', () => {
         (item: { kind: string }) => item.kind === 'related-execution-unavailable',
       ),
     ).toBe(true);
-  });
-  it('keeps a valid comment acceptable after length-expanding redaction', async () => {
-    const f = fixture(async (report) => {
-      expect(feedbackRatingSchema.safeParse(report.feedback).success).toBe(true);
-      expect(report.feedback.comment.includes('a@b.co')).toBe(false);
-      return { reportId: report.reportId };
-    });
-    const preview = await (await f.post('preview', { channelId: 'dm', messageId: 'm30' })).json();
-    expect(
-      (
-        await f.post('submit', {
-          token: preview.token,
-          feedback: { rating: 'bad', comment: 'a@b.co '.repeat(70) },
-        })
-      ).status,
-    ).toBe(200);
   });
   it('keeps a related turn complete without silently expanding selected messages', async () => {
     const f = fixture();
@@ -230,6 +209,7 @@ describe('message feedback through the Host HTTP interface', () => {
     const response = await f.post('preview', { channelId: 'dm', messageId: 'm30' });
     expect(response.status).toBe(200);
     const preview = await response.json();
+    expect(preview.canSubmit).toBeUndefined();
     expect(preview.summary.channels[0].messages).toBe(41);
     f.messages.push({
       id: 'later',
@@ -242,9 +222,8 @@ describe('message feedback through the Host HTTP interface', () => {
     const bytes = Buffer.from(await download.arrayBuffer());
     const files = readZip(bytes, { maxEntries: 100, maxTotalBytes: 1 << 24 });
     const readme = files.find((entry) => entry.path === 'README.md')?.data.toString();
-    expect(readme).toContain('never attached to feedback submission');
-    expect(readme).toContain('Only your rating, tags and short comment are sent to PostHog');
-    expect(readme).not.toContain('30 days');
+    expect(readme).toContain('never uploaded');
+    expect(readme).not.toContain('PostHog');
     const conversation = files.find((entry) => entry.path === 'channels/dm.jsonl')?.data.toString();
     expect(conversation).toContain('"id":"m10"');
     expect(conversation).toContain('"id":"m50"');
@@ -254,40 +233,22 @@ describe('message feedback through the Host HTTP interface', () => {
       Buffer.from(await (await f.post('download', { token: preview.token })).arrayBuffer()),
     ).toEqual(bytes);
   });
-  it('retains the same rating across a lost response while keeping diagnostic content local', async () => {
-    const received: Array<
-      Parameters<NonNullable<Parameters<typeof createMessageFeedbackHttp>[0]['submit']>>[0]
-    > = [];
-    const f = fixture(async (report) => {
-      received.push(report);
-      if (received.length === 1) throw new Error('lost response');
-      return { reportId: report.reportId };
-    });
+  it('refuses the removed submission action', async () => {
+    const f = fixture();
     const preview = await (await f.post('preview', { channelId: 'dm', messageId: 'm30' })).json();
-    const input = {
-      token: preview.token,
-      feedback: { rating: 'bad', tags: ['no-response'], comment: 'No answer' },
-    };
-    expect((await f.post('submit', input)).status).toBe(502);
-    expect((await f.post('submit', input)).status).toBe(200);
-    expect(received[0]?.reportId).toBe(received[1]?.reportId);
-    expect(received[1]?.feedback).toEqual(input.feedback);
-    expect(Object.keys(received[1]!).sort()).toEqual(['feedback', 'reportId', 'version']);
-    expect(JSON.stringify(received)).not.toContain('Message 30');
-    const download = await f.post('download', { token: preview.token });
-    expect(download.status).toBe(200);
-    expect((await download.arrayBuffer()).byteLength).toBeGreaterThan(0);
+    expect(
+      (
+        await f.post('submit', {
+          token: preview.token,
+          feedback: { rating: 'bad', tags: [], comment: 'No answer' },
+        })
+      ).status,
+    ).toBe(404);
   });
 });
 
-it('uploads only the selected failed turn and redacts tool secrets', async () => {
-  const f = fixture(async (report) => {
-    expect(report.turn?.prompt).toEqual(['[Human DM]\nChannel: dm\nMessage ID: m30\nMessage 30']);
-    expect(report.turn?.toolCalls).toHaveLength(1);
-    expect(JSON.stringify(report)).not.toContain('private-credential');
-    expect(Object.keys(report).sort()).toEqual(['feedback', 'reportId', 'turn', 'version']);
-    return { reportId: report.reportId };
-  });
+it('keeps failed-turn upload evidence in the local preview', async () => {
+  const f = fixture();
   f.messages[36] = {
     id: 'm36',
     at: new Date(1_700_000_036_000).toISOString(),
@@ -307,15 +268,11 @@ it('uploads only the selected failed turn and redacts tool secrets', async () =>
   });
   expect(response.status).toBe(200);
   const preview = await response.json();
+  expect(preview.uploadEvidence.prompt).toEqual([
+    '[Human DM]\nChannel: dm\nMessage ID: m30\nMessage 30',
+  ]);
   expect(preview.uploadEvidence.toolCalls).toHaveLength(1);
-  expect(
-    (
-      await f.post('submit', {
-        token: preview.token,
-        feedback: { rating: 'bad', tags: [], comment: '' },
-      })
-    ).status,
-  ).toBe(200);
+  expect(JSON.stringify(preview)).not.toContain('private-credential');
 });
 
 it('refuses turn uploads for ordinary messages', async () => {

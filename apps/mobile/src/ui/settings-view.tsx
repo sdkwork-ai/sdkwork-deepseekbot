@@ -22,7 +22,6 @@ export function SettingsView({
   loadUsage,
   version,
   actions,
-  statistics,
   messageDisplay,
   activityCount,
   chatBackground,
@@ -33,7 +32,6 @@ export function SettingsView({
   loadUsage?: (() => Promise<OverviewUsage>) | undefined;
   version: string;
   actions: SettingsActions;
-  statistics?: ReactNode;
   messageDisplay?: ReactNode;
   activityCount?: ReactNode;
   chatBackground?: ReactNode;
@@ -116,7 +114,6 @@ export function SettingsView({
           }
         />
       </SettingsSection>
-      {statistics}
     </SettingsForm>
   );
 }

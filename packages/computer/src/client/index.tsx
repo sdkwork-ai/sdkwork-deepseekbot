@@ -41,7 +41,6 @@ import {
 } from './settings-rows.js';
 import { LocalComputerStatus } from './local-computer.js';
 import { useMountedResource } from './mounted-resource.js';
-import { recordViewerOpen } from '../../../client/src/client/telemetry-surface.js';
 
 import { AccessPowerIcon } from './access-power-icon.js';
 import { STYLEX_CSS } from '../../../client/src/client/ds/stylex-css.js';
@@ -708,7 +707,6 @@ function ComputerEntry({
   }, []);
 
   const statusResource = useMountedResource<HTMLDivElement>(() => {
-    recordViewerOpen(connectionRpc, 'computer');
     const controller = new AbortController();
     let pending = false;
     const poll = async (): Promise<void> => {

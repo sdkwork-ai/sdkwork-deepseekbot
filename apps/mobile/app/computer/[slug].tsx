@@ -32,7 +32,6 @@ import { Button } from '../../src/ui/primitives/button';
 import { Text } from '../../src/ui/primitives/text';
 import { viewerHeaderOptions } from '../../src/ui/shell/viewer-header';
 import { useMounted } from '../../src/ui/mounted';
-import { recordFeature } from '../../src/telemetry/features';
 import { useStrings } from '../../src/ui/strings';
 import { LoadingIndicator } from '../../src/ui/primitives/loading-indicator';
 import { LocalComputerScreen } from '../../src/ui/chat/local-computer-screen';
@@ -102,7 +101,6 @@ function LegacyComputerScreen() {
 
   const mount = useMounted<ViewInstance>(() => {
     viewer?.start();
-    recordFeature('viewer:subpanel_open', { panel: 'computer' });
     const hidden = Keyboard.addListener('keyboardDidHide', () =>
       setTool((current) => (current === 'keyboard' ? 'mouse' : current)),
     );

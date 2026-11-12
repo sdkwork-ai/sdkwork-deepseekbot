@@ -42,9 +42,6 @@ vi.mock('../src/host/native-host-look', () => ({ hostLooks: { initialize: mocks.
 vi.mock('../src/host/native-conversation-filter', () => ({
   conversationFilter: { set: mocks.filter },
 }));
-vi.mock('../src/telemetry/native', () => ({
-  mobileTelemetry: { pairing: () => ({ finish: () => {} }) },
-}));
 vi.mock('../src/host/pairing', () => ({ pairHost: mocks.pairHost }));
 
 import type { pairHost } from '../src/host/pairing';

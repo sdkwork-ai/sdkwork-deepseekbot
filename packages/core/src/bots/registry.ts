@@ -58,8 +58,6 @@ import {
   seedStandingFiles,
   type StandingLimits,
 } from '../memory/soul.js';
-import type { TelemetryEventName } from '../telemetry/events.js';
-import type { TelemetryCapture } from '../telemetry/service.js';
 import {
   isPersonaBotModelPlan,
   type AssignmentModelOption,
@@ -88,7 +86,6 @@ export interface PersonaBotRegistryOptions {
   initializeMemory?: (memoryDir: string) => MemoryRepositoryInitialization;
   cloneMemory?: (destination: string, url: string) => Promise<MemoryCloneResult>;
   onPurge?: (slug: string, removeFiles: () => void) => void;
-  capture?: TelemetryCapture;
   syncDescriptor?: (
     memoryDir: string,
     record: PersonaBotRecord,
@@ -206,13 +203,6 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
   const defaultMemoryDir = (slug: string): string => join(botDir(slug), 'memory');
 
   const port = attachOperationalModule(options.database, 'bot-registry');
-  const capture = (event: TelemetryEventName): void => {
-    try {
-      options.capture?.(event);
-    } catch {
-      return;
-    }
-  };
   const recordSnapshot = (record: PersonaBotRecord): PersonaBotRecord => {
     const result: PersonaBotRecord = {
       slug: record.slug,
@@ -596,7 +586,6 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
       const result = create(input, false);
       created = result.ok;
       if (!result.ok) return result;
-      capture('bot_library:bot_create');
       const shared = readSharedPresentation(defaultMemoryDir(input.slug));
       const banner = readSharedBanner(defaultMemoryDir(input.slug));
       const primaryColor = readSharedPrimaryColor(defaultMemoryDir(input.slug));
@@ -642,9 +631,7 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
   return {
     rootDir,
     create(input) {
-      const result = create(input, true);
-      if (result.ok) capture('bot_library:bot_create');
-      return result;
+      return create(input, true);
     },
     async createFromGit(input, authorize) {
       const { gitUrl, expectedCommit, ...recordInput } = input;
@@ -773,8 +760,6 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
       if (record.displayName !== previousName) options.onDisplayNameChanged?.();
       if (record.avatar !== previousAvatar || record.appearance !== previousAppearance)
         options.onAvatarChanged?.();
-      if (patch.avatar !== undefined && record.avatar !== previousAvatar)
-        capture('bot_profile:avatar_update');
       if (
         record.displayName !== previousName ||
         JSON.stringify([record.roles, record.tag, record.description, record.avatar]) !==
@@ -793,7 +778,6 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
       write(updated);
       if (record.appearance?.revision !== updated.appearance.revision) options.onAvatarChanged?.();
       syncDescriptor(updated);
-      capture('bot_profile:avatar_update');
       return { ok: true, record: updated };
     },
     setBanner(slug, banner) {
@@ -803,7 +787,6 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
       const updated = { ...record, banner };
       write(updated);
       syncDescriptor(updated);
-      capture('bot_profile:banner_update');
       return { ok: true, record: updated };
     },
     setPrimaryColor(slug, choice) {
@@ -828,11 +811,9 @@ export function createPersonaBotRegistry(options: PersonaBotRegistryOptions): Pe
       if (paused && isTob(port, slug)) throw new TobError('protected-bot');
       const record = active(slug);
       if (record === undefined) return { ok: false, reason: 'not-found' };
-      const archiving = paused && record.paused !== true;
       if (paused) record.paused = true;
       else delete record.paused;
       write(record);
-      if (archiving) capture('bot_library:bot_archive');
       return { ok: true, record };
     },
     setComputerAccess(slug, enabled) {

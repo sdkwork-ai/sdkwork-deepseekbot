@@ -1378,58 +1378,6 @@ describe('group Channel mentions on send', () => {
   });
 });
 
-it('observes activation only after an accepted foreground send and a new committed Bot entry', async () => {
-  const host = new FakeHost();
-  const channel = host.channel(DM);
-  seed(channel, 2);
-  const accepted = vi.fn(() => true);
-  const observed = vi.fn();
-  const target = open(host, { telemetry: { send: () => ({ accepted, observed }) } });
-  target.setForeground?.(true);
-  await until(target, (s) => s.status === 'live');
-  expect(observed).not.toHaveBeenCalled();
-  host.failing.add('channelSend');
-  const id = target.send('SENTINEL chat');
-  expect(accepted).not.toHaveBeenCalled();
-  await until(target, (s) => s.messages.at(-1)?.delivery === 'failed');
-  expect(accepted).not.toHaveBeenCalled();
-  host.failing.delete('channelSend');
-  target.retry(id);
-  await until(target, (s) => s.messages.some((m) => m.id === id && m.revision !== undefined));
-  expect(accepted).toHaveBeenCalledTimes(1);
-  channel.emit({
-    type: 'entry',
-    entry: { channelId: DM, revision: 2, message: channel.messages[1]! },
-  });
-  await new Promise((resolve) => setTimeout(resolve, 10));
-  expect(observed).not.toHaveBeenCalled();
-  channel.append({ id: 'new-bot', body: 'SENTINEL reply', author: { kind: 'bot', slug: SLUG } });
-  await until(target, (s) => s.messages.at(-1)?.id === 'new-bot');
-  expect(observed).toHaveBeenCalledTimes(1);
-  target.setForeground?.(false);
-  channel.append({ id: 'hidden-bot', author: { kind: 'bot', slug: SLUG } });
-  await until(target, (s) => s.messages.at(-1)?.id === 'hidden-bot');
-  expect(observed).toHaveBeenCalledTimes(1);
-});
-
-it('records Host acceptance after leaving the conversation without observing hidden Bot entries', async () => {
-  const host = new FakeHost();
-  const channel = host.channel(DM);
-  seed(channel, 2);
-  const accepted = vi.fn(() => true);
-  const observed = vi.fn();
-  const target = open(host, { telemetry: { send: () => ({ accepted, observed }) } });
-  target.setForeground?.(true);
-  await until(target, (s) => s.status === 'live');
-  const id = target.send('accepted after navigation');
-  target.setForeground?.(false);
-  await until(target, (s) => s.messages.some((m) => m.id === id && m.revision !== undefined));
-  expect(accepted).toHaveBeenCalledTimes(1);
-  channel.append({ id: 'hidden-after-acceptance', author: { kind: 'bot', slug: SLUG } });
-  await until(target, (s) => s.messages.at(-1)?.id === 'hidden-after-acceptance');
-  expect(observed).not.toHaveBeenCalled();
-});
-
 describe('message deliveries', () => {
   it('shows Inbox admissions on a Human message and follows their updates', async () => {
     const host = new FakeHost();

@@ -11,7 +11,7 @@ import {
   type LogEntry,
   type LogEntryInput,
 } from '../logs/log-db.js';
-import { scrubHomePaths } from '../telemetry/exceptions.js';
+import { scrubHomePaths } from './scrub.js';
 import { createDiagnosticRedactor } from './redaction.js';
 
 export const CLIENT_LOG_PATH = '/api/botharness/client-log';

@@ -96,7 +96,7 @@ export function MarketplaceDigestScreen() {
                     {section.bot ? (
                       <MarketplaceRow
                         bot={section.bot}
-                        onPress={() => openMarketplaceBot(section.bot!, target, 'digest')}
+                        onPress={() => openMarketplaceBot(section.bot!, target)}
                       />
                     ) : null}
                   </View>

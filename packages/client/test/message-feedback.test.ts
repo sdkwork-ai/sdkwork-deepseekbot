@@ -13,21 +13,22 @@ const cleanups: Array<() => Promise<void>> = [];
 afterEach(async () => {
   for (const clean of cleanups.splice(0)) await clean();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 
-it('requires a rating, previews evidence and keeps a failed submission available for retry', async () => {
+it('previews local evidence and downloads a diagnostic archive without submitting', async () => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  const paths: string[] = [];
   const requests: string[] = [];
-  let submits = 0;
   vi.stubGlobal('fetch', async (path: string, init: RequestInit) => {
+    paths.push(path);
     requests.push(init.body?.toString() ?? '');
     if (path.endsWith('preview'))
       return {
         ok: true,
         json: async () => ({
           token: 'preview',
-          canSubmit: true,
-          bytes: 100,
+          bytes: 2048,
           summary: {
             channels: [{ name: 'QA', role: 'selected', messages: 41 }],
             sessions: [],
@@ -37,13 +38,20 @@ it('requires a rating, previews evidence and keeps a failed submission available
           files: [],
         }),
       };
-    submits += 1;
-    return submits === 1
-      ? { ok: false, json: async () => ({ error: { code: 'feedback-failed' } }) }
-      : {
-          ok: true,
-          json: async () => ({ reportId: 'accepted-report', expiresAt: '2026-11-25T00:00:00Z' }),
-        };
+    return {
+      ok: true,
+      blob: async () => new Blob(['zip-bytes'], { type: 'application/zip' }),
+    };
+  });
+  vi.stubGlobal('URL', {
+    createObjectURL: vi.fn(() => 'blob:diagnostics'),
+    revokeObjectURL: vi.fn(),
+  });
+  const clicked: string[] = [];
+  vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+    this: HTMLAnchorElement,
+  ) {
+    clicked.push(this.download);
   });
   const container = document.createElement('div');
   document.body.append(container);
@@ -62,13 +70,13 @@ it('requires a rating, previews evidence and keeps a failed submission available
     await act(async () => root.unmount());
     container.remove();
   });
-  expect(buttonNamed('提交反馈').disabled).toBe(true);
-  await act(async () => buttonNamed('不好').click());
-  expect(buttonNamed('提交反馈').disabled).toBe(false);
+  expect(paths[0]).toContain('/preview');
   expect(container.textContent).toContain('41');
-  await act(async () => buttonNamed('提交反馈').click());
-  expect(container.textContent).toContain('提交失败');
-  await act(async () => buttonNamed('提交反馈').click());
-  expect(container.textContent).toContain('accepted-report');
-  expect(requests[1]).toBe(requests[2]);
+  expect(container.textContent).not.toContain('提交反馈');
+  await act(async () => buttonNamed('下载诊断包').click());
+  expect(paths[1]).toContain('/download');
+  expect(clicked).toEqual(['message-feedback-preview.zip']);
+  expect(container.textContent).toContain('诊断包已保存到本地');
+  expect(paths.some((path) => path.endsWith('/submit'))).toBe(false);
+  expect(requests[0]).toContain('"channelId":"dm"');
 });

@@ -9,11 +9,9 @@ import type { HostClient } from '../../host/client';
 import {
   createMessageFeedback,
   type FeedbackPreview,
-  type FeedbackReceipt,
 } from '../../host/message-feedback';
 import {
   feedbackTags,
-  type FeedbackRating,
   type FeedbackSelection,
 } from '../../../../../packages/core/src/diagnostics/feedback-contract';
 import { useDesignTheme } from '../design/theme';
@@ -51,14 +49,12 @@ export function MessageFeedbackForm({
   client,
   channelId,
   messageId,
-  onClose,
   failureTurn = false,
   onBusyChange,
 }: {
   client: HostClient;
   channelId: string;
   messageId: string;
-  onClose(): void;
   failureTurn?: boolean;
   onBusyChange?(busy: boolean): void;
 }) {
@@ -84,19 +80,16 @@ export function MessageFeedbackForm({
   const [comment, setComment] = useState('');
   const [preview, setPreview] = useState<FeedbackPreview>();
   const [scopeKey, setScopeKey] = useState('');
-  const [receipt, setReceipt] = useState<FeedbackReceipt>();
-  const [activity, setActivity] = useState<'preview' | 'submit' | 'download'>();
+  const [activity, setActivity] = useState<'preview' | 'download'>();
   const busy = activity !== undefined;
   const [error, setError] = useState(false);
-  const updateBusy = (value: boolean, operation: 'preview' | 'submit' | 'download' = 'preview') => {
+  const updateBusy = (value: boolean, operation: 'preview' | 'download' = 'preview') => {
     setActivity(value ? operation : undefined);
     onBusyChange?.(value);
   };
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(new Set());
-  const frozen = useRef<{ token: string; feedback: FeedbackRating } | undefined>(undefined);
   const pending = useRef(false);
   const alive = useRef(true);
-  const [locked, setLocked] = useState(false);
   const [showScope, setShowScope] = useState(false);
   const [showFiles, setShowFiles] = useState(false);
   const key = JSON.stringify(scope);
@@ -111,8 +104,6 @@ export function MessageFeedbackForm({
       if (!alive.current) return;
       setPreview(next);
       setScopeKey(key);
-      frozen.current = undefined;
-      setLocked(false);
     } catch {
       if (alive.current) setError(true);
     } finally {
@@ -133,10 +124,7 @@ export function MessageFeedbackForm({
     updateBusy(true, 'download');
     setError(false);
     try {
-      await shareFeedbackArchive(
-        await api.download(preview.token),
-        receipt?.reportId ?? preview.token,
-      );
+      await shareFeedbackArchive(await api.download(preview.token), preview.token);
     } catch {
       if (alive.current) setError(true);
     } finally {
@@ -144,37 +132,7 @@ export function MessageFeedbackForm({
       if (alive.current) updateBusy(false);
     }
   };
-  const submit = async () => {
-    if (!fresh || !preview.canSubmit || rating === undefined || pending.current) return;
-    frozen.current ??= { token: preview.token, feedback: { rating, tags, comment } };
-    setLocked(true);
-    pending.current = true;
-    updateBusy(true, 'submit');
-    setError(false);
-    try {
-      const next = await api.submit(frozen.current);
-      if (alive.current) setReceipt(next);
-    } catch {
-      if (alive.current) setError(true);
-    } finally {
-      pending.current = false;
-      if (alive.current) updateBusy(false);
-    }
-  };
-  const ratingPanel = receipt ? (
-    <FeedbackSection title={f.receipt}>
-      <Text selectable testID="feedback-receipt">
-        {receipt.reportId}
-      </Text>
-      <Button
-        label={t.close}
-        tone="primary"
-        disabled={busy}
-        onPress={onClose}
-        testID="feedback-close"
-      />
-    </FeedbackSection>
-  ) : (
+  const ratingPanel = (
     <FeedbackSection title={f.ratingTitle}>
       <Segmented
         label={f.title}
@@ -183,7 +141,7 @@ export function MessageFeedbackForm({
           { value: 'bad', label: f.bad },
         ]}
         value={rating ?? ''}
-        disabled={locked || busy}
+        disabled={busy}
         onChange={(value) => {
           if (value === 'good' || value === 'bad') {
             setRating(value);
@@ -198,7 +156,7 @@ export function MessageFeedbackForm({
               key={tag}
               label={f[`tag.${tag}`]}
               selected={tags.includes(tag)}
-              disabled={locked || busy}
+              disabled={busy}
               testID={'feedback-tag-' + tag}
               onPress={() =>
                 setTags((current) =>
@@ -215,20 +173,11 @@ export function MessageFeedbackForm({
         testID="feedback-comment"
         multiline
         value={comment}
-        editable={!locked && !busy}
+        editable={!busy}
         onChangeText={(value) => setComment(Array.from(value).slice(0, 500).join(''))}
       />
-      <Text tone="muted">{failureTurn ? t.sessionRecovery.uploadScope : f.privacy}</Text>
+      <Text tone="muted">{f.privacy}</Text>
       {Array.from(comment).length >= 450 ? <Text>{Array.from(comment).length} / 500</Text> : null}
-      {preview?.canSubmit === false ? <Text>{f.unavailable}</Text> : null}
-      <Button
-        label={f.submit}
-        tone="primary"
-        testID="feedback-submit"
-        disabled={busy || !fresh || !preview?.canSubmit || rating === undefined}
-        onPress={() => void submit()}
-      />
-      {activity === 'submit' ? <LoadingIndicator size="control" /> : null}
     </FeedbackSection>
   );
   const header = (
@@ -246,51 +195,47 @@ export function MessageFeedbackForm({
         ) : busy ? (
           <Text>{f.preparing}</Text>
         ) : null}
-        {!receipt ? (
-          <>
-            <Button
-              label={f.include}
-              variant="text"
-              testID="feedback-scope"
-              onPress={() => setShowScope((value) => !value)}
-            />
-            {showScope ? (
-              <View style={{ gap: space.x3 }}>
-                {(['before', 'after'] as const).map((side) => (
-                  <View key={side} style={{ gap: space.x2 }}>
-                    {labelInField ? null : <Text>{f[side]}</Text>}
-                    <TextField
-                      testID={'feedback-' + side}
-                      accessibilityLabel={f[side]}
-                      keyboardType="number-pad"
-                      value={String(scope[side])}
-                      editable={!locked && !busy}
-                      onChangeText={(value) => {
-                        if (/^\d{0,3}$/.test(value))
-                          setScope((s) => ({ ...s, [side]: Math.min(100, Number(value)) }));
-                      }}
-                    />
-                  </View>
-                ))}
-                {categories.map((category) => (
-                  <SettingsRow
-                    key={category}
-                    title={f[category]}
-                    control={{
-                      kind: 'switch',
-                      value: scope[category],
-                      onChange: (value) => setScope((s) => ({ ...s, [category]: value })),
-                      disabled: locked || busy,
-                      testID: 'feedback-' + category,
-                    }}
-                  />
-                ))}
+        <Button
+          label={f.include}
+          variant="text"
+          testID="feedback-scope"
+          onPress={() => setShowScope((value) => !value)}
+        />
+        {showScope ? (
+          <View style={{ gap: space.x3 }}>
+            {(['before', 'after'] as const).map((side) => (
+              <View key={side} style={{ gap: space.x2 }}>
+                {labelInField ? null : <Text>{f[side]}</Text>}
+                <TextField
+                  testID={'feedback-' + side}
+                  accessibilityLabel={f[side]}
+                  keyboardType="number-pad"
+                  value={String(scope[side])}
+                  editable={!busy}
+                  onChangeText={(value) => {
+                    if (/^\d{0,3}$/.test(value))
+                      setScope((s) => ({ ...s, [side]: Math.min(100, Number(value)) }));
+                  }}
+                />
               </View>
-            ) : null}
-          </>
+            ))}
+            {categories.map((category) => (
+              <SettingsRow
+                key={category}
+                title={f[category]}
+                control={{
+                  kind: 'switch',
+                  value: scope[category],
+                  onChange: (value) => setScope((s) => ({ ...s, [category]: value })),
+                  disabled: busy,
+                  testID: 'feedback-' + category,
+                }}
+              />
+            ))}
+          </View>
         ) : null}
         {!fresh && preview !== undefined ? <Text>{f.refreshNeeded}</Text> : null}
-        {!fresh || (locked && !receipt) || error ? (
+        {!fresh || error ? (
           <Button
             label={f.refresh}
             disabled={busy}

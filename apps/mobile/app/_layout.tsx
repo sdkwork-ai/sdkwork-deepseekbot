@@ -22,7 +22,6 @@ import { usePushRouting } from '../src/host/push-routing';
 import { HostDrawer, WorkspaceButton, hostDrawer } from '../src/ui/shell/host-drawer';
 import { useWorkspaceNavigation } from '../src/ui/shell/native-workspace-navigation';
 import { usePredictiveBack } from '../src/ui/shell/predictive-back';
-import { StatisticsNotice } from '../src/ui/shell/statistics-notice';
 import { BotCreationNotice } from '../src/ui/shell/bot-creation-notice';
 import { ChannelCreationNotice } from '../src/ui/shell/channel-creation-notice';
 import { cloudChannelRouteId } from '../src/ui/shell/cloud-channel-navigation';
@@ -327,7 +326,6 @@ function RootNavigator() {
             <CallSessionHost />
             <BotCreationNotice />
             <ChannelCreationNotice />
-            <StatisticsNotice />
             <DeviceAlertBanner placement="overlay" />
             <HostDrawer />
             <AppDialogHost />

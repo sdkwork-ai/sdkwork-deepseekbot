@@ -227,8 +227,8 @@ describe('Tob scoped CLI broker', () => {
       beforeWrite,
       prepareOperation: async () => ({
         proposal: {
-          command: 'telemetry-set',
-          target: 'telemetry',
+          command: 'git-install',
+          target: 'managed-git',
           previousValue: true,
           patch: false,
         },
@@ -236,18 +236,18 @@ describe('Tob scoped CLI broker', () => {
           guard();
           if (stale) throw new TobError('stale-setting');
           beforeEffect?.();
-          return { enabled: false };
+          return { available: true };
         },
       }),
     });
-    expect(await f.invoke('telemetry-set', { enabled: false })).toMatchObject({
+    expect(await f.invoke('git-install', {})).toMatchObject({
       error: { code: 'stale-setting' },
     });
     expect(beforeWrite).not.toHaveBeenCalled();
     stale = false;
-    expect(await f.invoke('telemetry-set', { enabled: false })).toMatchObject({
+    expect(await f.invoke('git-install', {})).toMatchObject({
       ok: true,
-      value: { enabled: false },
+      value: { available: true },
     });
     expect(beforeWrite).toHaveBeenCalledOnce();
   });
