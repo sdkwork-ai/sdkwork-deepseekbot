@@ -69,7 +69,6 @@ import {
 import type { QuickSwitcherSettings } from './quick-switcher.js';
 import { searchSettings } from './settings-search.js';
 import { startConnectSignIn } from './connect-sign-in.js';
-import { DshBotSettingsItem } from './dsh-bot-settings-item.js';
 import { createImApps, ImAppsSection } from './im-apps-section.js';
 import {
   AboutSection,
@@ -1072,19 +1071,6 @@ export function apply(ctx: ClientContext): void {
           inject: () => ({ releaseNotes }),
         },
         AboutSection,
-      ),
-    );
-    settingsCtx.slots.inject('settings.section', () =>
-      settingsCtx.slots.register(
-        {
-          name: 'settings.section',
-          id: 'botharness',
-          order: 25,
-          label: () => t('settings.nav'),
-          locale: LOCALE_NS,
-          inject: () => ({ openBotSettings: (sectionId?: string) => botSettings.open(sectionId) }),
-        },
-        DshBotSettingsItem,
       ),
     );
     return () => {

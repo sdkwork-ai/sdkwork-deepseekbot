@@ -9,7 +9,7 @@ This guide covers non-IM settings in the public **deepseekbot** package on DSH *
 | DSH appearance, language, default permissions, input behavior | Bottom-left Settings → General settings.                                    |
 | API providers and model catalogs                              | Settings → Models; see [Model setup](/docs/model-setup).                    |
 | Native Agent tools and working style                          | Settings → Agent presets.                                                   |
-| Bot icon, motion, sorting, concurrency, your name             | Assistant settings beside Bot mode, or Settings → Assistant settings.       |
+| Bot icon, motion, sorting, concurrency, your name             | Assistant settings beside Bot mode.                                         |
 | One Bot's name and avatar                                     | Its DM header name/avatar → View details.                                   |
 | One Bot's models and wake policy                              | Model and Wake policy in its DM's Channel settings (header ··· menu).       |
 | Right sidebar layout and session views                        | Gear at the top of Channel sidebar.                                         |

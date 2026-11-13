@@ -351,10 +351,8 @@ describe('client apply', () => {
       expect(section.inject).toBeTypeOf('function');
     }
 
-    const native = specs.find((spec) => spec.name === 'settings.section');
-    expect(native).toMatchObject({ id: 'botharness', order: 25, locale: 'botharness' });
-    expect(native?.children).toBeUndefined();
-    expect(native?.label).toBeTypeOf('function');
+    // Assistant settings lives in its own modal; DSH settings carries no row for it.
+    expect(specs.filter((spec) => spec.name === 'settings.section')).toEqual([]);
 
     const withoutSettings: Spec[] = [];
     apply(createScoped(withoutSettings, []) as never);
@@ -379,11 +377,6 @@ describe('client apply', () => {
     const companion = specs.find((spec) => spec.id === 'botharness-window-companion');
     (companion?.inject?.() as { openSettings(): void }).openSettings();
     expect(botSettings.getSnapshot()).toEqual({ open: true, sectionId: 'companions' });
-
-    botSettings.close();
-    const native = specs.find((spec) => spec.name === 'settings.section');
-    (native?.inject?.() as { openBotSettings(): void }).openBotSettings();
-    expect(botSettings.getSnapshot().open).toBe(true);
   });
 
   it('boots without the panelInfo facet, skipping view-persist', () => {
